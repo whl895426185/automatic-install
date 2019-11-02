@@ -45,8 +45,8 @@ public class ConfigConstant {
      * stf配置
      */
     public static final String stfUrl = "http://192.168.88.16:7100/#!/devices";
-    public static final String stfName = "admin";
-    public static final String stfEmail = "admin@qq.com";
+    public static final String stfName = "deployer";
+    public static final String stfEmail = "123456";
 
     /**
      * chromedriver配置
