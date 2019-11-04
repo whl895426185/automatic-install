@@ -115,8 +115,8 @@ public class SeleniumServer {
         WebElement nameEm = driver.findElement(By.cssSelector("input[name=username]"));
         nameEm.sendKeys(ConfigConstant.stfName);
 
-        WebElement emailEm = driver.findElement(By.cssSelector("input[name=email]"));
-        emailEm.sendKeys(ConfigConstant.stfEmail);
+        WebElement passwdEm = driver.findElement(By.cssSelector("input[name=password]"));
+        passwdEm.sendKeys(ConfigConstant.stfPasswd);
 
         WebElement loginEm = driver.findElement(By.cssSelector("input[type='submit'][value='Log In']"));
         loginEm.click();
