@@ -14,15 +14,15 @@ public class ConfigConstant {
     public static final String svnPassword = "123456";
 
     //定义apk包检出的本地文件目录
-//    public static final String localFilePath = "/home/tools/android-package/wljs01/apk";
-//    public static  final String localApkVersionFilePath = "/home/tools/android-package";
-    public static final String localFilePath = "D:\\apkPackage\\wljs01\\apk";
-    public static  final String localApkVersionFilePath = "D:\\apkPackage";
+    public static final String localFilePath = "/home/tools/android-package/wljs01/apk";
+    public static  final String localApkVersionFilePath = "/home/tools/android-package";
+//    public static final String localFilePath = "D:\\apkPackage\\wljs01\\apk";
+//    public static  final String localApkVersionFilePath = "D:\\apkPackage";
 
     //截屏存储文件目录
-//    public static final String screenshotUrl = "/home/tools/android-package/screenshot_image/";
+    public static final String screenshotUrl = "/home/tools/android-package/screenshot_image/";
 
-    public static final String screenshotUrl = "D:\\apkPackage\\screenshot_image\\";
+//    public static final String screenshotUrl = "D:\\apkPackage\\screenshot_image\\";
 
     /**
      * rethinkdb配置
