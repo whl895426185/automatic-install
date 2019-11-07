@@ -48,11 +48,12 @@ public class ThreadWorkServer extends Thread {
             logger.info("-----------------" + Thread.currentThread().getName() + "执行完毕-----------------");
 
         } catch (Exception e) {
-            logger.info("-----------------安装部署失败-----------------");
             logger.error("安装部署过程中，发生异常，异常信息为：" + e);
             e.printStackTrace();
             if(e.getMessage().contains("Cannot start the 'com.sibu.futurebazaar' application")){
                 message = "Cannot start the 'com.sibu.futurebazaar' application";
+            }else{
+                logger.info("-----------------安装部署失败-----------------");
             }
         }finally {
             if(null != message){

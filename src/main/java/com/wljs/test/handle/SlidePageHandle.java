@@ -38,7 +38,7 @@ public class SlidePageHandle {
     //向上滑动页面
     public void slidePageUp(AndroidDriver driver, int width, int height) {
         //向上滑动
-        if (isAppear(driver, LabelConstant.myOrderBtnName, 1)) {
+        if (isAppear(driver, LabelConstant.mineBtnName, 1)) {
             logger.info("---------------模拟向上滑动页面，查看商品信息---------------");
 
             int orginWith = width / 2;

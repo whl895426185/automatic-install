@@ -45,21 +45,20 @@ public class ProductHandle {
      */
     public void productDetail(AndroidDriver driver) {
         //商品有区分爆款和普通商品
-
+        //普通商品详情，暂时屏蔽(樣式有變)
         driver.findElement(By.xpath(LabelConstant.productBtn)).click();
         logger.info("---------------模拟点击第一个商品，进入商品详情---------------");
 
-        WebElement namedetailEm = driver.findElement(By.xpath(LabelConstant.productNameForDetail));
-        logger.info("---------------商品详情获取商品名称 = " + namedetailEm.getText() + "---------------");
+//        WebElement namedetailEm = driver.findElement(By.xpath(LabelConstant.productNameForDetail));
+//        logger.info("---------------商品详情获取商品名称 = " + namedetailEm.getText() + "---------------");
 
 
-        //普通商品详情，暂时屏蔽
 //        WebElement pricedetailEm = driver.findElement(By.xpath(LabelConstant.CommonProPriceForDetail));
 //        logger.info("---------------商品详情获取商品价格 = " + pricedetailEm.getText() + "---------------");
 
-        if (("").equals(namedetailEm.getText())) {
-            logger.info("---------------商品详情获取商品名称，内容展示为空！！！！ ---------------");
-        }
+//        if (("").equals(namedetailEm.getText())) {
+//            logger.info("---------------商品详情获取商品名称，内容展示为空！！！！ ---------------");
+//        }
         /*if(("").equals(pricedetailEm.getText())){
             logger.info("---------------商品详情获取商品价格，内容展示为空！！！！ ---------------");
         }*/
