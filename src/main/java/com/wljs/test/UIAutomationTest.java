@@ -1,6 +1,7 @@
 package com.wljs.test;
 
 import com.wljs.pojo.StfDevicesFields;
+import com.wljs.server.AppiumServer;
 import com.wljs.server.InstallApkServer;
 import com.wljs.test.handle.*;
 import com.wljs.util.constant.*;
@@ -30,8 +31,6 @@ public class UIAutomationTest extends WaitElementHandle{
     public void executeTest(StfDevicesFields fields, String appPath, int phoneNum) throws Exception {
         //启动APP
         for (int i = 0; i < 2; i++) {
-            logger.info("---------------第" + (i + 1) + "次启动未来集市APP---------------");
-
             //启动APP
             StartUpAppHandle startUpAppHandle = new StartUpAppHandle();
             driver = startUpAppHandle.startUpApp(fields, appPath);
@@ -42,6 +41,7 @@ public class UIAutomationTest extends WaitElementHandle{
             int height = dimension.height;
             logger.info("手机屏幕：with = " + width + ", height = " + height);
 
+            logger.info("---------------第" + (i + 1) + "次启动未来集市APP---------------");
             if (i == 0) { //第一次启动
                 if(firstStartApp(fields.getDeviceName(), width, height, phoneNum)){
                     break;
@@ -158,9 +158,10 @@ public class UIAutomationTest extends WaitElementHandle{
         //installApkServer.screenshot(driver, device, "testcase");
 
         driver.quit();
+
     }
 
-    /*public static void main(String[] arg) throws Exception {
+    public static void main(String[] arg) throws Exception {
         StfDevicesFields fields = new StfDevicesFields();
         fields.setSerial("8KE5T19711012159");
         fields.setVersion("9.0");
@@ -173,9 +174,8 @@ public class UIAutomationTest extends WaitElementHandle{
         server.start(4723);
 
         UIAutomationTest uiTest = new UIAutomationTest();
-        String apkPath = "D:\\apkPackage\\wljs01\\apk\\vc-51-vn-1.5.5-10-23-12-12.apk";
+        String apkPath = "D:\\apkPackage\\wljs01\\apk\\vc-56-vn-1.7.0-11-07-15-56.apk";
         uiTest.executeTest(fields, apkPath, 1);
 
     }
-*/
 }

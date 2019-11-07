@@ -15,7 +15,7 @@ public class ConfigConstant {
 
     //定义apk包检出的本地文件目录
     public static final String localFilePath = "/home/tools/android-package/wljs01/apk";
-    public static  final String localApkVersionFilePath = "/home/tools/android-package";
+    public static final String localApkVersionFilePath = "/home/tools/android-package";
 //    public static final String localFilePath = "D:\\apkPackage\\wljs01\\apk";
 //    public static  final String localApkVersionFilePath = "D:\\apkPackage";
 
@@ -36,7 +36,8 @@ public class ConfigConstant {
      * android配置
      */
     public static final String appPackage = "com.sibu.futurebazaar";
-    public static final String appActivity = ".ui.SplashActivityNew";
+//        public static final String appActivity = ".ui.SplashActivityNew";
+    public static final String appActivity = ".ui.MainActivity";
     public static final String platformName = "Android";
     public static final String autoLaunch = "autoLaunch";
 
@@ -61,8 +62,8 @@ public class ConfigConstant {
      * 钉钉配置
      * 参考这篇文章https://blog.csdn.net/u013412027/article/details/85264201，获取APPKEY和密钥
      */
-    public final static String dd_appKey ="dinglctchvrhgb0tzkqk";
-    public final static String dd_appSecret="CV9y5mqB1iN4mGH86CONWQZriGYY4wg8vlp4nMC5UXuqIy4llyj39uU26THaAhoR";
+    public final static String dd_appKey = "dinglctchvrhgb0tzkqk";
+    public final static String dd_appSecret = "CV9y5mqB1iN4mGH86CONWQZriGYY4wg8vlp4nMC5UXuqIy4llyj39uU26THaAhoR";
     public final static Long dd_agentId = 302866152l;
 //    public final static String dd_corpId = "ding99f9ce33cd890ad735c2f4657eb6378f";
 //    public final static String dd_SSOsecret = "2kufNK2RIWIWj81v7W7E3wug_JGOZnz0Tp_aw4wxzJn8CLGzhPb7thjEfXbvS7Ed";
@@ -70,7 +71,6 @@ public class ConfigConstant {
 
     /**
      * appium服務配置
-     *
      */
     public static final String appiumIp = "127.0.0.1";
 

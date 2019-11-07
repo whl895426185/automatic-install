@@ -27,6 +27,7 @@ public class ThreadWorkServer extends Thread {
     public void run() {
         super.run();
         StfDevicesFields fields = null;
+        String message = null;
         try {
             logger.info("-----------------" + Thread.currentThread().getName() + "开始等待其他线程-----------------");
             cyclicBarrier.await();
@@ -43,16 +44,20 @@ public class ThreadWorkServer extends Thread {
                 logger.info("-----------------检测是否安装成功，执行UI自动化测试-----------------");
                 UIAutomationTest uiTest = new UIAutomationTest();
                 uiTest.executeTest(fields, apkPath, phoneNum);
-
-                //利用Selenium调用浏览器，动态模拟浏览器事件，释放设备资源
-                SeleniumServer seleniumServer = new SeleniumServer();
-                seleniumServer.releaseResources(fields);
             }
             logger.info("-----------------" + Thread.currentThread().getName() + "执行完毕-----------------");
 
         } catch (Exception e) {
+            logger.info("-----------------安装部署失败-----------------");
             logger.error("安装部署过程中，发生异常，异常信息为：" + e);
             e.printStackTrace();
+            if(e.getMessage().contains("Cannot start the 'com.sibu.futurebazaar' application")){
+                message = "Cannot start the 'com.sibu.futurebazaar' application";
+            }
+        }finally {
+            if(null != message){
+                logger.info("-----------------检测到APP启动Activity变动，无法继续执行UI自动化测试，默认安装成功，后续请自行检测替换程序代码的Actity，保持正常运行-----------------");
+            }
             //利用Selenium调用浏览器，动态模拟浏览器事件，释放设备资源
             SeleniumServer seleniumServer = new SeleniumServer();
             seleniumServer.releaseResources(fields);

@@ -6,7 +6,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -47,7 +46,7 @@ public class SeleniumWindowServer {
      * occupancyResources
      * 占用已连接且闲余的设备
      */
-    public List<StfDevicesFields> occupancyResources(List<StfDevicesFields> fieldsList) {
+    public List<StfDevicesFields> occupancy(List<StfDevicesFields> fieldsList) {
         List<StfDevicesFields> resultList = new ArrayList<StfDevicesFields>();
         ChromeDriver driver = null;
         try {
@@ -170,7 +169,7 @@ public class SeleniumWindowServer {
     /**
      * 释放资源(每台设备都登录再关闭)
      */
-    public void releaseResources(StfDevicesFields fields) {
+    public void release(StfDevicesFields fields) {
         ChromeDriver driver = null;
         try {
             if (null == fields) {
@@ -217,10 +216,10 @@ public class SeleniumWindowServer {
         fields.setSystemPort(8200);
         fieldsList.add(fields);
 
-        window.occupancyResources(fieldsList);
+        window.occupancy(fieldsList);
 
 
-        window.releaseResources(fields);
+        window.release(fields);
 
     }
 }

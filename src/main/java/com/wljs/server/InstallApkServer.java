@@ -140,7 +140,7 @@ public class InstallApkServer {
 
         } catch (Exception e) {
             result = false;
-            logger.error("安装部署过程中，发生异常，异常信息为：" + e);
+            logger.error("-----------------部署应用时，初始化driver参数信息失败：" + e);
         } finally {
             if (!result) {
                 //利用Selenium调用浏览器，动态模拟浏览器事件，释放设备资源

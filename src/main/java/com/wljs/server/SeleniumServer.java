@@ -19,10 +19,10 @@ public class SeleniumServer {
     public List<StfDevicesFields> occupancyResources(List<StfDevicesFields> fieldsList) {
         if (typeFlag) {
             SeleniumLinuxServer linux = new SeleniumLinuxServer();
-            return linux.occupancyResources(fieldsList);
+            return linux.occupancy(fieldsList);
         } else {
             SeleniumWindowServer window = new SeleniumWindowServer();
-            return window.occupancyResources(fieldsList);
+            return window.occupancy(fieldsList);
         }
     }
 
@@ -32,10 +32,10 @@ public class SeleniumServer {
     public void releaseResources(StfDevicesFields fields) {
         if (typeFlag) {
             SeleniumLinuxServer linux = new SeleniumLinuxServer();
-            linux.releaseResources(fields);
+            linux.release(fields);
         } else {
             SeleniumWindowServer window = new SeleniumWindowServer();
-            window.releaseResources(fields);
+            window.release(fields);
         }
     }
 

@@ -5,7 +5,6 @@ import com.wljs.util.constant.ConfigConstant;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +65,7 @@ public class SeleniumLinuxServer {
      * occupancyResources
      * 占用已连接且闲余的设备
      */
-    public List<StfDevicesFields> occupancyResources(List<StfDevicesFields> fieldsList) {
+    public List<StfDevicesFields> occupancy(List<StfDevicesFields> fieldsList) {
         List<StfDevicesFields> resultList = new ArrayList<StfDevicesFields>();
         WebDriver driver = null;
         ChromeDriverService service = null;
@@ -104,7 +103,6 @@ public class SeleniumLinuxServer {
                 Thread.sleep(2000);
             }
 
-
         } catch (Exception e) {
         } finally {
             driver.close();
@@ -131,14 +129,12 @@ public class SeleniumLinuxServer {
             nameEm.click();
             Thread.sleep(2000);
             nameEm.sendKeys(ConfigConstant.stfName);
-            logger.info("输入账号： " + ConfigConstant.stfName);
 
             WebElement passwdEm = isLoginAppear(driver, "//input[@name='password']");
             if (null != passwdEm) {
                 passwdEm.click();
                 Thread.sleep(2000);
                 passwdEm.sendKeys(ConfigConstant.stfPasswd);
-                logger.info("输入密码： " + ConfigConstant.stfPasswd);
 
 
                 WebElement loginEm = isLoginAppear(driver, "//input[@type='submit']");
@@ -146,7 +142,6 @@ public class SeleniumLinuxServer {
                     loginEm.click();
                     Thread.sleep(10000);
 
-                    logger.info("点击登录");
                 } else {
                     isSuccess = false;
                 }
@@ -194,7 +189,7 @@ public class SeleniumLinuxServer {
     /**
      * 释放资源(每台设备都登录再关闭)
      */
-    public void releaseResources(StfDevicesFields fields) {
+    public void release(StfDevicesFields fields) {
         WebDriver driver = null;
         ChromeDriverService service = null;
         try {

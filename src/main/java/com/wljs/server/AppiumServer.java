@@ -81,5 +81,6 @@ public class AppiumServer {
     public static void main(String[] arg){
         AppiumServer server = new AppiumServer();
         server.startAppiumServer(4723);
+        server.stopAppiumServer(4723);
     }
 }

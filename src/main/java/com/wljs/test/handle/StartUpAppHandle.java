@@ -8,6 +8,8 @@ import io.appium.java_client.remote.AndroidMobileCapabilityType;
 import io.appium.java_client.remote.AutomationName;
 import io.appium.java_client.remote.MobileCapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -17,8 +19,10 @@ import java.util.concurrent.TimeUnit;
  * 执行UI自动化测试，启动APP
  */
 public class StartUpAppHandle {
+    private Logger logger = LoggerFactory.getLogger(StartUpAppHandle.class);
 
     public AndroidDriver startUpApp(StfDevicesFields fields, String appPath){
+
         AndroidDriver driver = null;
 
         DesiredCapabilities cap = new DesiredCapabilities();
@@ -36,11 +40,14 @@ public class StartUpAppHandle {
         cap.setCapability(AndroidMobileCapabilityType.RESET_KEYBOARD, false);
 
         try {
-            URL url =  new URL("http://127.0.0.1:" + fields.getAppiumServerPort() + "/wd/hub");
+            String path = "http://127.0.0.1:" + fields.getAppiumServerPort() + "/wd/hub";
+            URL url =  new URL(path);
+            logger.info("---------------初始化driver参数信息---------------");
             driver = new AndroidDriver<AndroidElement>(url, cap);
-            driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+            driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
         } catch (MalformedURLException e) {
             e.printStackTrace();
+            logger.error("---------------执行UI自动化测试，初始化driver参数信息失败---------------");
         }
 
         return driver;
