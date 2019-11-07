@@ -44,7 +44,7 @@ public class ConfigConstant {
     /**
      * stf配置
      */
-    public static final String stfUrl = "http://192.168.88.16:7100/#!/devices";
+    public static final String stfUrl = "http://192.168.88.16:7100/auth/mock/#!%2Fdevices";
     public static final String stfName = "deployer";
     public static final String stfPasswd = "123456";
 

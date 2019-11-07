@@ -78,11 +78,8 @@ public class AppiumServer {
         return isServerRunning;
     }
 
-  /*  public static void main(String[] arg){
+    public static void main(String[] arg){
         AppiumServer server = new AppiumServer();
         server.startAppiumServer(4723);
-        server.stopAppiumServer(4723);
-        server.startAppiumServer(4724);
-        server.stopAppiumServer(4724);
-    }*/
+    }
 }

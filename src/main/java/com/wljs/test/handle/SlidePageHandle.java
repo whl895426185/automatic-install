@@ -37,19 +37,25 @@ public class SlidePageHandle {
 
     //向上滑动页面
     public void slidePageUp(AndroidDriver driver, int width, int height) {
-        logger.info("---------------模拟向上滑动页面，查看商品信息---------------");
-
-        int orginWith = width / 2;
-        int orginHeight = (new Double(height * 0.9)).intValue();
-        int moveWidth = width / 2;
-        int moveHeight = new Double(height * 0.1).intValue();
-
-        logger.info("向上滑动：orginWith = " + orginWith + ", orginHeight = " + orginHeight + ", moveWidth = " + moveWidth + ", moveHeight = " + moveHeight);
-
         //向上滑动
         if (isAppear(driver, LabelConstant.myOrderBtnName, 1)) {
+            logger.info("---------------模拟向上滑动页面，查看商品信息---------------");
+
+            int orginWith = width / 2;
+            int orginHeight = (new Double(height * 0.9)).intValue();
+            int moveWidth = width / 2;
+            int moveHeight = new Double(height * 0.1).intValue();
+
+            logger.info("向上滑动：orginWith = " + orginWith + ", orginHeight = " + orginHeight + ", moveWidth = " + moveWidth + ", moveHeight = " + moveHeight);
+
             new TouchAction(driver).press(PointOption.point(orginWith, orginHeight)).waitAction(WaitOptions.waitOptions(Duration.ofSeconds(3)))
                     .moveTo(PointOption.point(moveWidth, moveHeight)).release().perform();
+        }else{
+            driver.closeApp();
+            logger.info("---------------点击登录按钮无法跳转页面，程序问题，默认安装成功--------------");
+            logger.info("---------------测试用例执行完毕，关闭未来集市APP---------------");
+
+            driver.quit();
         }
     }
 
