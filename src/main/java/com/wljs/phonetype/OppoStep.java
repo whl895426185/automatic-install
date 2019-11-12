@@ -17,41 +17,56 @@ import java.util.Map;
 public class OppoStep extends ElementHandle {
     private Logger logger = LoggerFactory.getLogger(OppoStep.class);
 
-    public boolean installStep(AndroidDriver driver) {
-        boolean isSuccess = true;
+    public String installStep(AndroidDriver driver) {
+        String exception = null;
         try {
             //允许安装
-            if (waitingElement(driver, InstallStepConstant.oppo_step_1)) {
-                logger.info("-----------------输入手机验证身份密码-----------------");
+            exception = waitingElement(driver, InstallStepConstant.oppo_step_1);
+            if(null != exception){
+                return exception;
+            }
+            logger.info("-----------------输入手机验证身份密码-----------------");
 
-                //获取输入框元素，输入密码
-                driver.pressKey(new KeyEvent(AndroidKey.Y));
-                driver.pressKey(new KeyEvent(AndroidKey.W));
-                driver.pressKey(new KeyEvent(AndroidKey.PERIOD));
-                driver.pressKey(new KeyEvent(AndroidKey.DIGIT_6));
-                driver.pressKey(new KeyEvent(AndroidKey.DIGIT_6));
-                driver.pressKey(new KeyEvent(AndroidKey.DIGIT_7));
-                driver.pressKey(new KeyEvent(AndroidKey.DIGIT_1));
-                driver.pressKey(new KeyEvent(AndroidKey.DIGIT_3));
-                driver.pressKey(new KeyEvent(AndroidKey.DIGIT_8));
+            //获取输入框元素，输入密码
+            driver.pressKey(new KeyEvent(AndroidKey.Y));
+            driver.pressKey(new KeyEvent(AndroidKey.W));
+            driver.pressKey(new KeyEvent(AndroidKey.PERIOD));
+            driver.pressKey(new KeyEvent(AndroidKey.DIGIT_6));
+            driver.pressKey(new KeyEvent(AndroidKey.DIGIT_6));
+            driver.pressKey(new KeyEvent(AndroidKey.DIGIT_7));
+            driver.pressKey(new KeyEvent(AndroidKey.DIGIT_1));
+            driver.pressKey(new KeyEvent(AndroidKey.DIGIT_3));
+            driver.pressKey(new KeyEvent(AndroidKey.DIGIT_8));
 
-                tap(driver, InstallStepConstant.oppo_step_1, 1);
+            exception = tap(driver, InstallStepConstant.oppo_step_1, 1);
+            if(null != exception){
+                return exception;
             }
 
             logger.info("-----------------准备开始安装步骤-----------------");
-            if (waitingElement(driver, InstallStepConstant.oppo_step_2_txt)) {
-                tap(driver, InstallStepConstant.oppo_step_2, 2);
+            exception = waitingElement(driver, InstallStepConstant.oppo_step_2_txt);
+            if(null != exception){
+                return exception;
+            }
+            exception = tap(driver, InstallStepConstant.oppo_step_2, 2);
+            if(null != exception){
+                return exception;
             }
 
-            if (waitingElement(driver, InstallStepConstant.oppo_step_3)) {
-                tap(driver, InstallStepConstant.oppo_step_3, 3);
+            exception = waitingElement(driver, InstallStepConstant.oppo_step_3);
+            if(null != exception){
+                return exception;
+            }
+            exception = tap(driver, InstallStepConstant.oppo_step_3, 3);
+            if(null != exception){
+                return exception;
             }
 
         } catch (Exception e) {
             logger.info("安装过程中异常信息：" + e);
-            isSuccess = false;
+            exception = e.toString();
         } finally {
-            return isSuccess;
+            return exception;
         }
     }
 
@@ -62,7 +77,7 @@ public class OppoStep extends ElementHandle {
      * @param driver
      * @return
      */
-    public void tap(AndroidDriver driver, String text, int type) {
+    public String tap(AndroidDriver driver, String text, int type) {
         String keyword = null;
         if (1 == type) {
             keyword = "class=\"android.widget.Button\" text=\"" + text + "\"";
@@ -73,6 +88,10 @@ public class OppoStep extends ElementHandle {
         }
 
         Map<String, Object> totalXYMap = getCoordinates(driver, keyword, text);
+        String expection = String.valueOf(totalXYMap.get("expection"));
+        if(null != expection){
+            return expection;
+        }
 
         int totalX = Integer.valueOf(String.valueOf(totalXYMap.get("totalX")));
         int totalY = Integer.valueOf(String.valueOf(totalXYMap.get("totalY")));
@@ -94,5 +113,7 @@ public class OppoStep extends ElementHandle {
         }
 
         clickCoordinates(driver, x, y, text);
+
+        return null;
     }
 }

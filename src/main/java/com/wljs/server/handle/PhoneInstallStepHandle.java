@@ -15,7 +15,7 @@ public class PhoneInstallStepHandle {
      * @param driver
      * @return
      */
-    public boolean installStep(StfDevicesFields fields, AndroidDriver<AndroidElement> driver) {
+    public String installStep(StfDevicesFields fields, AndroidDriver<AndroidElement> driver) {
         String deviceName = fields.getDeviceName();
 
         //OPPO R9s Plus
@@ -43,6 +43,6 @@ public class PhoneInstallStepHandle {
             SamsungStep samsung = new SamsungStep();
             return samsung.installStep(driver);
         }
-        return false;
+        return null;
     }
 }

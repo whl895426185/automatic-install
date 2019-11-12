@@ -1,5 +1,6 @@
 package com.wljs.server.selenium;
 
+import com.wljs.message.ChatbotSendMessageNotify;
 import com.wljs.pojo.StfDevicesFields;
 import com.wljs.util.constant.ConfigConstant;
 import org.openqa.selenium.By;
@@ -27,6 +28,8 @@ import java.io.File;
  */
 public class SeleniumLinuxServer {
     private Logger logger = LoggerFactory.getLogger(SeleniumLinuxServer.class);
+
+    private ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();
 
     public Map<String, Object> chromeDriver() {
         Map<String, Object> resultMap = new HashMap<>();
@@ -79,20 +82,20 @@ public class SeleniumLinuxServer {
             boolean isSuccess = login(driver);
             if (!isSuccess) {
                 logger.info("------------模拟登录STF平台失败--------------");
-            }else{
+            } else {
                 //刷新
                 driver.navigate().refresh();
 
                 Thread.sleep(20000);
 
                 for (StfDevicesFields fields : fieldsList) {
-                    if (isAppear(driver, fields.getSerial())) {
+                    if (isAppear(driver, fields, true)) {
                         logger.info("------------模拟点击设备：" + fields.getSerial() + ", 占用设备资源--------------");
 
                         driver.navigate().refresh();
 
                         //点击设备会进入control， 需回到devices页面才可以
-                        if (isAppear(driver, null)) {
+                        if (isAppear(driver, null, true)) {
                             logger.info("------------模拟点击【设备按钮】回到设备列表页面--------------");
                         }
 
@@ -104,6 +107,7 @@ public class SeleniumLinuxServer {
             }
 
         } catch (Exception e) {
+
         } finally {
             driver.close();
             service.stop();
@@ -163,15 +167,16 @@ public class SeleniumLinuxServer {
             em = wait.until(ExpectedConditions.presenceOfElementLocated(by));
         } catch (Exception e) {
             logger.error("没有等到元素出现，打印异常: " + e);
+            messageNotify.sendMessage("模拟登录STF平台： 失败", e.toString());
         }
         return em;
     }
 
-    public boolean isAppear(WebDriver driver, String serial) {
+    public boolean isAppear(WebDriver driver, StfDevicesFields fields, boolean typeFlag) {
         try {
             By by = null;
-            if (null != serial) {
-                by = By.cssSelector("li[id $='-" + serial + "']");
+            if (null != fields) {
+                by = By.cssSelector("li[id $='-" + fields.getSerial() + "']");
             } else {
                 by = By.xpath("//*//*[@href='/#!/devices']");
             }
@@ -182,6 +187,7 @@ public class SeleniumLinuxServer {
             return true;
         } catch (Exception e) {
             logger.error("没有等到元素出现，打印异常: " + e);
+            messageNotify.sendMessage("STF平台" + (typeFlag ? "占用" : "释放") + "设备（" + fields.getDeviceName() + "）资源： 失败", e.toString());
             return false;
         }
     }
@@ -205,12 +211,12 @@ public class SeleniumLinuxServer {
             boolean isSuccess = login(driver);
             if (!isSuccess) {
                 logger.info("------------模拟登录STF平台失败--------------");
-            }else{
+            } else {
                 //刷新
                 driver.navigate().refresh();
                 Thread.sleep(20000);
 
-                if (isAppear(driver, fields.getSerial())) {
+                if (isAppear(driver, fields, false)) {
                     logger.info("------------模拟点击设备：" + fields.getSerial() + ", 释放设备资源--------------");
                 }
 
@@ -220,7 +226,7 @@ public class SeleniumLinuxServer {
         } catch (InterruptedException e) {
             e.printStackTrace();
             logger.error("安装部署失败，异常信息为：" + e);
-        }finally {
+        } finally {
             driver.quit();
             service.stop();
         }

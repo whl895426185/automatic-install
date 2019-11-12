@@ -18,24 +18,20 @@ public class ProductHandle {
      *
      * @return
      */
-    public boolean productList(AndroidDriver driver) {
-        boolean isSuccess = true;
+    public String productList(AndroidDriver driver) {
+        String expection = null;
+        try {
+            WebElement namelistEm = driver.findElement(By.xpath(LabelConstant.productNameForList));
+            logger.info("---------------商品列表获取第一个商品名称 = " + namelistEm.getText() + "---------------");
 
-        WebElement namelistEm = driver.findElement(By.xpath(LabelConstant.productNameForList));
-        logger.info("---------------商品列表获取第一个商品名称 = " + namelistEm.getText() + "---------------");
+            WebElement pricelistEm = driver.findElement(By.xpath(LabelConstant.productPriceForList));
+            logger.info("---------------商品列表获取第一个商品价格 = " + pricelistEm.getText() + "---------------");
 
-        WebElement pricelistEm = driver.findElement(By.xpath(LabelConstant.productPriceForList));
-        logger.info("---------------商品列表获取第一个商品价格 = " + pricelistEm.getText() + "---------------");
-
-        if (("").equals(namelistEm.getText())) {
-            logger.info("---------------商品列表获取第一个商品名称，内容展示为空！！！！ ---------------");
-            isSuccess = false;
+        } catch (Exception e) {
+            expection = e.toString();
+        } finally {
+            return expection;
         }
-        if (("").equals(pricelistEm.getText())) {
-            logger.info("---------------商品列表获取第一个商品价格，内容展示为空！！！！ ---------------");
-            isSuccess = false;
-        }
-        return isSuccess;
     }
 
     /**
@@ -43,11 +39,13 @@ public class ProductHandle {
      *
      * @return
      */
-    public void productDetail(AndroidDriver driver) {
+    public String productDetail(AndroidDriver driver) {
+        String expection = null;
         //商品有区分爆款和普通商品
         //普通商品详情，暂时屏蔽(樣式有變)
-        driver.findElement(By.xpath(LabelConstant.productBtn)).click();
-        logger.info("---------------模拟点击第一个商品，进入商品详情---------------");
+        try {
+            driver.findElement(By.xpath(LabelConstant.productBtn)).click();
+            logger.info("---------------模拟点击第一个商品，进入商品详情---------------");
 
 //        WebElement namedetailEm = driver.findElement(By.xpath(LabelConstant.productNameForDetail));
 //        logger.info("---------------商品详情获取商品名称 = " + namedetailEm.getText() + "---------------");
@@ -62,6 +60,12 @@ public class ProductHandle {
         /*if(("").equals(pricedetailEm.getText())){
             logger.info("---------------商品详情获取商品价格，内容展示为空！！！！ ---------------");
         }*/
+        } catch (Exception e) {
+            expection = e.toString();
+        } finally {
+            return expection;
+        }
+
     }
 
 }

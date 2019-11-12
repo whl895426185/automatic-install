@@ -26,8 +26,8 @@ import java.util.concurrent.TimeUnit;
 public class InstallApkServer {
     private Logger logger = LoggerFactory.getLogger(InstallApkServer.class);
 
-    //初始化安裝成功标识
-    private boolean resultSuccess = true;
+    //自动部署异常信息
+    private String expection = null;
 
     /**
      * 外部调用接口，执行部署
@@ -37,16 +37,24 @@ public class InstallApkServer {
      * @return
      * @throws Exception
      */
-    public StfDevicesFields init(ArrayBlockingQueue queue, String apkPath) throws Exception {
-        StfDevicesFields fields = (StfDevicesFields) queue.take();
+    public StfDevicesFields init(ArrayBlockingQueue queue, String apkPath) {
+        StfDevicesFields result = null;
+        try{
+            StfDevicesFields fields = (StfDevicesFields) queue.take();
 
-        //启动appium服务
-        AppiumServer appiumServer = new AppiumServer();
-        appiumServer.start(fields.getAppiumServerPort());
+            //启动appium服务
+            AppiumServer appiumServer = new AppiumServer();
+            appiumServer.start(fields.getAppiumServerPort());
 
-        //执行安装
-        StfDevicesFields result = installApp(fields, apkPath);
-        result.setResultSuccess(resultSuccess);
+            //执行安装
+            result = installApp(fields, apkPath);
+
+        }catch (Exception e){
+            expection = e.toString();
+        }finally {
+            result.setExpection(expection);
+        }
+
         return result;
     }
 
@@ -62,14 +70,12 @@ public class InstallApkServer {
 
         //初始化参数信息
         AndroidDriver<AndroidElement> driver = initDriver(fields, apkPath);
-
         if (null == driver) {
-            logger.error("安装部署失败，异常信息为：AndroidDriver is null");
-            resultSuccess = false;
             return fields;
         }
 
         boolean isSuccess = true;
+        String exceptionMsg = null;
         int i = 0;
         do {
             //检查APP是否安装
@@ -88,12 +94,22 @@ public class InstallApkServer {
 
             //不同的机型调用不同的安装步骤
             PhoneInstallStepHandle installStepHandle = new PhoneInstallStepHandle();
-            isSuccess = installStepHandle.installStep(fields, driver);
+            exceptionMsg = installStepHandle.installStep(fields, driver);
+            if(null != exceptionMsg){
+                isSuccess = false;
+            }
+
             i++;
         } while (!isSuccess && i < 3);
 
+        if(!isSuccess){
+            expection = exceptionMsg;
+            logger.info("-----------------安装App 失败-----------------");
+            return fields;
+        }
+
         //检测包是否安装成功
-        installOk(isSuccess, driver, ConfigConstant.appPackage);
+        installOk(driver, ConfigConstant.appPackage, fields);
 
         //截图查看是否安装成功
         //screenshot(driver, device, "install");
@@ -140,7 +156,7 @@ public class InstallApkServer {
 
         } catch (Exception e) {
             result = false;
-            logger.error("-----------------部署应用时，初始化driver参数信息失败：" + e);
+            expection = e.toString();
         } finally {
             if (!result) {
                 //利用Selenium调用浏览器，动态模拟浏览器事件，释放设备资源
@@ -179,15 +195,12 @@ public class InstallApkServer {
 
     /**
      * 检查是否安装成功
-     *
-     * @param driver
+     *  @param driver
      * @param appPackage
+     * @param fields
      */
-    private void installOk(boolean isSuccess, AndroidDriver driver, String appPackage) throws InterruptedException {
-        if(!isSuccess){
-            logger.info("-----------------安装App 失败-----------------");
-            return;
-        }
+    private void installOk(AndroidDriver driver, String appPackage, StfDevicesFields fields) throws InterruptedException {
+        boolean isSuccess = true;
         int i = 0;
         logger.info("-----------------准备检查App是否安装成功-----------------");
         do {
@@ -196,7 +209,8 @@ public class InstallApkServer {
             isSuccess = driver.isAppInstalled(appPackage);
 
             if (!isSuccess && i == 4) {
-                resultSuccess = false;
+
+                expection = "手动安装包时，Appium无法检测到包的安装路径";
             }
             logger.info("-----------------第" + (i + 1) + "次检查App安装是否成功，结果为：" + (isSuccess ? "成功" : (i == 4 ? "失败" : "安装有点缓慢，请等待！！！！！")) + "-----------------");
 

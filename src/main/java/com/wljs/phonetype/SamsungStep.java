@@ -8,20 +8,19 @@ import org.slf4j.LoggerFactory;
 /**
  * 三星手机,兼容机型：
  * 1. Samsung Galaxy S7 edge：型号是SM-G9350
- *
  */
 public class SamsungStep extends ElementHandle {
     private Logger logger = LoggerFactory.getLogger(SamsungStep.class);
 
-    public boolean installStep(AndroidDriver driver) {
-        boolean isSuccess = true;
+    public String installStep(AndroidDriver driver) {
+        String expection = null;
         try {
 
         } catch (Exception e) {
             logger.info("安装过程中异常信息：" + e);
-            isSuccess = false;
+            expection = e.toString();
         } finally {
-            return isSuccess;
+            return expection;
         }
     }
 }

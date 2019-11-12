@@ -19,36 +19,52 @@ import java.util.Map;
 public class HuaweiStep extends ElementHandle {
     private Logger logger = LoggerFactory.getLogger(HuaweiStep.class);
 
-    public boolean installStep(AndroidDriver driver, String deviceName) {
-        boolean isSuccess = true;
+    public String installStep(AndroidDriver driver, String deviceName) {
+        String expection = null;
         try {
             logger.info("-----------------准备开始安装步骤-----------------");
             if (deviceName.contains(PhoneTypeConstant.HUAWEI_PHONE_MODEL1)
                     || deviceName.contains(PhoneTypeConstant.HUAWEI_PHONE_MODEL2)) {
 
                 //步驟一
-                if (waitingElement(driver, InstallStepConstant.huawei_step_1)) {
-                    tap(driver, InstallStepConstant.huawei_step_1, 1);
+                expection = waitingElement(driver, InstallStepConstant.huawei_step_1);
+                if (null != expection) {
+                    return expection;
+                }
+                expection = tap(driver, InstallStepConstant.huawei_step_1, 1);
+                if (null != expection) {
+                    return expection;
+                }
 
-                    //步驟二
-                    if (waitingElement(driver, InstallStepConstant.huawei_step_2)) {
-                        tap(driver, InstallStepConstant.huawei_step_2, 2);
+                //步驟二
+                expection = waitingElement(driver, InstallStepConstant.huawei_step_2);
+                if (null != expection) {
+                    return expection;
+                }
+                expection = tap(driver, InstallStepConstant.huawei_step_2, 2);
+                if (null != expection) {
+                    return expection;
+                }
 
-                        //步驟三
-                        if (waitingElement(driver, InstallStepConstant.huawei_step_3)) {
-                            tap(driver, InstallStepConstant.huawei_step_3, 3);
-                        }
-                    }
+                //步驟三
+                expection = waitingElement(driver, InstallStepConstant.huawei_step_3);
+                if (null != expection) {
+                    return expection;
+                }
+                expection = tap(driver, InstallStepConstant.huawei_step_3, 3);
+                if (null != expection) {
+                    return expection;
                 }
             }
-            isSuccess = true;
 
         } catch (Exception e) {
             logger.info("安装过程中异常信息：" + e);
-            isSuccess = false;
+
+            expection = e.toString();
         } finally {
-            return isSuccess;
+            return expection;
         }
+
     }
 
     /**
@@ -59,7 +75,7 @@ public class HuaweiStep extends ElementHandle {
      * @param type   安裝步驟順序
      * @return
      */
-    public void tap(AndroidDriver driver, String text, int type) {
+    public String tap(AndroidDriver driver, String text, int type) {
         String keyword = null;
         if (1 == type) {
             keyword = "resource-id=\"android:id/button1\"";
@@ -70,6 +86,11 @@ public class HuaweiStep extends ElementHandle {
         }
 
         Map<String, Object> totalXYMap = getCoordinates(driver, keyword, text);
+        String expection = String.valueOf(totalXYMap.get("expection"));
+        if (null != expection) {
+            return expection;
+        }
+
         int totalX = Integer.valueOf(String.valueOf(totalXYMap.get("totalX")));
         int totalY = Integer.valueOf(String.valueOf(totalXYMap.get("totalY")));
 
@@ -77,5 +98,6 @@ public class HuaweiStep extends ElementHandle {
         double y = totalY / 2;
 
         clickCoordinates(driver, x, y, text);
+        return null;
     }
 }

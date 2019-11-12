@@ -22,8 +22,8 @@ public class ElementHandle {
      * @param text
      * @return
      */
-    public boolean waitingElement(AndroidDriver driver, String text) {
-        boolean isSuccess = true;
+    public String waitingElement(AndroidDriver driver, String text) {
+        String exception = null;
         try {
             WebDriverWait wait = new WebDriverWait(driver, 10);
             By by = By.xpath("//*//*[@text='" + text + "']");
@@ -31,12 +31,12 @@ public class ElementHandle {
 
             logger.info("-----------------等待元素【" + text + "】已出现，开始执行安装步骤-----------------");
 
-            return true;
         } catch (Exception e) {
             logger.info("---------------没有发现元素【" + text + "】---------------");
-            isSuccess = false;
+            exception = e.toString();
+
         } finally {
-            return isSuccess;
+            return exception;
         }
     }
 
@@ -50,6 +50,7 @@ public class ElementHandle {
      */
     public Map<String, Object> getCoordinates(AndroidDriver driver, String keyword, String text) {
         String xmlStr = driver.getPageSource();
+        Map<String, Object> totalXYMap = new HashMap<String, Object>();
         try {
             if (!xmlStr.contains(text)) {
                 return null;
@@ -66,20 +67,19 @@ public class ElementHandle {
             int maxX = Integer.valueOf(bounsArray[2]);
             int maxY = Integer.valueOf(bounsArray[3]);
 
-            Map<String, Object> totalXYMap = new HashMap<String, Object>();
-
             int totalX = minX + maxX;
             int totalY = minY + maxY;
 
             totalXYMap.put("totalX", totalX);
             totalXYMap.put("totalY", totalY);
-            return totalXYMap;
+
 
         } catch (Exception e) {
-            logger.info(xmlStr);
-            logger.error("执行UI自动化测试失败，异常信息为：" + xmlStr);
+            logger.error("获取坐标信息异常" + xmlStr);
+            totalXYMap.put("expection", xmlStr);
+        }finally {
+            return totalXYMap;
         }
-        return null;
     }
 
     /**

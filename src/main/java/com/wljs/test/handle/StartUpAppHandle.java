@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,7 +23,8 @@ import java.util.concurrent.TimeUnit;
 public class StartUpAppHandle {
     private Logger logger = LoggerFactory.getLogger(StartUpAppHandle.class);
 
-    public AndroidDriver startUpApp(StfDevicesFields fields, String appPath){
+    public Map<String, Object> startUpApp(StfDevicesFields fields, String appPath){
+        Map<String, Object> resultMap = new HashMap<String, Object>();
 
         AndroidDriver driver = null;
 
@@ -46,10 +49,11 @@ public class StartUpAppHandle {
             driver = new AndroidDriver<AndroidElement>(url, cap);
             driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
-            logger.error("---------------执行UI自动化测试，初始化driver参数信息失败---------------");
-        }
+            resultMap.put("expection", e.toString());
 
-        return driver;
+        }finally {
+            resultMap.put("AndroidDriver", driver);
+            return resultMap;
+        }
     }
 }

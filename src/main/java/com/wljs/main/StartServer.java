@@ -1,5 +1,6 @@
 package com.wljs.main;
 
+import com.wljs.message.ChatbotSendMessageNotify;
 import com.wljs.server.StfDevicesServer;
 import com.wljs.util.TxtUtil;
 import com.wljs.util.constant.ConfigConstant;
@@ -112,89 +113,104 @@ public class StartServer {
                     //定时更新SVN版本仓库文件
                     updateClient.doUpdate(localFile, SVNRevision.HEAD, SVNDepth.INFINITY, false, false);
 
-//                    logger.info("已更新svn仓库目录APK包信息");
-
-                    if (localFile.exists() && localFile.isDirectory()) {
-
-                        SVNDirEntry entry = listEntries(repository/*, dateStr*/);
-                        if (null != entry) {
-                            String uploadFilePath = ConfigConstant.localFilePath + "/"+ /*dateStr + "/" +*/ entry.getName();
-                            logger.info("检测到文件夹【" + uploadFilePath + "】有上传新的Android APK");
-
-                            StfDevicesServer stfDevice = new StfDevicesServer();
-                            stfDevice.getStfDevicesList(uploadFilePath);
-                        }
-                    }
                 } catch (Exception e) {
                     TxtUtil texUtil = new TxtUtil();
-                    try {
-                        texUtil.deleteTxtFile(ConfigConstant.localApkVersionFilePath);
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                        logger.error("安装部署失败！！！！异常信息为：" + ex);
-                    }
+                    texUtil.deleteTxtFile(ConfigConstant.localApkVersionFilePath);
+
                     e.printStackTrace();
-                    logger.error("安装部署失败！！！！异常信息为：" + e);
+                    logger.error("更新SVN版本仓库文件： 失败：" + e);
+
+                    ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();
+                    messageNotify.sendMessage("更新SVN版本仓库文件： 失败", e.toString());
+                }
+                if (localFile.exists() && localFile.isDirectory()) {
+                    SVNDirEntry entry = listEntries(repository/*, dateStr*/);
+                    if (null != entry) {
+                        String uploadFilePath = ConfigConstant.localFilePath + "/" + /*dateStr + "/" +*/ entry.getName();
+                        logger.info("检测到文件夹【" + uploadFilePath + "】有上传新的Android APK");
+
+                        StfDevicesServer stfDevice = new StfDevicesServer();
+                        stfDevice.getStfDevicesList(uploadFilePath);
+                    }
                 }
             }
         }, 2000, 9000);
     }
 
     //检测是否上传了新的APK包
-    public static SVNDirEntry listEntries(SVNRepository repository/*, String dateStr*/) throws SVNException, IOException {
-        //获取版本库的path目录下的所有条目。参数－1表示是最新版本。
-        Collection entries = repository.getDir(null/*"/" + dateStr*/, -1, null, (Collection) null);
-        Iterator iterator = entries.iterator();
+    public static SVNDirEntry listEntries(SVNRepository repository/*, String dateStr*/) {
+        SVNDirEntry entry = null;
+        try {
+            //获取版本库的path目录下的所有条目。参数－1表示是最新版本。
+            Collection entries = repository.getDir(null/*"/" + dateStr*/, -1, null, (Collection) null);
+            Iterator iterator = entries.iterator();
 
-//        logger.info("版本库wljs01下有文件数： " + entries.size());
+            //本地先创建最新存放apk包的版本信息txt
+            TxtUtil texUtil = new TxtUtil();
+            texUtil.creatTxtFile(ConfigConstant.localApkVersionFilePath);
 
-        //本地先创建最新存放apk包的版本信息txt
-        TxtUtil texUtil = new TxtUtil();
-        texUtil.creatTxtFile(ConfigConstant.localApkVersionFilePath);
+            String name = "";// 存放最新上传包名
+            Long time = 0l;// 存放最新上传包的时间
 
-        String name = "";// 存放最新上传包名
-        Long time = 0l;// 存放最新上传包的时间
-
-        //获取SVN当前当天最新的APK包
-        Map<String, Object> objectMap = new HashMap<String, Object>();
-        while (iterator.hasNext()) {
-            SVNDirEntry entry = (SVNDirEntry) iterator.next();
-            if (entry.getDate().getTime() > time) {
-                if (!entry.getName().contains(".apk")) {
+            //获取SVN当前当天最新的APK包
+            Map<String, Object> objectMap = new HashMap<String, Object>();
+            while (iterator.hasNext()) {
+                entry = (SVNDirEntry) iterator.next();
+                if (entry.getDate().getTime() > time) {
+                    if (!entry.getName().contains(".apk")) {
+                        continue;
+                    }
+                    objectMap = new HashMap<String, Object>();
+                    objectMap.put(entry.getName(), entry);
+                    name = entry.getName();
+                    time = entry.getDate().getTime();
+                } else {
                     continue;
                 }
-                objectMap = new HashMap<String, Object>();
-                objectMap.put(entry.getName(), entry);
-                name = entry.getName();
-                time = entry.getDate().getTime();
-            } else {
-                continue;
             }
-        }
 
-        if (objectMap.size() < 1) {
-            return null;
-        }
+            if (objectMap.size() < 1) {
+                return null;
+            }
 
-        //比对获取的最新APK包与本地记录的安装部署过的APK包的信息，是否已经安装部署过了
+            //比对获取的最新APK包与本地记录的安装部署过的APK包的信息，是否已经安装部署过了
 
-        //读取本地记录的安装部署过的APK包的信息
-        String text = texUtil.readTxtFile(ConfigConstant.localApkVersionFilePath);
+            //读取本地记录的安装部署过的APK包的信息
+            String text = texUtil.readTxtFile(ConfigConstant.localApkVersionFilePath);
 
-        //比较
-        SVNDirEntry entry = (SVNDirEntry) objectMap.get(name);
-        if (text.equals(entry.getName() + "::" + entry.getRevision() + "::" + entry.getDate().getTime())) {
-            //已经部署过了，忽略
-            return null;
-        }
+            //比较
+            entry = (SVNDirEntry) objectMap.get(name);
+            if (text.equals(entry.getName() + "::" + entry.getRevision() + "::" + entry.getDate().getTime())) {
+                //已经部署过了，忽略
+                return null;
+            }
 
-        //先删除txt文档再新增
-        if (!("").equals(text)) {
+            //先删除txt文档再新增
+            if (!("").equals(text)) {
+                texUtil.deleteTxtFile(ConfigConstant.localApkVersionFilePath);
+                texUtil.creatTxtFile(ConfigConstant.localApkVersionFilePath);
+            }
+            //提前录入最新的APK包的信息，避免定時任務一直檢測
+            String apkText = entry.getName();
+            apkText += "::" + entry.getRevision();
+            apkText += "::" + entry.getDate().getTime();
+            if(null == entry.getCommitMessage()){
+                apkText += "::" + "无";
+            }else{
+                apkText += "::" + entry.getCommitMessage();
+            }
+            texUtil.writeTxtFile(ConfigConstant.localApkVersionFilePath, apkText);
+
+        } catch (Exception e) {
+            TxtUtil texUtil = new TxtUtil();
             texUtil.deleteTxtFile(ConfigConstant.localApkVersionFilePath);
-            texUtil.creatTxtFile(ConfigConstant.localApkVersionFilePath);
+
+            e.printStackTrace();
+            logger.error("检测上传新APK包： 失败：" + e);
+
+            ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();
+            messageNotify.sendMessage("检测上传新APK包： 失败", e.toString());
         }
-        //提前录入最新的APK包的信息，避免定時任務一直檢測
-        texUtil.writeTxtFile(ConfigConstant.localApkVersionFilePath, entry.getName() + "::" + entry.getRevision() + "::" + entry.getDate().getTime());
         return entry;
     }
 

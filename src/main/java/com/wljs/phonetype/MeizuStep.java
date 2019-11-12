@@ -9,24 +9,26 @@ import org.slf4j.LoggerFactory;
 /**
  * 魅族手机,兼容机型：
  * 1. 魅蓝5s：型号是M5s
- *
  */
-public class MeizuStep extends ElementHandle{
+public class MeizuStep extends ElementHandle {
     private Logger logger = LoggerFactory.getLogger(MeizuStep.class);
 
-    public boolean installStep(AndroidDriver driver) {
-        boolean isSuccess = true;
+    public String installStep(AndroidDriver driver) {
+        String expection = null;
         try {
             logger.info("-----------------准备开始安装步骤-----------------");
-            if (waitingElement(driver, LabelConstant.allowBtnName)) {
-                logger.info("-----------------模拟点击【允许】按钮-----------------");
-                driver.switchTo().alert().accept();
+            expection = waitingElement(driver, LabelConstant.allowBtnName);
+            if (null != expection) {
+                return expection;
             }
+            logger.info("-----------------模拟点击【允许】按钮-----------------");
+            driver.switchTo().alert().accept();
+
         } catch (Exception e) {
             logger.info("安装过程中异常信息：" + e);
-            isSuccess = false;
+            expection = e.toString();
         } finally {
-            return isSuccess;
+            return expection;
         }
     }
 }

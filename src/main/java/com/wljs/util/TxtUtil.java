@@ -22,7 +22,7 @@ public class TxtUtil {
      *
      * @throws IOException
      */
-    public void deleteTxtFile(String path) throws IOException {
+    public void deleteTxtFile(String path) {
         File filename = new File(path + "/apkVersionLog.txt");
 
         if (filename.exists()) {
@@ -105,7 +105,7 @@ public class TxtUtil {
             File file = new File(path + "/apkVersionLog.txt");
             if (file.isFile() && file.exists()) {
                 StringBuffer sbf = new StringBuffer();
-                InputStreamReader isr = new InputStreamReader(new FileInputStream(file), "utf-8");
+                InputStreamReader isr = new InputStreamReader(new FileInputStream(file), "GBK");
                 BufferedReader br = new BufferedReader(isr);
                 String lineTxt = null;
                 while ((lineTxt = br.readLine()) != null) {

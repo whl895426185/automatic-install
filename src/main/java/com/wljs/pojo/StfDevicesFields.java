@@ -26,6 +26,8 @@ public class StfDevicesFields implements Serializable {
     private int systemPort;
     //安装成功标识
     private boolean resultSuccess;
+    //部署异常
+    private String expection;
 
     public String getDeviceName() {
         if (!("").equals(this.manufacturer) && null != this.manufacturer) {

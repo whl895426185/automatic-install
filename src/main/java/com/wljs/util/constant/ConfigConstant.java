@@ -101,5 +101,5 @@ public class ConfigConstant {
     /**
      * 钉钉自定义机器人配置
      */
-    public static String webHookToken = "https://oapi.dingtalk.com/robot/send?access_token=xxxxxx";
+    public static String webHookToken = "https://oapi.dingtalk.com/robot/send?access_token=102007644aec2459389393612d858f502ac4de4902cdad8482fdeb08c361b14e";
 }

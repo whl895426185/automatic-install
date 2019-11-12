@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.List;
 
 /**
  * 执行UI自动化测试，滑动页面
@@ -36,7 +37,7 @@ public class SlidePageHandle {
     }
 
     //向上滑动页面
-    public void slidePageUp(AndroidDriver driver, int width, int height) {
+    public String slidePageUp(AndroidDriver driver, int width, int height) {
         //向上滑动
         if (isAppear(driver, LabelConstant.mineBtnName, 1)) {
             logger.info("---------------模拟向上滑动页面，查看商品信息---------------");
@@ -50,13 +51,18 @@ public class SlidePageHandle {
 
             new TouchAction(driver).press(PointOption.point(orginWith, orginHeight)).waitAction(WaitOptions.waitOptions(Duration.ofSeconds(3)))
                     .moveTo(PointOption.point(moveWidth, moveHeight)).release().perform();
+
+            return null;
         }else{
             driver.closeApp();
             logger.info("---------------点击登录按钮无法跳转页面，程序问题，默认安装成功--------------");
             logger.info("---------------测试用例执行完毕，关闭未来集市APP---------------");
 
             driver.quit();
+
+            return "没有获取到元素： //*//*[@text='" + LabelConstant.mineBtnName + "']";
         }
+
     }
 
     private boolean isAppear(AndroidDriver driver, String text, int type) {
