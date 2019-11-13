@@ -116,8 +116,12 @@ public class InstallApkServer {
      */
     private AndroidDriver<AndroidElement> initDriver(StfDevicesFields fields, String apkPath) throws MalformedURLException {
         //获取设备名称
-        logger.info("-----------------检测到移动设备信息为：device = " + fields.getSerial() + ", deviceName = " + fields.getDeviceName()
-                + ", platformVersion = " + fields.getVersion() + ", appiumServerPort = " + fields.getAppiumServerPort() + ", systemPort = " + fields.getSystemPort() + "-----------------");
+        logger.info("-----------------检测到移动设备信息为：-----------------");
+        logger.info("-----------------device = " + fields.getSerial() + "-----------------");
+        logger.info("-----------------deviceName = " + fields.getDeviceName() + "-----------------");
+        logger.info("-----------------platformVersion = " + fields.getVersion()+ "-----------------");
+        logger.info("-----------------appiumServerPort = " + fields.getAppiumServerPort() + "-----------------");
+        logger.info("-----------------systemPort = " + fields.getSystemPort() + "-----------------");
 
         //初始化负责启动服务端时的参数设置
         DesiredCapabilities capabilities = new DesiredCapabilities();
@@ -134,7 +138,6 @@ public class InstallApkServer {
 
         URL url = new URL("http://127.0.0.1:" + fields.getAppiumServerPort() + "/wd/hub");
 
-        logger.info("-----------------调用地址为：" + url + "-----------------");
         AndroidDriver<AndroidElement> driver = new AndroidDriver<AndroidElement>(url, capabilities);
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 
