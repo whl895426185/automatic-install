@@ -16,7 +16,7 @@ public class SeleniumServer {
      * occupancyResources
      * 占用已连接且闲余的设备
      */
-    public List<StfDevicesFields> occupancyResources(List<StfDevicesFields> fieldsList) {
+    public List<StfDevicesFields> occupancyResources(List<StfDevicesFields> fieldsList) throws InterruptedException {
         if (typeFlag) {
             SeleniumLinuxServer linux = new SeleniumLinuxServer();
             return linux.occupancy(fieldsList);
@@ -29,7 +29,7 @@ public class SeleniumServer {
     /**
      * 释放资源(每台设备都登录再关闭)
      */
-    public void releaseResources(StfDevicesFields fields) {
+    public void releaseResources(StfDevicesFields fields) throws InterruptedException {
         if (typeFlag) {
             SeleniumLinuxServer linux = new SeleniumLinuxServer();
             linux.release(fields);

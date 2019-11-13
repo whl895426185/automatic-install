@@ -17,18 +17,6 @@ public class LoginHandle {
 
     public void login(AndroidDriver driver, int phoneTailNumber) {
         try {
-            //点击【测试】按钮
-            if (isAppear(driver, LabelConstant.textBtnName)) {
-                driver.findElement(By.xpath(LabelConstant.testBtn)).click();
-                logger.info("---------------模拟点击【测试】按钮--------------");
-            }
-
-            //点击【手机登录】按钮
-            if (isAppear(driver, LabelConstant.loginModeBtnName)) {
-                driver.findElement(By.xpath(LabelConstant.phoneLoginBtn)).click();
-                logger.info("---------------模拟点击【手机登录】按钮--------------");
-            }
-
             if (isAppear(driver, LabelConstant.smsVerifiyCodeBtnName)) {
                 //填写手机号
                 pressKeyPhone(driver, phoneTailNumber);

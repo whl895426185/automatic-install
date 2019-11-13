@@ -1,5 +1,6 @@
 package com.wljs.test;
 
+import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
 import com.wljs.server.AppiumServer;
 import com.wljs.server.InstallApkServer;
@@ -23,7 +24,10 @@ public class UIAutomationTest extends WaitElementHandle {
 
     private AndroidDriver driver;
 
-    private String expection = null;
+    //其他登录方式（判断是否有该按钮）
+    private boolean otherFlag = false;
+    //手机登录（判断是否有该按钮）
+    private boolean phoneloginFlag = false;
 
     /**
      * 執行UI自动化测试
@@ -33,43 +37,45 @@ public class UIAutomationTest extends WaitElementHandle {
      * @param phoneNum 手机尾号
      * @throws Exception
      */
-    public String executeTest(StfDevicesFields fields, String appPath, int phoneNum) throws Exception {
-        //启动APP
-        for (int i = 0; i < 2; i++) {
+    public ResponseData executeTest(StfDevicesFields fields, String appPath, int phoneNum) throws Exception {
+        ResponseData responseData = new ResponseData();
+        try {
             //启动APP
-            StartUpAppHandle startUpAppHandle = new StartUpAppHandle();
-            Map<String, Object> driverMap = startUpAppHandle.startUpApp(fields, appPath);
-            expection = String.valueOf(driverMap.get("expection"));
+            for (int i = 0; i < 2; i++) {
+                //启动APP
+                StartUpAppHandle startUpAppHandle = new StartUpAppHandle();
+                driver = startUpAppHandle.startUpApp(fields, appPath);
 
-            if (null != expection) {
-                return expection;
-            }
+                //获取屏幕的大小
+                Dimension dimension = driver.manage().window().getSize();
+                int width = dimension.width;
+                int height = dimension.height;
 
-            driver = (AndroidDriver) driverMap.get("AndroidDriver");
+                logger.info("---------------第" + (i + 1) + "次启动未来集市APP---------------");
 
-            //获取屏幕的大小
-            Dimension dimension = driver.manage().window().getSize();
-            int width = dimension.width;
-            int height = dimension.height;
-            logger.info("手机屏幕：with = " + width + ", height = " + height);
+                if (i == 0) { //第一次启动
+                    responseData = firstStartApp(fields.getDeviceName(), width, height, phoneNum);
 
-            logger.info("---------------第" + (i + 1) + "次启动未来集市APP---------------");
-            if (i == 0) { //第一次启动
-                expection = firstStartApp(fields.getDeviceName(), width, height, phoneNum);
+                    if (!responseData.isStatus()) {
+                        break;
+                    }
 
-                if (null != expection) {
-                    return expection;
                 }
-                break;
-            }
-            if (i == 1) {//第二次启动
-                expection = secondStartApp(width, height, phoneNum);
-                if (null != expection) {
-                    return expection;
+                if (i == 1) {//第二次启动
+                    responseData = secondStartApp(width, height, phoneNum);
+                    if (!responseData.isStatus()) {
+                        break;
+                    }
                 }
             }
+
+        } catch (Exception e) {
+            responseData.setStatus(false);
+            responseData.setException(e);
+        } finally {
+            responseData.setFields(fields);
+            return responseData;
         }
-        return null;
     }
 
     /**
@@ -80,55 +86,73 @@ public class UIAutomationTest extends WaitElementHandle {
      * @param height
      * @throws Exception
      */
-    private String firstStartApp(String deviceName, int width, int height, int phoneTailNumber) throws Exception {
+    private ResponseData firstStartApp(String deviceName, int width, int height, int phoneTailNumber) {
+        ResponseData responseData = new ResponseData();
+        try {
+            //点击弹框允许操作
+            ElasticFrameHandle frameHandle = new ElasticFrameHandle();
+            frameHandle.elasticFrameHandle(driver, deviceName);
 
-        //点击弹框允许操作
-        ElasticFrameHandle frameHandle = new ElasticFrameHandle();
-        frameHandle.elasticFrameHandle(driver, deviceName);
+            //向左滑动引导页
+            SlidePageHandle pageHandle = new SlidePageHandle();
+            pageHandle.slideGuidePage(driver, width, height);
 
-        //向左滑动引导页
-        SlidePageHandle pageHandle = new SlidePageHandle();
-        pageHandle.slideGuidePage(driver, width, height);
+            //点击【立即体验】按钮
+            if (isAppear(driver, LabelConstant.experienceBtnName, 1)) {
+                tap(driver, LabelConstant.experienceBtnName, 1);
+            }
+            //检测是否发现新版本
+            if (isAppear(driver, LabelConstant.findNewVersionName, 1)) {
+                logger.info("---------------检测到当前安装的不是最新版本，无法继续执行UI自动化测试，默认自动部署成功---------------");
+            } else {
+                //点击【我的】按钮
+                if (isAppear(driver, LabelConstant.mineBtnName, 1)) {
+                    driver.findElement(By.xpath(LabelConstant.mineBtn)).click();
+                }
 
-        //点击【立即体验】按钮
-        if (isAppear(driver, LabelConstant.experienceBtnName, 1)) {
-            tap(driver, LabelConstant.experienceBtnName, 1);
-        }
-        //检测是否发现新版本
-        if (isAppear(driver, LabelConstant.findNewVersionName, 1)) {
-            logger.info("---------------发现新版本，需要更新后才能使用，不再继续执行UI自动化测试---------------");
-            logger.info("---------------通过测试用例检测，安装测试包【成功】！！！---------------");
+                //点击其他方式（兼容新版登录）
+                otherFlag = isAppear(driver, LabelConstant.otherLoginBtnName, 1);
 
-            //关闭APP
+                //点击【测试】按钮
+                if (isAppear(driver, LabelConstant.textBtnName, 1)) {
+                    driver.findElement(By.xpath(LabelConstant.testBtn)).click();
+                    logger.info("---------------模拟点击【测试】按钮--------------");
+                }
+                //点击【手机登录】按钮
+                phoneloginFlag = isAppear(driver, LabelConstant.loginModeBtnName, 1);
+                if(phoneloginFlag){
+                    driver.findElement(By.xpath(LabelConstant.phoneLoginBtn)).click();
+                    logger.info("---------------模拟点击【手机登录】按钮--------------");
+                }
+
+                //模拟登录
+                LoginHandle loginHandle = new LoginHandle();
+                loginHandle.login(driver, phoneTailNumber);
+
+                logger.info("---------------停留1分钟后，准备重启APP---------------");
+                Thread.sleep(10000);
+            }
+        } catch (Exception e) {
+            responseData.setStatus(false);
+            responseData.setException(e);
+        } finally {
             driver.closeApp();
+
+            InstallApkServer installApkServer = new InstallApkServer();
+            try {
+                //殺進程
+                installApkServer.readCmd(CommandConstant.killProcessCommand);
+            } catch (Exception e) {
+                responseData.setStatus(false);
+                responseData.setException(e);
+            }
+
             driver.quit();
-            logger.info("---------------测试用例执行完毕，关闭未来集市APP---------------");
-            return null;
-        }
-        //点击【我的】按钮
-        if (isAppear(driver, LabelConstant.mineBtnName, 1)) {
-            driver.findElement(By.xpath(LabelConstant.mineBtn)).click();
+            logger.info("---------------关闭未来集市APP---------------");
+            return responseData;
         }
 
-        //点击其他方式（兼容新版登录）
-        isAppear(driver, LabelConstant.otherLoginBtnName, 1);
 
-        //模拟登录
-        LoginHandle loginHandle = new LoginHandle();
-        loginHandle.login(driver, phoneTailNumber);
-
-        logger.info("---------------停留1分钟后，准备重启APP---------------");
-        Thread.sleep(10000);
-
-        //关闭APP
-        driver.closeApp();
-
-        //第一次启动后需杀掉进程，不然手机号码验证码验证不正确
-        InstallApkServer installApkServer = new InstallApkServer();
-        installApkServer.readCmd(CommandConstant.killProcessCommand);
-
-        driver.quit();
-        return null;
     }
 
     /**
@@ -137,57 +161,61 @@ public class UIAutomationTest extends WaitElementHandle {
      * @param width
      * @param height
      */
-    private String secondStartApp(int width, int height, int phoneTailNumber) {
-        //点击【我的】按钮
-        if (isAppear(driver, LabelConstant.mineBtnName, 1)) {
-            driver.findElement(By.xpath(LabelConstant.mineBtn)).click();
-            logger.info("---------------模拟点击【我的】按钮---------------");
+    private ResponseData secondStartApp(int width, int height, int phoneTailNumber) {
+        ResponseData responseData = new ResponseData();
+        try {
+            //点击【我的】按钮
+            if (isAppear(driver, LabelConstant.mineBtnName, 1)) {
+                driver.findElement(By.xpath(LabelConstant.mineBtn)).click();
+                logger.info("---------------模拟点击【我的】按钮---------------");
+            }
+            //点击其他方式（兼容新版登录）
+            if(otherFlag){
+                isAppear(driver, LabelConstant.otherLoginBtnName, 1);
+            }
+
+            if(phoneloginFlag){
+                driver.findElement(By.xpath(LabelConstant.phoneLoginBtn)).click();
+                logger.info("---------------模拟点击【手机登录】按钮--------------");
+            }
+
+            //模拟登录
+            LoginHandle loginHandle = new LoginHandle();
+            loginHandle.login(driver, phoneTailNumber);
+
+            //新账号需要填写邀请码
+            loginHandle.inviteCode(driver);
+
+            //向上滑动页面
+            SlidePageHandle pageHandle = new SlidePageHandle();
+            responseData = pageHandle.slidePageUp(driver, width, height);
+
+            if (responseData.isStatus() && null == responseData.getExMsg()) {
+
+                //获取"推荐好物"第一个商品名称和价格
+                ProductHandle productHandle = new ProductHandle();
+                responseData = productHandle.productList(driver);
+
+                if (responseData.isStatus()) {
+                    //点击图片进入商品详情
+                    responseData = productHandle.productDetail(driver);
+                    if (!responseData.isStatus()) {
+                        logger.info("---------------执行UI自动化测试失败！！！！！---------------");
+                    }else{
+                        logger.info("---------------执行UI自动化测试成功！！！！！---------------");
+                    }
+
+                }
+            }
+        } catch (Exception e) {
+            responseData.setStatus(false);
+            responseData.setException(e);
+        } finally {
+            driver.closeApp();
+            logger.info("---------------测试用例执行完毕，关闭未来集市APP---------------");
+            driver.quit();
+            return responseData;
         }
-        //点击其他方式（兼容新版登录）
-        isAppear(driver, LabelConstant.otherLoginBtnName, 1);
-
-        //模拟登录
-        LoginHandle loginHandle = new LoginHandle();
-        loginHandle.login(driver, phoneTailNumber);
-
-        //新账号需要填写邀请码
-        loginHandle.inviteCode(driver);
-
-        //向上滑动页面
-        SlidePageHandle pageHandle = new SlidePageHandle();
-        expection = pageHandle.slidePageUp(driver, width, height);
-        if (null != expection) {
-            return expection;
-        }
-
-        //获取"推荐好物"第一个商品名称和价格
-        ProductHandle productHandle = new ProductHandle();
-        expection = productHandle.productList(driver);
-
-        if (null != expection) {
-            return expection;
-        }
-
-        //点击图片进入商品详情
-        expection = productHandle.productDetail(driver);
-        if (null != expection) {
-            logger.info("---------------执行UI自动化测试失败！！！！！---------------");
-            return expection;
-        }
-
-        logger.info("---------------执行UI自动化测试成功！！！！！---------------");
-
-        driver.closeApp();
-
-        logger.info("---------------测试用例执行完毕，关闭未来集市APP---------------");
-
-        //截图检测APP是否已安装成功
-        //installApkServer.screenshot(driver, device, "testcase");
-
-        driver.quit();
-
-        return null;
-
     }
 
     public static void main(String[] arg) throws Exception {

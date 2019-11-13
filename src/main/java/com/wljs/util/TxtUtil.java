@@ -105,7 +105,7 @@ public class TxtUtil {
             File file = new File(path + "/apkVersionLog.txt");
             if (file.isFile() && file.exists()) {
                 StringBuffer sbf = new StringBuffer();
-                InputStreamReader isr = new InputStreamReader(new FileInputStream(file), "GBK");
+                InputStreamReader isr = new InputStreamReader(new FileInputStream(file), "UTF-8");
                 BufferedReader br = new BufferedReader(isr);
                 String lineTxt = null;
                 while ((lineTxt = br.readLine()) != null) {

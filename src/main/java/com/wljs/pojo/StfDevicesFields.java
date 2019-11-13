@@ -24,10 +24,8 @@ public class StfDevicesFields implements Serializable {
     private int appiumServerPort;
     //系统端口
     private int systemPort;
-    //安装成功标识
-    private boolean resultSuccess;
     //部署异常
-    private String expection;
+    private Exception expection;
 
     public String getDeviceName() {
         if (!("").equals(this.manufacturer) && null != this.manufacturer) {

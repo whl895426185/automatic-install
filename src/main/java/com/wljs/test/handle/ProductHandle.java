@@ -1,5 +1,6 @@
 package com.wljs.test.handle;
 
+import com.wljs.pojo.ResponseData;
 import com.wljs.util.constant.LabelConstant;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
@@ -18,8 +19,8 @@ public class ProductHandle {
      *
      * @return
      */
-    public String productList(AndroidDriver driver) {
-        String expection = null;
+    public ResponseData productList(AndroidDriver driver) {
+        ResponseData responseData = new ResponseData();
         try {
             WebElement namelistEm = driver.findElement(By.xpath(LabelConstant.productNameForList));
             logger.info("---------------商品列表获取第一个商品名称 = " + namelistEm.getText() + "---------------");
@@ -28,9 +29,10 @@ public class ProductHandle {
             logger.info("---------------商品列表获取第一个商品价格 = " + pricelistEm.getText() + "---------------");
 
         } catch (Exception e) {
-            expection = e.toString();
+            responseData.setStatus(false);
+            responseData.setException(e);
         } finally {
-            return expection;
+            return responseData;
         }
     }
 
@@ -39,8 +41,8 @@ public class ProductHandle {
      *
      * @return
      */
-    public String productDetail(AndroidDriver driver) {
-        String expection = null;
+    public ResponseData productDetail(AndroidDriver driver) {
+        ResponseData responseData = new ResponseData();
         //商品有区分爆款和普通商品
         //普通商品详情，暂时屏蔽(樣式有變)
         try {
@@ -61,11 +63,11 @@ public class ProductHandle {
             logger.info("---------------商品详情获取商品价格，内容展示为空！！！！ ---------------");
         }*/
         } catch (Exception e) {
-            expection = e.toString();
+            responseData.setStatus(false);
+            responseData.setException(e);
         } finally {
-            return expection;
+            return responseData;
         }
-
     }
 
 }

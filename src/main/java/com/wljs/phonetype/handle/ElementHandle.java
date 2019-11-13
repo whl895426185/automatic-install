@@ -1,5 +1,7 @@
 package com.wljs.phonetype.handle;
 
+import com.wljs.pojo.Coordinates;
+import com.wljs.pojo.ResponseData;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.touch.offset.PointOption;
@@ -22,21 +24,20 @@ public class ElementHandle {
      * @param text
      * @return
      */
-    public String waitingElement(AndroidDriver driver, String text) {
-        String exception = null;
+    public ResponseData waitingElement(AndroidDriver driver, String text) {
+        ResponseData responseData = new ResponseData();
         try {
             WebDriverWait wait = new WebDriverWait(driver, 10);
             By by = By.xpath("//*//*[@text='" + text + "']");
             wait.until(ExpectedConditions.presenceOfElementLocated(by));
 
             logger.info("-----------------等待元素【" + text + "】已出现，开始执行安装步骤-----------------");
-
         } catch (Exception e) {
             logger.info("---------------没有发现元素【" + text + "】---------------");
-            exception = e.toString();
-
+            responseData.setStatus(false);
+            responseData.setException(e);
         } finally {
-            return exception;
+            return responseData;
         }
     }
 
@@ -48,38 +49,29 @@ public class ElementHandle {
      * @param text    安装步骤名称
      * @return
      */
-    public Map<String, Object> getCoordinates(AndroidDriver driver, String keyword, String text) {
+    public Coordinates getCoordinates(AndroidDriver driver, String keyword, String text) {
+        Coordinates coordinates = new Coordinates();
         String xmlStr = driver.getPageSource();
-        Map<String, Object> totalXYMap = new HashMap<String, Object>();
-        try {
-            if (!xmlStr.contains(text)) {
-                return null;
-            }
-            xmlStr = xmlStr.split(keyword)[1];
-            xmlStr = xmlStr.split("bounds=\"")[1];
-            xmlStr = xmlStr.substring(0, xmlStr.lastIndexOf("]"));
-            xmlStr = xmlStr.replace("][", ",").replace("[", "");
 
-            String[] bounsArray = xmlStr.split(",");
-
-            int minX = Integer.valueOf(bounsArray[0]);
-            int minY = Integer.valueOf(bounsArray[1]);
-            int maxX = Integer.valueOf(bounsArray[2]);
-            int maxY = Integer.valueOf(bounsArray[3]);
-
-            int totalX = minX + maxX;
-            int totalY = minY + maxY;
-
-            totalXYMap.put("totalX", totalX);
-            totalXYMap.put("totalY", totalY);
-
-
-        } catch (Exception e) {
-            logger.error("获取坐标信息异常" + xmlStr);
-            totalXYMap.put("expection", xmlStr);
-        }finally {
-            return totalXYMap;
+        if (!xmlStr.contains(text)) {
+            return null;
         }
+        xmlStr = xmlStr.split(keyword)[1];
+        xmlStr = xmlStr.split("bounds=\"")[1];
+        xmlStr = xmlStr.substring(0, xmlStr.lastIndexOf("]"));
+        xmlStr = xmlStr.replace("][", ",").replace("[", "");
+
+        String[] bounsArray = xmlStr.split(",");
+
+        coordinates.setMinX(Integer.valueOf(bounsArray[0]));
+        coordinates.setMinY(Integer.valueOf(bounsArray[1]));
+        coordinates.setMaxX(Integer.valueOf(bounsArray[2]));
+        coordinates.setMaxY(Integer.valueOf(bounsArray[3]));
+
+        coordinates.setTotalX(coordinates.getMinX() + coordinates.getMaxX());
+        coordinates.setTotalY(coordinates.getMinY() + coordinates.getMaxY());
+
+        return coordinates;
     }
 
     /**

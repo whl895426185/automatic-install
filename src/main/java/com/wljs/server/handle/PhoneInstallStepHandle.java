@@ -1,6 +1,7 @@
 package com.wljs.server.handle;
 
 import com.wljs.phonetype.*;
+import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
 import com.wljs.util.constant.PhoneTypeConstant;
 import io.appium.java_client.android.AndroidDriver;
@@ -15,7 +16,7 @@ public class PhoneInstallStepHandle {
      * @param driver
      * @return
      */
-    public String installStep(StfDevicesFields fields, AndroidDriver<AndroidElement> driver) {
+    public ResponseData installStep(StfDevicesFields fields, AndroidDriver<AndroidElement> driver) {
         String deviceName = fields.getDeviceName();
 
         //OPPO R9s Plus

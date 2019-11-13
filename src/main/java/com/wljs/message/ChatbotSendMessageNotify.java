@@ -1,5 +1,7 @@
 package com.wljs.message;
 
+import com.wljs.pojo.ResponseData;
+import com.wljs.pojo.StfDevicesFields;
 import com.wljs.util.TxtUtil;
 import com.wljs.util.constant.ConfigConstant;
 import org.apache.http.HttpResponse;
@@ -19,8 +21,26 @@ import java.util.Date;
  */
 public class ChatbotSendMessageNotify {
 
-    public void sendMessage(String title, String content) {
+    public void sendMessage(ResponseData responseData) {
         try {
+            if (responseData.isStatus()) {
+                return;
+            }
+
+            StfDevicesFields fields = responseData.getFields();
+            Exception exception = responseData.getException();
+
+            String message = "";
+            if (null != responseData.getExMsg()) {
+                message = responseData.getExMsg();
+            } else {
+                StackTraceElement stackTraceElement = exception.getStackTrace()[0];
+                message += "包类名： " + stackTraceElement.getClassName() + "\n\n";
+                message += "文件名： " + stackTraceElement.getFileName() + "\n\n";
+                message += "方法名： " + stackTraceElement.getMethodName() + "\n\n";
+                message += "报错行号： " + stackTraceElement.getLineNumber() + "\n\n";
+                message += "异常信息： " + exception + "\n\n";
+            }
 
             HttpClient httpclient = HttpClients.createDefault();
 
@@ -33,6 +53,7 @@ public class ChatbotSendMessageNotify {
 
             //读取APK包信息
             TxtUtil txtUtil = new TxtUtil();
+//            String apkText = txtUtil.readTxtFile("D:\\apkPackage");
             String apkText = txtUtil.readTxtFile(ConfigConstant.localApkVersionFilePath);
 
             StringBuffer buffer = new StringBuffer();
@@ -40,16 +61,20 @@ public class ChatbotSendMessageNotify {
             buffer.append("     \"msgtype\":\"actionCard\",");
             buffer.append("     \"actionCard\":{");
             buffer.append("         \"title\":\"STF监控异常报警\",");
+            String text = "";
+            if (null == fields) {
+                text = "**报警！！！！**\n\n";
+            } else {
+                text = "**报警！！！！监控设备（" + fields.getDeviceName() + "）**\n\n";
+            }
 
-            String text = "**STF监控异常报警**\n\n";
-
-            if(null != apkText){
+            SimpleDateFormat fm = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
+            if (null != apkText) {
                 text += "-------------------------------------\n\n";
                 text += "**部署APK包信息：**\n\n";
                 text += "包  名：" + apkText.split("::")[0] + "\n\n";
                 text += "版  本：" + apkText.split("::")[1] + "\n\n";
 
-                SimpleDateFormat fm = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
 
                 long time = Long.valueOf(apkText.split("::")[2]);
                 text += "上传时间：" + fm.format(new Date(time)) + "\n\n";
@@ -57,8 +82,8 @@ public class ChatbotSendMessageNotify {
             }
 
             text += "-------------------------------------\n\n";
-            text += "**" + title + "**\n\n";
-            text += content;
+            text += "**JAVA异常日志信息打印（" + fm.format(new Date())+ "）：**\n\n";
+            text += message;
 
             buffer.append("         \"text\":\"" + text + "\"");
             buffer.append("            }");
@@ -80,12 +105,18 @@ public class ChatbotSendMessageNotify {
     }
 
     public static void main(String args[]) {
-        ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();
+        ResponseData responseData = new ResponseData();
+
         try {
             String a = null;
             a.toString();
         } catch (Exception e) {
-            messageNotify.sendMessage("VIVO X9自动部署异常", e.toString());
+            responseData.setStatus(false);
+            responseData.setException(e);
+
+        }finally {
+            ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();
+            messageNotify.sendMessage(responseData);
         }
     }
 }

@@ -1,13 +1,13 @@
 package com.wljs.phonetype;
 
 import com.wljs.phonetype.handle.ElementHandle;
+import com.wljs.pojo.Coordinates;
+import com.wljs.pojo.ResponseData;
 import com.wljs.util.constant.InstallStepConstant;
 import com.wljs.util.constant.PhoneTypeConstant;
 import io.appium.java_client.android.AndroidDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 /**
  * VIVO手机,兼容机型：
@@ -16,47 +16,41 @@ import java.util.Map;
 public class VivoStep extends ElementHandle {
     private Logger logger = LoggerFactory.getLogger(VivoStep.class);
 
-    public String installStep(AndroidDriver driver, String deviceName) {
-        String expection = null;
-        try {
-            logger.info("-----------------准备开始安装步骤-----------------");
-            //步驟一
-            expection = waitingElement(driver, InstallStepConstant.vivo_step_1);
-            if (null != expection) {
-                return expection;
-            }
-            expection = tap(driver, deviceName, InstallStepConstant.vivo_step_1, 1);
-            if (null != expection) {
-                return expection;
-            }
+    public ResponseData installStep(AndroidDriver driver, String deviceName) {
+        ResponseData responseData = new ResponseData();
 
-            //步驟二
-            expection = waitingElement(driver, InstallStepConstant.vivo_step_2);
-            if (null != expection) {
-                return expection;
-            }
-
-            expection = tap(driver, deviceName, InstallStepConstant.vivo_step_2, 2);
-            if (null != expection) {
-                return expection;
-            }
-
-            //步驟三
-            expection = waitingElement(driver, InstallStepConstant.vivo_step_3);
-            if (null != expection) {
-                return expection;
-            }
-            expection = tap(driver, deviceName, InstallStepConstant.vivo_step_3, 3);
-            if (null != expection) {
-                return expection;
-            }
-        } catch (
-                Exception e) {
-            logger.info("安装过程中异常信息：" + e);
-            expection = e.toString();
-        } finally {
-            return expection;
+        logger.info("-----------------执行安装步骤！！！！-----------------");
+        //步驟一
+        responseData = waitingElement(driver, InstallStepConstant.vivo_step_1);
+        if (!responseData.isStatus()) {
+            return responseData;
         }
+        responseData = tap(driver, deviceName, InstallStepConstant.vivo_step_1, 1);
+        if (!responseData.isStatus()) {
+            return responseData;
+        }
+
+        //步驟二
+        responseData = waitingElement(driver, InstallStepConstant.vivo_step_2);
+        if (!responseData.isStatus()) {
+            return responseData;
+        }
+
+        responseData = tap(driver, deviceName, InstallStepConstant.vivo_step_2, 2);
+        if (!responseData.isStatus()) {
+            return responseData;
+        }
+
+        //步驟三
+        responseData = waitingElement(driver, InstallStepConstant.vivo_step_3);
+        if (!responseData.isStatus()) {
+            return responseData;
+        }
+        responseData = tap(driver, deviceName, InstallStepConstant.vivo_step_3, 3);
+        if (!responseData.isStatus()) {
+            return responseData;
+        }
+        return responseData;
 
     }
 
@@ -68,36 +62,40 @@ public class VivoStep extends ElementHandle {
      * @param type   安裝步驟順序
      * @return
      */
-    public String tap(AndroidDriver driver, String deviceName, String text, int type) {
-        String keyword = null;
+    public ResponseData tap(AndroidDriver driver, String deviceName, String text, int type) {
+        ResponseData responseData = new ResponseData();
+        try {
+            String keyword = null;
 
-        if (1 == type) {
-            keyword = "resource-id=\"com.android.packageinstaller:id/continue_button\"";
-        } else if (2 == type) {
-            keyword = "resource-id=\"com.android.packageinstaller:id/ok_button\"";
-        } else if (3 == type) {
-            if (deviceName.contains(PhoneTypeConstant.VIVO_PHONE_MODEL1)) {
-                keyword = "resource-id=\"com.android.packageinstaller:id/cancel_button\"";
-            } else {
-                keyword = "resource-id=\"com.android.packageinstaller:id/done_button\"";
+            if (1 == type) {
+                keyword = "resource-id=\"com.android.packageinstaller:id/continue_button\"";
+            } else if (2 == type) {
+                keyword = "resource-id=\"com.android.packageinstaller:id/ok_button\"";
+            } else if (3 == type) {
+                if (deviceName.contains(PhoneTypeConstant.VIVO_PHONE_MODEL1)) {
+                    keyword = "resource-id=\"com.android.packageinstaller:id/cancel_button\"";
+                } else {
+                    keyword = "resource-id=\"com.android.packageinstaller:id/done_button\"";
+                }
             }
+
+            Coordinates coordinates = getCoordinates(driver, keyword, text);
+
+            int totalX = coordinates.getTotalX();
+            int totalY = coordinates.getTotalY();
+
+            double x = totalX / 2;
+            double y = totalY / 2;
+
+            clickCoordinates(driver, x, y, text);
+
+        } catch (Exception e) {
+            responseData.setStatus(false);
+            responseData.setException(e);
+        } finally {
+            return responseData;
         }
 
-        Map<String, Object> totalXYMap = getCoordinates(driver, keyword, text);
-        String expection = String.valueOf(totalXYMap.get("expection"));
-        if (null != expection) {
-            return expection;
-        }
-
-        int totalX = Integer.valueOf(String.valueOf(totalXYMap.get("totalX")));
-        int totalY = Integer.valueOf(String.valueOf(totalXYMap.get("totalY")));
-
-        double x = totalX / 2;
-        double y = totalY / 2;
-
-        clickCoordinates(driver, x, y, text);
-
-        return null;
     }
 
 }

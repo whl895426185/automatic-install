@@ -1,5 +1,6 @@
 package com.wljs.test.handle;
 
+import com.wljs.pojo.Coordinates;
 import com.wljs.util.constant.LabelConstant;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
@@ -28,7 +29,7 @@ public class WaitElementHandle {
     public boolean isAppear(AndroidDriver driver, String text, int type) {
         boolean isSuccess = true;
         try {
-            WebDriverWait wait = new WebDriverWait(driver, 5);
+            WebDriverWait wait = new WebDriverWait(driver, 3);
             By by = null;
             if (1 == type) {
                 //根据text定位元素
@@ -62,10 +63,10 @@ public class WaitElementHandle {
      * @param type
      */
     public void tap(AndroidDriver driver, String text, int type) {
-        String xy = getXy(driver, text, 1);
+        Coordinates coordinates = getXy(driver, text, 1);
 
-        int x = Integer.valueOf(xy.split("-")[0]);
-        int y = Integer.valueOf(xy.split("-")[1]);
+        int x = coordinates.getTotalX() / 2;
+        int y = coordinates.getTotalY() / 2;
 
         logger.info("---------------模拟点击【" + text + "】按钮--------------");
 
@@ -81,7 +82,7 @@ public class WaitElementHandle {
      * @param type
      * @return
      */
-    public String getXy(AndroidDriver driver, String text, int type) {
+    public Coordinates getXy(AndroidDriver driver, String text, int type) {
         String xmlStr = driver.getPageSource();
         String keyword = null;
         if (0 == type) {
@@ -96,14 +97,15 @@ public class WaitElementHandle {
 
         String[] bounsArray = xmlStr.split(",");
 
-        int minX = Integer.valueOf(bounsArray[0]);
-        int minY = Integer.valueOf(bounsArray[1]);
-        int maxX = Integer.valueOf(bounsArray[2]);
-        int maxY = Integer.valueOf(bounsArray[3]);
+        Coordinates coordinates = new Coordinates();
+        coordinates.setMinX(Integer.valueOf(bounsArray[0]));
+        coordinates.setMinY(Integer.valueOf(bounsArray[1]));
+        coordinates.setMaxX(Integer.valueOf(bounsArray[2]));
+        coordinates.setMaxY(Integer.valueOf(bounsArray[3]));
 
-        int x = (minX + maxX) / 2;
-        int y = (minY + maxY) / 2;
-        return x + "-" + y;
+        coordinates.setTotalX(coordinates.getMinX() + coordinates.getMaxX());
+        coordinates.setTotalY(coordinates.getMinY() + coordinates.getMaxY());
+        return coordinates;
     }
 
 

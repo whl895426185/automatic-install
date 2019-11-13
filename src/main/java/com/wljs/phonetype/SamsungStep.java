@@ -1,6 +1,7 @@
 package com.wljs.phonetype;
 
 import com.wljs.phonetype.handle.ElementHandle;
+import com.wljs.pojo.ResponseData;
 import io.appium.java_client.android.AndroidDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,15 +13,8 @@ import org.slf4j.LoggerFactory;
 public class SamsungStep extends ElementHandle {
     private Logger logger = LoggerFactory.getLogger(SamsungStep.class);
 
-    public String installStep(AndroidDriver driver) {
-        String expection = null;
-        try {
-
-        } catch (Exception e) {
-            logger.info("安装过程中异常信息：" + e);
-            expection = e.toString();
-        } finally {
-            return expection;
-        }
+    public ResponseData installStep(AndroidDriver driver) {
+        ResponseData responseData = new ResponseData();
+        return responseData;
     }
 }

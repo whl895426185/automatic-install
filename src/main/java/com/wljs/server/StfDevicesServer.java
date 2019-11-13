@@ -21,7 +21,7 @@ import java.util.concurrent.CyclicBarrier;
 public class StfDevicesServer {
     private Logger logger = LoggerFactory.getLogger(StfDevicesServer.class);
 
-    public void getStfDevicesList(String apkPath) {
+    public void getStfDevicesList(String apkPath) throws InterruptedException {
         RethinkDB r = RethinkDB.r;
         //连接rethinkdb
         Connection conn = r.connection().hostname(ConfigConstant.rethinkdb_host).port(ConfigConstant.rethinkdb_port).connect();
@@ -36,7 +36,6 @@ public class StfDevicesServer {
         List<StfDevicesFields> dbList = stfDevices.bufferedItems();
 
         if (null == dbList || dbList.size() < 1) {
-            logger.info("-----------------沒有检测到连接的设备信息-----------------");
             return;
         }
         List<StfDevicesFields> fieldsList = new ArrayList<StfDevicesFields>();
@@ -55,24 +54,20 @@ public class StfDevicesServer {
         //测试数据
 //        List<StfDevicesFields> fieldsList = getFilesList();
         if (null == fieldsList || fieldsList.size() < 1) {
-            logger.info("-----------------沒有检测到有效连接的设备信息-----------------");
             return;
         }
-
-        logger.info("-----------------检测到有效连接的设备信息-----------------");
 
         //利用Selenium调用浏览器，动态模拟浏览器事件，占用已连接且闲余的设备
         SeleniumServer seleniumServer = new SeleniumServer();
         List<StfDevicesFields> resultList = seleniumServer.occupancyResources(fieldsList);
         if (null == resultList || resultList.size() < 1) {
-            logger.info("-----------------模拟登录STF设备平台，没有成功点击占用设备资源，终止操作-----------------");
             return;
         }
-
 
         //把设备信息放入java安全队列中，保证数据的安全性
         ArrayBlockingQueue queueList = new ArrayBlockingQueue(resultList.size());
         for (StfDevicesFields fields : resultList) {
+            logger.info("-----------------！！！！！！设备（" + fields.getDeviceName() + "）开始执行自动部署安装工作！！！！！！-----------------");
             queueList.add(fields);
         }
 

@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -23,11 +21,7 @@ import java.util.concurrent.TimeUnit;
 public class StartUpAppHandle {
     private Logger logger = LoggerFactory.getLogger(StartUpAppHandle.class);
 
-    public Map<String, Object> startUpApp(StfDevicesFields fields, String appPath){
-        Map<String, Object> resultMap = new HashMap<String, Object>();
-
-        AndroidDriver driver = null;
-
+    public AndroidDriver startUpApp(StfDevicesFields fields, String appPath) throws MalformedURLException {
         DesiredCapabilities cap = new DesiredCapabilities();
         cap.setCapability(MobileCapabilityType.AUTOMATION_NAME, AutomationName.ANDROID_UIAUTOMATOR2);
         cap.setCapability(MobileCapabilityType.PLATFORM_NAME, ConfigConstant.platformName);
@@ -42,18 +36,11 @@ public class StartUpAppHandle {
         cap.setCapability(AndroidMobileCapabilityType.UNICODE_KEYBOARD, false);
         cap.setCapability(AndroidMobileCapabilityType.RESET_KEYBOARD, false);
 
-        try {
-            String path = "http://127.0.0.1:" + fields.getAppiumServerPort() + "/wd/hub";
-            URL url =  new URL(path);
-            logger.info("---------------初始化driver参数信息---------------");
-            driver = new AndroidDriver<AndroidElement>(url, cap);
-            driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
-        } catch (MalformedURLException e) {
-            resultMap.put("expection", e.toString());
+        String path = "http://127.0.0.1:" + fields.getAppiumServerPort() + "/wd/hub";
+        URL url = new URL(path);
 
-        }finally {
-            resultMap.put("AndroidDriver", driver);
-            return resultMap;
-        }
+        AndroidDriver driver = new AndroidDriver<AndroidElement>(url, cap);
+        driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
+        return driver;
     }
 }

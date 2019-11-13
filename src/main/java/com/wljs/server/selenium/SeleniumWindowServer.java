@@ -68,7 +68,7 @@ public class SeleniumWindowServer {
                 for (StfDevicesFields fields : fieldsList) {
 
                     if (isAppear(driver, fields.getSerial())) {
-                        logger.info("------------模拟点击设备：" + fields.getSerial() + ", 占用设备资源--------------");
+                        logger.info("------------模拟点击设备：" + fields.getDeviceName() + ", 占用设备资源--------------");
 
                         driver.navigate().refresh();
 
@@ -189,7 +189,7 @@ public class SeleniumWindowServer {
                 Thread.sleep(20000);
 
                 if (isAppear(driver, fields.getSerial())) {
-                    logger.info("------------模拟点击设备：" + fields.getSerial() + ", 释放设备资源--------------");
+                    logger.info("------------模拟点击设备：" + fields.getDeviceName() + ", 释放设备资源--------------");
                 }
 
                 driver.navigate().refresh();

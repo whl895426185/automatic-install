@@ -1,6 +1,7 @@
 package com.wljs.server.selenium;
 
 import com.wljs.message.ChatbotSendMessageNotify;
+import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
 import com.wljs.util.constant.ConfigConstant;
 import org.openqa.selenium.By;
@@ -68,51 +69,74 @@ public class SeleniumLinuxServer {
      * occupancyResources
      * 占用已连接且闲余的设备
      */
-    public List<StfDevicesFields> occupancy(List<StfDevicesFields> fieldsList) {
+    public List<StfDevicesFields> occupancy(List<StfDevicesFields> fieldsList) throws InterruptedException {
         List<StfDevicesFields> resultList = new ArrayList<StfDevicesFields>();
         WebDriver driver = null;
         ChromeDriverService service = null;
-        try {
-            SeleniumLinuxServer seleniumServer = new SeleniumLinuxServer();
-            Map<String, Object> resultMap = seleniumServer.chromeDriver();
 
-            driver = (WebDriver) resultMap.get("WebDriver");
-            service = (ChromeDriverService) resultMap.get("ChromeDriverService");
+        ResponseData responseData = new ResponseData();
+        SeleniumLinuxServer seleniumServer = new SeleniumLinuxServer();
+        Map<String, Object> resultMap = seleniumServer.chromeDriver();
 
-            boolean isSuccess = login(driver);
-            if (!isSuccess) {
-                logger.info("------------模拟登录STF平台失败--------------");
-            } else {
-                //刷新
-                driver.navigate().refresh();
+        driver = (WebDriver) resultMap.get("WebDriver");
+        service = (ChromeDriverService) resultMap.get("ChromeDriverService");
 
-                Thread.sleep(20000);
+        responseData = login(driver);
+        if (!responseData.isStatus()) {
+            responseData.setExMsg("模拟登录STF平台失败");
+            logger.info("------------模拟登录STF平台失败--------------");
 
-                for (StfDevicesFields fields : fieldsList) {
-                    if (isAppear(driver, fields, true)) {
-                        logger.info("------------模拟点击设备：" + fields.getSerial() + ", 占用设备资源--------------");
+            sendMsg(responseData, driver, service);
+            return resultList;
+        }
 
-                        driver.navigate().refresh();
+        //刷新
+        driver.navigate().refresh();
 
-                        //点击设备会进入control， 需回到devices页面才可以
-                        if (isAppear(driver, null, true)) {
-                            logger.info("------------模拟点击【设备按钮】回到设备列表页面--------------");
-                        }
+        Thread.sleep(20000);
 
-                        resultList.add(fields);
-                    }
-                    driver.navigate().refresh();
-                }
-                Thread.sleep(2000);
+        for (StfDevicesFields fields : fieldsList) {
+            responseData = isAppear(driver, fields);
+
+            if (!responseData.isStatus()) {
+                sendMsg(responseData, driver, service);
+                continue;
             }
 
-        } catch (Exception e) {
+            logger.info("------------模拟点击设备：" + fields.getDeviceName() + ", 占用设备资源--------------");
 
-        } finally {
-            driver.close();
-            service.stop();
+            driver.navigate().refresh();
+            //点击设备会进入control， 需回到devices页面才可以
+            responseData = isAppear(driver, null);
+
+            if (!responseData.isStatus()) {
+                sendMsg(responseData, driver, service);
+                continue;
+            }
+
+            logger.info("------------模拟点击【设备按钮】回到设备列表页面--------------");
+
+            resultList.add(fields);
+
+            driver.navigate().refresh();
         }
+
+        Thread.sleep(2000);
+
+        driver.close();
+        service.stop();
+
         return resultList;
+
+    }
+
+    private void sendMsg(ResponseData responseData, WebDriver driver, ChromeDriverService service) {
+        ChatbotSendMessageNotify sendMessageNotify = new ChatbotSendMessageNotify();
+        sendMessageNotify.sendMessage(responseData);
+
+        driver.close();
+        service.stop();
+
     }
 
 
@@ -126,53 +150,47 @@ public class SeleniumLinuxServer {
      *
      * @param driver
      */
-    private boolean login(WebDriver driver) throws InterruptedException {
-        boolean isSuccess = true;
-        WebElement nameEm = isLoginAppear(driver, "//input[@name='username']");
-        if (null != nameEm) {
-            nameEm.click();
-            Thread.sleep(2000);
-            nameEm.sendKeys(ConfigConstant.stfName);
-
-            WebElement passwdEm = isLoginAppear(driver, "//input[@name='password']");
-            if (null != passwdEm) {
-                passwdEm.click();
+    private ResponseData login(WebDriver driver) {
+        ResponseData responseData = new ResponseData();
+        try {
+            WebElement nameEm = isLoginAppear(driver, "//input[@name='username']");
+            if (null != nameEm) {
+                nameEm.click();
                 Thread.sleep(2000);
-                passwdEm.sendKeys(ConfigConstant.stfPasswd);
+                nameEm.sendKeys(ConfigConstant.stfName);
 
+                WebElement passwdEm = isLoginAppear(driver, "//input[@name='password']");
+                if (null != passwdEm) {
+                    passwdEm.click();
+                    Thread.sleep(2000);
+                    passwdEm.sendKeys(ConfigConstant.stfPasswd);
 
-                WebElement loginEm = isLoginAppear(driver, "//input[@type='submit']");
-                if (null != loginEm) {
-                    loginEm.click();
-                    Thread.sleep(10000);
-
-                } else {
-                    isSuccess = false;
+                    WebElement loginEm = isLoginAppear(driver, "//input[@type='submit']");
+                    if (null != loginEm) {
+                        loginEm.click();
+                        Thread.sleep(10000);
+                    }
                 }
-            } else {
-                isSuccess = false;
             }
-        } else {
-            isSuccess = false;
+        } catch (Exception e) {
+            responseData.setStatus(false);
+            responseData.setException(e);
+        } finally {
+            return responseData;
         }
-        return isSuccess;
+
     }
 
     public WebElement isLoginAppear(WebDriver driver, String text) {
-        WebElement em = null;
-        try {
-            By by = By.xpath(text);
+        By by = By.xpath(text);
 
-            WebDriverWait wait = new WebDriverWait(driver, 50);
-            em = wait.until(ExpectedConditions.presenceOfElementLocated(by));
-        } catch (Exception e) {
-            logger.error("没有等到元素出现，打印异常: " + e);
-            messageNotify.sendMessage("模拟登录STF平台： 失败", e.toString());
-        }
+        WebDriverWait wait = new WebDriverWait(driver, 50);
+        WebElement em = wait.until(ExpectedConditions.presenceOfElementLocated(by));
         return em;
     }
 
-    public boolean isAppear(WebDriver driver, StfDevicesFields fields, boolean typeFlag) {
+    public ResponseData isAppear(WebDriver driver, StfDevicesFields fields) {
+        ResponseData responseData = new ResponseData();
         try {
             By by = null;
             if (null != fields) {
@@ -184,51 +202,61 @@ public class SeleniumLinuxServer {
             WebDriverWait wait = new WebDriverWait(driver, 50);
             WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(by));
             element.click();
-            return true;
+
         } catch (Exception e) {
             logger.error("没有等到元素出现，打印异常: " + e);
-            messageNotify.sendMessage("STF平台" + (typeFlag ? "占用" : "释放") + "设备（" + fields.getDeviceName() + "）资源： 失败", e.toString());
-            return false;
+
+            responseData.setStatus(false);
+            responseData.setException(e);
+            responseData.setFields(fields);
+        } finally {
+            return responseData;
         }
     }
 
     /**
      * 释放资源(每台设备都登录再关闭)
      */
-    public void release(StfDevicesFields fields) {
+    public void release(StfDevicesFields fields) throws InterruptedException {
         WebDriver driver = null;
         ChromeDriverService service = null;
-        try {
-            if (null == fields) {
-                return;
-            }
-            SeleniumLinuxServer seleniumServer = new SeleniumLinuxServer();
-            Map<String, Object> resultMap = seleniumServer.chromeDriver();
 
-            driver = (WebDriver) resultMap.get("WebDriver");
-            service = (ChromeDriverService) resultMap.get("ChromeDriverService");
-
-            boolean isSuccess = login(driver);
-            if (!isSuccess) {
-                logger.info("------------模拟登录STF平台失败--------------");
-            } else {
-                //刷新
-                driver.navigate().refresh();
-                Thread.sleep(20000);
-
-                if (isAppear(driver, fields, false)) {
-                    logger.info("------------模拟点击设备：" + fields.getSerial() + ", 释放设备资源--------------");
-                }
-
-                driver.navigate().refresh();
-            }
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            logger.error("安装部署失败，异常信息为：" + e);
-        } finally {
-            driver.quit();
-            service.stop();
+        ResponseData responseData = new ResponseData();
+        if (null == fields) {
+            return;
         }
+        SeleniumLinuxServer seleniumServer = new SeleniumLinuxServer();
+        Map<String, Object> resultMap = seleniumServer.chromeDriver();
+
+        driver = (WebDriver) resultMap.get("WebDriver");
+        service = (ChromeDriverService) resultMap.get("ChromeDriverService");
+
+        responseData = login(driver);
+        if (!responseData.isStatus()) {
+            responseData.setExMsg("模拟登录STF平台失败");
+            logger.info("------------模拟登录STF平台失败--------------");
+
+            sendMsg(responseData, driver, service);
+            return;
+        }
+
+        //刷新
+        driver.navigate().refresh();
+        Thread.sleep(20000);
+
+        responseData = isAppear(driver, fields);
+        if (!responseData.isStatus()) {
+            sendMsg(responseData, driver, service);
+            return;
+        }
+
+
+        logger.info("------------模拟点击设备：" + fields.getDeviceName() + ", 释放设备资源--------------");
+
+        driver.navigate().refresh();
+
+        driver.quit();
+        service.stop();
+        return;
     }
 }

@@ -1,5 +1,6 @@
 package com.wljs.test.handle;
 
+import com.wljs.pojo.ResponseData;
 import com.wljs.util.constant.LabelConstant;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
@@ -37,7 +38,8 @@ public class SlidePageHandle {
     }
 
     //向上滑动页面
-    public String slidePageUp(AndroidDriver driver, int width, int height) {
+    public ResponseData slidePageUp(AndroidDriver driver, int width, int height) {
+        ResponseData responseData = new ResponseData();
         //向上滑动
         if (isAppear(driver, LabelConstant.mineBtnName, 1)) {
             logger.info("---------------模拟向上滑动页面，查看商品信息---------------");
@@ -52,17 +54,13 @@ public class SlidePageHandle {
             new TouchAction(driver).press(PointOption.point(orginWith, orginHeight)).waitAction(WaitOptions.waitOptions(Duration.ofSeconds(3)))
                     .moveTo(PointOption.point(moveWidth, moveHeight)).release().perform();
 
-            return null;
-        }else{
-            driver.closeApp();
+        } else {
             logger.info("---------------点击登录按钮无法跳转页面，程序问题，默认安装成功--------------");
-            logger.info("---------------测试用例执行完毕，关闭未来集市APP---------------");
 
-            driver.quit();
-
-            return "没有获取到元素： //*//*[@text='" + LabelConstant.mineBtnName + "']";
+            responseData.setExMsg("没有获取到元素： //*//*[@text='" + LabelConstant.mineBtnName + "']");
         }
 
+        return responseData;
     }
 
     private boolean isAppear(AndroidDriver driver, String text, int type) {
