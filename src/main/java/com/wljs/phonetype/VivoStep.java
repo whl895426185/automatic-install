@@ -64,8 +64,8 @@ public class VivoStep extends ElementHandle {
      */
     public ResponseData tap(AndroidDriver driver, String deviceName, String text, int type) {
         ResponseData responseData = new ResponseData();
+        String keyword = null;
         try {
-            String keyword = null;
 
             if (1 == type) {
                 keyword = "resource-id=\"com.android.packageinstaller:id/continue_button\"";
@@ -92,6 +92,7 @@ public class VivoStep extends ElementHandle {
         } catch (Exception e) {
             responseData.setStatus(false);
             responseData.setException(e);
+            responseData.setExMsg("无法通过关键字获取坐标信息： " + keyword);
         } finally {
             return responseData;
         }

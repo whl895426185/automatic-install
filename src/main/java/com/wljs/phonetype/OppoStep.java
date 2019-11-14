@@ -71,8 +71,8 @@ public class OppoStep extends ElementHandle {
      */
     public ResponseData tap(AndroidDriver driver, String text, int type) {
         ResponseData responseData = new ResponseData();
+        String keyword = null;
         try {
-            String keyword = null;
             if (1 == type) {
                 keyword = "class=\"android.widget.Button\" text=\"" + text + "\"";
             } else if (2 == type) {
@@ -108,6 +108,7 @@ public class OppoStep extends ElementHandle {
             logger.error("获取坐标信息异常：" + e);
             responseData.setStatus(false);
             responseData.setException(e);
+            responseData.setExMsg("无法通过关键字获取坐标信息： " + keyword);
         } finally {
             return responseData;
         }

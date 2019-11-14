@@ -57,11 +57,12 @@ public class InstallApkServer {
      */
     public ResponseData installApp(StfDevicesFields fields, String apkPath) {
         ResponseData responseData = new ResponseData();
+        AndroidDriver<AndroidElement> driver = null;
         try {
             String device = fields.getSerial();
 
             //初始化参数信息
-            AndroidDriver<AndroidElement> driver = initDriver(fields, apkPath);
+            driver = initDriver(fields, apkPath);
 
             boolean isSuccess = true;
             int i = 0;
@@ -100,6 +101,11 @@ public class InstallApkServer {
         } catch (Exception e) {
             responseData.setStatus(false);
             responseData.setException(e);
+            if(null == driver){
+                responseData.setExMsg("执行自动部署安装失败： AndroidDriver is null");
+            }else{
+                responseData.setExMsg("执行自动部署安装失败");
+            }
 
         } finally {
             responseData.setFields(fields);

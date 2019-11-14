@@ -36,6 +36,7 @@ public class ElementHandle {
             logger.info("---------------没有发现元素【" + text + "】---------------");
             responseData.setStatus(false);
             responseData.setException(e);
+            responseData.setExMsg("没有定位到元素： //*//*[@text='" + text + "']");
         } finally {
             return responseData;
         }

@@ -31,16 +31,13 @@ public class ChatbotSendMessageNotify {
             Exception exception = responseData.getException();
 
             String message = "";
-            if (null != responseData.getExMsg()) {
-                message = responseData.getExMsg();
-            } else {
-                StackTraceElement stackTraceElement = exception.getStackTrace()[0];
-                message += "包类名： " + stackTraceElement.getClassName() + "\n\n";
-                message += "文件名： " + stackTraceElement.getFileName() + "\n\n";
-                message += "方法名： " + stackTraceElement.getMethodName() + "\n\n";
-                message += "报错行号： " + stackTraceElement.getLineNumber() + "\n\n";
-                message += "异常信息： " + exception + "\n\n";
-            }
+
+            StackTraceElement stackTraceElement = exception.getStackTrace()[0];
+            message += "包类名： " + stackTraceElement.getClassName() + "\n\n";
+            message += "文件名： " + stackTraceElement.getFileName() + "\n\n";
+            message += "方法名： " + stackTraceElement.getMethodName() + "\n\n";
+            message += "报错行号： " + stackTraceElement.getLineNumber() + "\n\n";
+            message += "异常信息： " + responseData.getExMsg() + "\n\n";
 
             HttpClient httpclient = HttpClients.createDefault();
 
@@ -82,7 +79,7 @@ public class ChatbotSendMessageNotify {
             }
 
             text += "-------------------------------------\n\n";
-            text += "**JAVA异常日志信息打印（" + fm.format(new Date())+ "）：**\n\n";
+            text += "**JAVA异常日志信息打印（" + fm.format(new Date()) + "）：**\n\n";
             text += message;
 
             buffer.append("         \"text\":\"" + text + "\"");
@@ -113,8 +110,8 @@ public class ChatbotSendMessageNotify {
         } catch (Exception e) {
             responseData.setStatus(false);
             responseData.setException(e);
-
-        }finally {
+            responseData.setExMsg("测试异常");
+        } finally {
             ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();
             messageNotify.sendMessage(responseData);
         }

@@ -21,16 +21,20 @@ public class ProductHandle {
      */
     public ResponseData productList(AndroidDriver driver) {
         ResponseData responseData = new ResponseData();
+        String text = null;
         try {
-            WebElement namelistEm = driver.findElement(By.xpath(LabelConstant.productNameForList));
+            text = LabelConstant.productNameForList;
+            WebElement namelistEm = driver.findElement(By.xpath(text));
             logger.info("---------------商品列表获取第一个商品名称 = " + namelistEm.getText() + "---------------");
 
-            WebElement pricelistEm = driver.findElement(By.xpath(LabelConstant.productPriceForList));
+            text = LabelConstant.productPriceForList;
+            WebElement pricelistEm = driver.findElement(By.xpath(text));
             logger.info("---------------商品列表获取第一个商品价格 = " + pricelistEm.getText() + "---------------");
 
         } catch (Exception e) {
             responseData.setStatus(false);
             responseData.setException(e);
+            responseData.setExMsg("无法定位元素： " + text);
         } finally {
             return responseData;
         }
@@ -65,6 +69,7 @@ public class ProductHandle {
         } catch (Exception e) {
             responseData.setStatus(false);
             responseData.setException(e);
+            responseData.setExMsg("执行商品详情UI自动化测试： 失败");
         } finally {
             return responseData;
         }

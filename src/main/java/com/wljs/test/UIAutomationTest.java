@@ -72,6 +72,12 @@ public class UIAutomationTest extends WaitElementHandle {
         } catch (Exception e) {
             responseData.setStatus(false);
             responseData.setException(e);
+            if(null == driver){
+                responseData.setExMsg("执行UI自动化测试失败: AndroidDriver is null");
+            }else{
+                responseData.setExMsg("执行UI自动化测试失败");
+            }
+
         } finally {
             responseData.setFields(fields);
             return responseData;
@@ -135,6 +141,7 @@ public class UIAutomationTest extends WaitElementHandle {
         } catch (Exception e) {
             responseData.setStatus(false);
             responseData.setException(e);
+            responseData.setExMsg("执行UI自动化测试： 失败");
         } finally {
             driver.closeApp();
 
@@ -145,6 +152,7 @@ public class UIAutomationTest extends WaitElementHandle {
             } catch (Exception e) {
                 responseData.setStatus(false);
                 responseData.setException(e);
+                responseData.setExMsg("手动杀掉APP进程： 失败");
             }
 
             driver.quit();
@@ -210,6 +218,7 @@ public class UIAutomationTest extends WaitElementHandle {
         } catch (Exception e) {
             responseData.setStatus(false);
             responseData.setException(e);
+            responseData.setExMsg("执行UI自动化测试： 失败");
         } finally {
             driver.closeApp();
             logger.info("---------------测试用例执行完毕，关闭未来集市APP---------------");

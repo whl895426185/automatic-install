@@ -135,6 +135,7 @@ public class StartServer {
 
                     responseData.setStatus(false);
                     responseData.setException(e);
+                    responseData.setExMsg("更新SVN版本仓库文件： 失败");
 
                 } finally {
                     ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();

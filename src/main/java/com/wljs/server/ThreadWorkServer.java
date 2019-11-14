@@ -50,7 +50,7 @@ public class ThreadWorkServer extends Thread {
         } catch (Exception e) {
             responseData.setStatus(false);
             responseData.setException(e);
-
+            responseData.setExMsg("自动部署安装失败");
         } finally {
             messageNotify.sendMessage(responseData);
 
@@ -62,6 +62,7 @@ public class ThreadWorkServer extends Thread {
                 e.printStackTrace();
                 responseData.setStatus(false);
                 responseData.setException(e);
+                responseData.setExMsg("释放设备（" + responseData.getFields().getDeviceName() + "）资源失败");
                 messageNotify.sendMessage(responseData);
             }
         }

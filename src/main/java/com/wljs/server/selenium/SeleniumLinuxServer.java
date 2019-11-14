@@ -152,20 +152,24 @@ public class SeleniumLinuxServer {
      */
     private ResponseData login(WebDriver driver) {
         ResponseData responseData = new ResponseData();
+        String text = null;
         try {
-            WebElement nameEm = isLoginAppear(driver, "//input[@name='username']");
+            text = "//input[@name='username']";
+            WebElement nameEm = isLoginAppear(driver, text);
             if (null != nameEm) {
                 nameEm.click();
                 Thread.sleep(2000);
                 nameEm.sendKeys(ConfigConstant.stfName);
 
-                WebElement passwdEm = isLoginAppear(driver, "//input[@name='password']");
+                text = "//input[@name='password']";
+                WebElement passwdEm = isLoginAppear(driver, text);
                 if (null != passwdEm) {
                     passwdEm.click();
                     Thread.sleep(2000);
                     passwdEm.sendKeys(ConfigConstant.stfPasswd);
 
-                    WebElement loginEm = isLoginAppear(driver, "//input[@type='submit']");
+                    text = "//input[@type='submit']";
+                    WebElement loginEm = isLoginAppear(driver, text);
                     if (null != loginEm) {
                         loginEm.click();
                         Thread.sleep(10000);
@@ -175,6 +179,7 @@ public class SeleniumLinuxServer {
         } catch (Exception e) {
             responseData.setStatus(false);
             responseData.setException(e);
+            responseData.setExMsg("登录STF平台失败，无法定位元素：" + text);
         } finally {
             return responseData;
         }
@@ -208,6 +213,11 @@ public class SeleniumLinuxServer {
 
             responseData.setStatus(false);
             responseData.setException(e);
+            if (null != fields) {
+                responseData.setExMsg("无法定位到元素： li[id $='-" + fields.getSerial() + "']");
+            } else {
+                responseData.setExMsg("无法定位到元素： //*//*[@href='/#!/devices']");
+            }
             responseData.setFields(fields);
         } finally {
             return responseData;

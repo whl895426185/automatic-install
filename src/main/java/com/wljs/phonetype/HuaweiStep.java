@@ -71,8 +71,8 @@ public class HuaweiStep extends ElementHandle {
      */
     public ResponseData tap(AndroidDriver driver, String text, int type) {
         ResponseData responseData = new ResponseData();
+        String keyword = null;
         try {
-            String keyword = null;
             if (1 == type) {
                 keyword = "resource-id=\"android:id/button1\"";
             } else if (2 == type) {
@@ -93,7 +93,7 @@ public class HuaweiStep extends ElementHandle {
         } catch (Exception e) {
             responseData.setStatus(false);
             responseData.setException(e);
-
+            responseData.setExMsg("无法通过关键字获取坐标信息： " + keyword);
         } finally {
             return responseData;
         }
