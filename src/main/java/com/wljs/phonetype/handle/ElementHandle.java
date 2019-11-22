@@ -33,7 +33,7 @@ public class ElementHandle {
 
             logger.info("-----------------等待元素【" + text + "】已出现，开始执行安装步骤-----------------");
         } catch (Exception e) {
-            logger.info("---------------没有发现元素【" + text + "】---------------");
+            logger.error("---------------没有发现元素【" + text + "】---------------");
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("没有定位到元素： //*//*[@text='" + text + "']");

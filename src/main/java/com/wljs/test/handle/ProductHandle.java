@@ -32,6 +32,7 @@ public class ProductHandle {
             logger.info("---------------商品列表获取第一个商品价格 = " + pricelistEm.getText() + "---------------");
 
         } catch (Exception e) {
+            logger.error("无法定位元素： " + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("无法定位元素： " + text);
@@ -67,6 +68,7 @@ public class ProductHandle {
             logger.info("---------------商品详情获取商品价格，内容展示为空！！！！ ---------------");
         }*/
         } catch (Exception e) {
+            logger.error("执行商品详情UI自动化测试： 失败" + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("执行商品详情UI自动化测试： 失败");

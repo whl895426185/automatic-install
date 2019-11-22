@@ -99,12 +99,14 @@ public class InstallApkServer {
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("执行自动部署安装失败：" + e);
             responseData.setStatus(false);
             responseData.setException(e);
-            if(null == driver){
+            if (null == driver) {
                 responseData.setExMsg("执行自动部署安装失败： AndroidDriver is null");
-            }else{
-                responseData.setExMsg("执行自动部署安装失败");
+            } else {
+                responseData.setExMsg("执行自动部署安装失败：" + e);
             }
 
         } finally {
@@ -121,31 +123,28 @@ public class InstallApkServer {
      * @return
      */
     private AndroidDriver<AndroidElement> initDriver(StfDevicesFields fields, String apkPath) throws MalformedURLException {
-        //获取设备名称
-        logger.info("-----------------检测到移动设备信息为：-----------------");
-        logger.info("-----------------device = " + fields.getSerial() + "-----------------");
-        logger.info("-----------------deviceName = " + fields.getDeviceName() + "-----------------");
-        logger.info("-----------------platformVersion = " + fields.getVersion()+ "-----------------");
-        logger.info("-----------------appiumServerPort = " + fields.getAppiumServerPort() + "-----------------");
-        logger.info("-----------------systemPort = " + fields.getSystemPort() + "-----------------");
 
-        //初始化负责启动服务端时的参数设置
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, fields.getDeviceName()); // 设备名称
         capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, ConfigConstant.platformName);// 平台名称
         capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, fields.getVersion());// 系统版本号
         capabilities.setCapability(AndroidMobileCapabilityType.APP_PACKAGE, ConfigConstant.appPackage);// 包名
+        capabilities.setCapability(AndroidMobileCapabilityType.APP_ACTIVITY, ConfigConstant.appActivity);
         capabilities.setCapability(MobileCapabilityType.APP, apkPath);//.ipa or .apk文件所在的本地绝对路径或者远程路径
         capabilities.setCapability(MobileCapabilityType.UDID, fields.getSerial());// 物理机的id
         capabilities.setCapability(ConfigConstant.autoLaunch, false);// Appium是否需要自动安装和启动应用
         capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT, fields.getSystemPort());
+        capabilities.setCapability(AndroidMobileCapabilityType.AVD_READY_TIMEOUT, 300000);
         capabilities.setCapability(AndroidMobileCapabilityType.UNICODE_KEYBOARD, false);
         capabilities.setCapability(AndroidMobileCapabilityType.RESET_KEYBOARD, false);
 
+        logger.info("启动参数capabilities：%s", capabilities);
+
+        //初始化
         URL url = new URL("http://127.0.0.1:" + fields.getAppiumServerPort() + "/wd/hub");
 
         AndroidDriver<AndroidElement> driver = new AndroidDriver<AndroidElement>(url, capabilities);
-        driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+        driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
 
         return driver;
     }

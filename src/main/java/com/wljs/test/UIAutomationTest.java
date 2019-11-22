@@ -139,6 +139,7 @@ public class UIAutomationTest extends WaitElementHandle {
                 Thread.sleep(10000);
             }
         } catch (Exception e) {
+            logger.error("执行UI自动化测试： 失败" + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("执行UI自动化测试： 失败");
@@ -150,6 +151,7 @@ public class UIAutomationTest extends WaitElementHandle {
                 //殺進程
                 installApkServer.readCmd(CommandConstant.killProcessCommand);
             } catch (Exception e) {
+                logger.error("手动杀掉APP进程失败： " + e);
                 responseData.setStatus(false);
                 responseData.setException(e);
                 responseData.setExMsg("手动杀掉APP进程： 失败");
@@ -216,6 +218,7 @@ public class UIAutomationTest extends WaitElementHandle {
                 }
             }
         } catch (Exception e) {
+            logger.error("执行UI自动化测试失败: " + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("执行UI自动化测试： 失败");

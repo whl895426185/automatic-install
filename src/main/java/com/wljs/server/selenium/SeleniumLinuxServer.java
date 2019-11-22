@@ -132,7 +132,10 @@ public class SeleniumLinuxServer {
 
     private void sendMsg(ResponseData responseData, WebDriver driver, ChromeDriverService service) {
         ChatbotSendMessageNotify sendMessageNotify = new ChatbotSendMessageNotify();
-        sendMessageNotify.sendMessage(responseData);
+        List<ResponseData> dataList = new ArrayList<>();
+        dataList.add(responseData);
+
+        sendMessageNotify.sendMessage(dataList);
 
         driver.close();
         service.stop();
@@ -177,6 +180,7 @@ public class SeleniumLinuxServer {
                 }
             }
         } catch (Exception e) {
+            logger.error("登录STF平台失败，无法定位元素：" + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("登录STF平台失败，无法定位元素：" + text);

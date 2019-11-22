@@ -3,15 +3,18 @@ package com.wljs.server;
 import com.rethinkdb.RethinkDB;
 import com.rethinkdb.net.Connection;
 import com.rethinkdb.net.Cursor;
+import com.wljs.message.ChatbotSendMessageNotify;
+import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
+import com.wljs.util.TxtUtil;
 import com.wljs.util.constant.ConfigConstant;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CyclicBarrier;
 
@@ -19,9 +22,10 @@ import java.util.concurrent.CyclicBarrier;
  * 检测是否存在已连接且闲余的设备
  */
 public class StfDevicesServer {
+    private String uuid = UUID.randomUUID().toString().replaceAll("-", "");
     private Logger logger = LoggerFactory.getLogger(StfDevicesServer.class);
 
-    public void getStfDevicesList(String apkPath) throws InterruptedException {
+    public void getStfDevicesList(String apkPath) throws InterruptedException, IOException {
         RethinkDB r = RethinkDB.r;
         //连接rethinkdb
         Connection conn = r.connection().hostname(ConfigConstant.rethinkdb_host).port(ConfigConstant.rethinkdb_port).connect();
@@ -52,7 +56,7 @@ public class StfDevicesServer {
         conn.close();
 
         //测试数据
-//        List<StfDevicesFields> fieldsList = getFilesList();
+        //List<StfDevicesFields> fieldsList = getFilesList();
         if (null == fieldsList || fieldsList.size() < 1) {
             return;
         }
@@ -60,6 +64,7 @@ public class StfDevicesServer {
         //利用Selenium调用浏览器，动态模拟浏览器事件，占用已连接且闲余的设备
         SeleniumServer seleniumServer = new SeleniumServer();
         List<StfDevicesFields> resultList = seleniumServer.occupancyResources(fieldsList);
+
         if (null == resultList || resultList.size() < 1) {
             return;
         }
@@ -71,13 +76,24 @@ public class StfDevicesServer {
             queueList.add(fields);
         }
 
+        //创建uuid文件，用来查看是否是同一批设备
+        File localFile = new File(ConfigConstant.uuidPath);
+        if (!localFile.exists() && !localFile.isDirectory()) {
+            localFile.mkdir();
+        }
+        TxtUtil txtUtil = new TxtUtil();
+        txtUtil.creatTxtFile(ConfigConstant.uuidPath, uuid + ".txt");
+        txtUtil.writeTxtFile(ConfigConstant.uuidPath, "::" + queueList.size(), uuid + ".txt");
+
         //初始化栅栏线程，用该线程控制并发
         CyclicBarrier cyclicBarrier = new CyclicBarrier(resultList.size());
+
         //phoneNum初始化手机号尾号，执行测试用例虚拟手机号用到
         for (int phoneNum = 1; phoneNum <= resultList.size(); phoneNum++) {
-            ThreadWorkServer worker = new ThreadWorkServer(cyclicBarrier, queueList, apkPath, phoneNum);
+            ThreadWorkServer worker = new ThreadWorkServer(cyclicBarrier, queueList, apkPath, phoneNum, uuid);
             worker.start();
         }
+
         return;
     }
 
@@ -95,11 +111,10 @@ public class StfDevicesServer {
             StfDevicesFields fields = new StfDevicesFields();
 
             if (i == 0) {
-                continue;
-//                fields.setManufacturer("");
-//                fields.setModel(" M5s");
-//                fields.setSerial("612QKBQJ226WJ");
-//                fields.setVersion("6.0");
+                fields.setManufacturer("");
+                fields.setModel(" M5s");
+                fields.setSerial("612QKBQJ226WJ");
+                fields.setVersion("6.0");
             }
             if (i == 1) {
 //                fields.setManufacturer("OPPO");
@@ -113,11 +128,10 @@ public class StfDevicesServer {
                 fields.setVersion("8.1.0");
             }
             if (i == 2) {
-                continue;
-//                fields.setSerial("8KE5T19711012159");
-//                fields.setVersion("9.0");
-//                fields.setModel(" P30");
-//                fields.setManufacturer("HUAWEI");
+                fields.setSerial("8KE5T19711012159");
+                fields.setVersion("9.0");
+                fields.setModel(" P30");
+                fields.setManufacturer("HUAWEI");
             }
 
             fields.setAppiumServerPort(appiumServerPort + index);

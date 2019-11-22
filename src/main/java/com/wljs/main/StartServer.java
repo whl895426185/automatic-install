@@ -139,7 +139,9 @@ public class StartServer {
 
                 } finally {
                     ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();
-                    messageNotify.sendMessage(responseData);
+                    List<ResponseData> responseDataList = new ArrayList<ResponseData>();
+                    responseDataList.add(responseData);
+                    messageNotify.sendMessage(responseDataList);
                 }
 
             }
@@ -155,7 +157,7 @@ public class StartServer {
 
         //本地先创建最新存放apk包的版本信息txt
         TxtUtil texUtil = new TxtUtil();
-        texUtil.creatTxtFile(ConfigConstant.localApkVersionFilePath);
+        texUtil.creatTxtFile(ConfigConstant.localApkVersionFilePath, ConfigConstant.apkVersionLogFileName);
 
         String name = "";// 存放最新上传包名
         Long time = 0l;// 存放最新上传包的时间
@@ -184,7 +186,7 @@ public class StartServer {
         //比对获取的最新APK包与本地记录的安装部署过的APK包的信息，是否已经安装部署过了
 
         //读取本地记录的安装部署过的APK包的信息
-        String text = texUtil.readTxtFile(ConfigConstant.localApkVersionFilePath);
+        String text = texUtil.readTxtFile(ConfigConstant.localApkVersionFilePath, ConfigConstant.apkVersionLogFileName);
 
         //比较
         entry = (SVNDirEntry) objectMap.get(name);
@@ -205,11 +207,11 @@ public class StartServer {
 
         //先删除txt文档再新增
         if (!("").equals(text)) {
-            texUtil.deleteTxtFile(ConfigConstant.localApkVersionFilePath);
-            texUtil.creatTxtFile(ConfigConstant.localApkVersionFilePath);
+            texUtil.deleteTxtFile(ConfigConstant.localApkVersionFilePath, ConfigConstant.apkVersionLogFileName);
+            texUtil.creatTxtFile(ConfigConstant.localApkVersionFilePath, ConfigConstant.apkVersionLogFileName);
         }
         //提前录入最新的APK包的信息，避免定時任務一直檢測
-        texUtil.writeTxtFile(ConfigConstant.localApkVersionFilePath, apkText);
+        texUtil.writeTxtFile(ConfigConstant.localApkVersionFilePath, apkText, ConfigConstant.apkVersionLogFileName);
 
         return entry;
     }

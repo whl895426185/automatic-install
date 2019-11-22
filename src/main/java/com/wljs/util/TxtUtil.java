@@ -8,8 +8,8 @@ public class TxtUtil {
      *
      * @throws IOException
      */
-    public void creatTxtFile(String path) throws IOException {
-        File filename = new File(path + "/apkVersionLog.txt");
+    public void creatTxtFile(String path, String fileName) throws IOException {
+        File filename = new File(path + "/" + fileName);
 
         if (!filename.exists()) {
             filename.createNewFile();
@@ -22,8 +22,8 @@ public class TxtUtil {
      *
      * @throws IOException
      */
-    public void deleteTxtFile(String path) {
-        File filename = new File(path + "/apkVersionLog.txt");
+    public void deleteTxtFile(String path, String fileName) {
+        File filename = new File(path + "/" + fileName);
 
         if (filename.exists()) {
             filename.delete();
@@ -36,7 +36,7 @@ public class TxtUtil {
      * @param newStr 新内容
      * @throws IOException
      */
-    public boolean writeTxtFile(String path, String newStr) throws IOException {
+    public boolean writeTxtFile(String path, String newStr, String fileName) throws IOException {
         // 先读取原有文件内容，然后进行写入操作
         boolean flag = false;
         String filein = newStr + "\r\n";
@@ -50,7 +50,7 @@ public class TxtUtil {
         PrintWriter pw = null;
         try {
             // 文件路径
-            File file = new File(path + "/apkVersionLog.txt");
+            File file = new File(path + "/" + fileName);
             // 将文件读入输入流
             fis = new FileInputStream(file);
             isr = new InputStreamReader(fis);
@@ -100,9 +100,9 @@ public class TxtUtil {
      *
      * @param path
      */
-    public String readTxtFile(String path) {
+    public String readTxtFile(String path, String fileName) {
         try {
-            File file = new File(path + "/apkVersionLog.txt");
+            File file = new File(path + "/" + fileName);
             if (file.isFile() && file.exists()) {
                 StringBuffer sbf = new StringBuffer();
                 InputStreamReader isr = new InputStreamReader(new FileInputStream(file), "UTF-8");
