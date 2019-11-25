@@ -1,5 +1,6 @@
 package com.wljs.test.handle;
 
+import com.wljs.pojo.StfDevicesFields;
 import com.wljs.util.constant.InstallStepConstant;
 import com.wljs.util.constant.LabelConstant;
 import io.appium.java_client.android.AndroidDriver;
@@ -15,15 +16,15 @@ import org.slf4j.LoggerFactory;
 public class LoginHandle {
     private Logger logger = LoggerFactory.getLogger(LoginHandle.class);
 
-    public void login(AndroidDriver driver, int phoneTailNumber) {
+    public void login(AndroidDriver driver, StfDevicesFields fields, int phoneTailNumber) {
         try {
-            if (isAppear(driver, LabelConstant.smsVerifiyCodeBtnName)) {
+            if (isAppear(driver, fields, LabelConstant.smsVerifiyCodeBtnName)) {
                 //填写手机号
-                pressKeyPhone(driver, phoneTailNumber);
+                pressKeyPhone(driver, fields, phoneTailNumber);
 
                 //填写验证码
                 driver.findElement(By.xpath(LabelConstant.verifiyCodeField)).click();
-                pressKeyVerificationCode(driver);
+                pressKeyVerificationCode(driver, fields);
 
                 boolean isSuccess = true;
                 try {
@@ -36,9 +37,9 @@ public class LoginHandle {
 
                 //点击【登录】按钮
                 if (isSuccess) {
-                    if (isAppear(driver, LabelConstant.loginBtnName)) {
+                    if (isAppear(driver, fields, LabelConstant.loginBtnName)) {
                         driver.findElement(By.xpath(LabelConstant.loginBtn)).click();
-                        logger.info("---------------模拟点击【登录】按钮--------------");
+                        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】模拟点击【登录】按钮");
                     }
                 }
             }
@@ -47,9 +48,9 @@ public class LoginHandle {
         }
     }
 
-    private boolean isAppear(AndroidDriver driver, String text) {
+    private boolean isAppear(AndroidDriver driver, StfDevicesFields fields, String text) {
         WaitElementHandle elementHandle = new WaitElementHandle();
-        return elementHandle.isAppear(driver, text, 1);
+        return elementHandle.isAppear(driver, fields, text, 1);
     }
 
     /**
@@ -57,7 +58,7 @@ public class LoginHandle {
      *
      * @param driver
      */
-    private void pressKeyPhone(AndroidDriver driver, int phoneTailNumber) {
+    private void pressKeyPhone(AndroidDriver driver, StfDevicesFields fields, int phoneTailNumber) {
         String phoneStr = InstallStepConstant.phoneStr;
 
         //尾号
@@ -83,7 +84,7 @@ public class LoginHandle {
             driver.pressKey(new KeyEvent(getKey(str)));
             result += str;
         }
-        logger.info("---------------模拟输入手机号 = " + result + "---------------");
+        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】模拟输入手机号 = " + result);
     }
 
     private AndroidKey getKey(String numStr) {
@@ -118,32 +119,32 @@ public class LoginHandle {
      *
      * @param driver
      */
-    private void pressKeyVerificationCode(AndroidDriver driver) {
+    private void pressKeyVerificationCode(AndroidDriver driver, StfDevicesFields fields) {
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_8));
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_8));
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_8));
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_8));
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_8));
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_8));
-        logger.info("---------------模拟输入验证码 = 888888---------------");
+        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】模拟输入验证码 = 888888");
     }
 
     //新账号需要填写邀请码
-    public void inviteCode(AndroidDriver driver) {
-        if (isAppear(driver, LabelConstant.confirmInviteCodeBtnName)) {
+    public void inviteCode(AndroidDriver driver, StfDevicesFields fields) {
+        if (isAppear(driver, fields, LabelConstant.confirmInviteCodeBtnName)) {
             //填写邀请码
-            pressKeyInvitationCode(driver);
+            pressKeyInvitationCode(driver, fields);
 
             //点击【确定邀请码】按钮
             driver.findElement(By.xpath(LabelConstant.loginBtn)).click();
-            logger.info("---------------模拟点击【确定邀请码】按钮--------------");
+            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】模拟点击【确定邀请码】按钮");
 
             //等待元素出現
-            if (isAppear(driver, LabelConstant.confirmAndBindLoginBtnName)) {
+            if (isAppear(driver, fields, LabelConstant.confirmAndBindLoginBtnName)) {
                 //点击【确认绑定并登录】按钮
                 driver.findElement(By.xpath(LabelConstant.loginBtn)).click();
 
-                logger.info("---------------模拟点击【确认绑定并登录】按钮--------------");
+                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】模拟点击【确认绑定并登录】按钮");
             }
         }
     }
@@ -153,14 +154,14 @@ public class LoginHandle {
      *
      * @param driver
      */
-    private void pressKeyInvitationCode(AndroidDriver driver) {
+    private void pressKeyInvitationCode(AndroidDriver driver, StfDevicesFields fields) {
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_6));
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_0));
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_0));
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_0));
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_0));
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_6));
-        logger.info("---------------模拟输入邀请码 = 600006---------------");
+        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】模拟输入邀请码 = 600006");
     }
 
 }

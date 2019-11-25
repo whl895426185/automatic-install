@@ -2,6 +2,7 @@ package com.wljs.phonetype;
 
 import com.wljs.phonetype.handle.ElementHandle;
 import com.wljs.pojo.ResponseData;
+import com.wljs.pojo.StfDevicesFields;
 import io.appium.java_client.android.AndroidDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public class SamsungStep extends ElementHandle {
     private Logger logger = LoggerFactory.getLogger(SamsungStep.class);
 
-    public ResponseData installStep(AndroidDriver driver) {
+    public ResponseData installStep(AndroidDriver driver, StfDevicesFields fields) {
         ResponseData responseData = new ResponseData();
         return responseData;
     }

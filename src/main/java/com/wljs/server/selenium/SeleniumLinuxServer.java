@@ -82,7 +82,7 @@ public class SeleniumLinuxServer {
         responseData = login(driver);
         if (!responseData.isStatus()) {
             responseData.setExMsg("模拟登录STF平台失败");
-            logger.info("------------模拟登录STF平台失败--------------");
+            logger.info(":::::::::::::::::模拟登录STF平台失败");
 
             sendMsg(responseData, driver, service);
             return resultList;
@@ -102,7 +102,7 @@ public class SeleniumLinuxServer {
             }
             Thread.sleep(8000);
 
-            logger.info("------------模拟点击设备：" + fields.getDeviceName() + ", 占用设备资源--------------");
+            logger.info(":::::::::::::::::模拟点击设备：" + fields.getDeviceName() + ", 占用设备资源");
 
             driver.navigate().refresh();
             //点击设备会进入control， 需回到devices页面才可以
@@ -112,8 +112,6 @@ public class SeleniumLinuxServer {
                 sendMsg(responseData, driver, service);
                 continue;
             }
-
-            logger.info("------------模拟点击【设备按钮】回到设备列表页面--------------");
 
             resultList.add(fields);
 
@@ -179,7 +177,7 @@ public class SeleniumLinuxServer {
                 }
             }
         } catch (Exception e) {
-            logger.error("登录STF平台失败，无法定位元素：" + e);
+            logger.error(":::::::::::::::::登录STF平台失败，无法定位元素：" + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("登录STF平台失败，无法定位元素：" + text);
@@ -212,7 +210,7 @@ public class SeleniumLinuxServer {
             element.click();
 
         } catch (Exception e) {
-            logger.error("没有等到元素出现，打印异常: " + e);
+            logger.error(":::::::::::::::::没有等到元素出现，打印异常: " + e);
 
             responseData.setStatus(false);
             responseData.setException(e);
@@ -247,7 +245,7 @@ public class SeleniumLinuxServer {
         responseData = login(driver);
         if (!responseData.isStatus()) {
             responseData.setExMsg("模拟登录STF平台失败");
-            logger.info("------------模拟登录STF平台失败--------------");
+            logger.info(":::::::::::::::::模拟登录STF平台失败");
 
             sendMsg(responseData, driver, service);
             return;
@@ -264,7 +262,7 @@ public class SeleniumLinuxServer {
         }
 
 
-        logger.info("------------模拟点击设备：" + fields.getDeviceName() + ", 释放设备资源--------------");
+        logger.info(":::::::::::::::::模拟点击设备：" + fields.getDeviceName() + ", 释放设备资源");
 
         driver.navigate().refresh();
 

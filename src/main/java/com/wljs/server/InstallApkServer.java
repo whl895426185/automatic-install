@@ -69,15 +69,16 @@ public class InstallApkServer {
             do {
                 //检查APP是否安装
                 if (driver.isAppInstalled(ConfigConstant.appPackage)) {
-                    logger.info("-----------------执行卸载当前设备上的APP-----------------");
+                    logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】检测到设备之前安装了APP，先执行卸载操作");
                     //如果安装了，先卸载
                     driver.removeApp(ConfigConstant.appPackage);
                 }
 
-                logger.info("-----------------执行命令安装APP-----------------");
                 //adb命令执行安装apk（不要用appium自带的安装函数，这样无法执行后续的安装步骤）
                 String installCmd = "adb -s " + device + " install " + apkPath;
                 Runtime.getRuntime().exec(installCmd);
+                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】命令执行安装：" + installCmd);
+
 
                 //不同的机型调用不同的安装步骤
                 PhoneInstallStepHandle installStepHandle = new PhoneInstallStepHandle();
@@ -85,7 +86,7 @@ public class InstallApkServer {
                 if (!responseData.isStatus()) {
                     isSuccess = false;
                     if (i < 2) {
-                        logger.info("-----------------尝试重新执行命令安装APP-----------------");
+                        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】第" + i + "次重新尝试安装");
                     }
                 }
                 i++;
@@ -93,14 +94,14 @@ public class InstallApkServer {
 
             if (responseData.isStatus()) {
                 //检测包是否安装成功
-                responseData = installOk(driver, ConfigConstant.appPackage);
+                responseData = installOk(driver, fields, ConfigConstant.appPackage);
 
                 driver.quit();
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("执行自动部署安装失败：" + e);
+            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】执行自动部署安装失败：" + e);
             responseData.setStatus(false);
             responseData.setException(e);
             if (null == driver) {
@@ -179,11 +180,11 @@ public class InstallApkServer {
      * @param driver
      * @param appPackage
      */
-    private ResponseData installOk(AndroidDriver driver, String appPackage) throws InterruptedException {
+    private ResponseData installOk(AndroidDriver driver, StfDevicesFields fields, String appPackage) throws InterruptedException {
         ResponseData responseData = new ResponseData();
         boolean isSuccess = true;
         int i = 0;
-        logger.info("-----------------准备检查App是否安装成功-----------------");
+        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】准备检查App是否安装成功");
         do {
             Thread.sleep(20000);
 
@@ -191,9 +192,9 @@ public class InstallApkServer {
 
             if (!isSuccess && i == 4) {
                 responseData.setStatus(false);
-                responseData.setExMsg("手动安装包时，Appium无法检测到包的安装路径");
+                responseData.setExMsg(":::::::::::::::::【" + fields.getDeviceName() + "】Appium无法检测到包的安装路径");
             }
-            logger.info("-----------------第" + (i + 1) + "次检查App安装结果：" + (isSuccess ? "成功" : (i == 4 ? "失败" : "安装有点缓慢，请等待！！！！！")) + "-----------------");
+            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】第" + (i + 1) + "次检查App安装结果：" + (isSuccess ? "成功" : (i == 4 ? "失败" : "安装有点缓慢，请等待！！！！！")) + "");
 
             i++;
         } while (!isSuccess && i < 5);

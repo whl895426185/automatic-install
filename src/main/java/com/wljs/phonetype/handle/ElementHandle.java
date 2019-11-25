@@ -2,6 +2,7 @@ package com.wljs.phonetype.handle;
 
 import com.wljs.pojo.Coordinates;
 import com.wljs.pojo.ResponseData;
+import com.wljs.pojo.StfDevicesFields;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.touch.offset.PointOption;
@@ -24,16 +25,16 @@ public class ElementHandle {
      * @param text
      * @return
      */
-    public ResponseData waitingElement(AndroidDriver driver, String text) {
+    public ResponseData waitingElement(AndroidDriver driver, StfDevicesFields fields, String text) {
         ResponseData responseData = new ResponseData();
         try {
             WebDriverWait wait = new WebDriverWait(driver, 120);
             By by = By.xpath("//*//*[@text='" + text + "']");
             wait.until(ExpectedConditions.presenceOfElementLocated(by));
 
-            logger.info("-----------------等待元素【" + text + "】已出现，开始执行安装步骤-----------------");
+            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】等待元素【" + text + "】已出现，开始执行安装步骤");
         } catch (Exception e) {
-            logger.error("---------------没有发现元素【" + text + "】---------------");
+            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】没有发现元素【" + text + "】");
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("没有定位到元素： //*//*[@text='" + text + "']");
@@ -83,12 +84,12 @@ public class ElementHandle {
      * @param y      纵坐标
      * @param text   安装步骤名称
      */
-    public void clickCoordinates(AndroidDriver driver, double x, double y, String text) {
+    public void clickCoordinates(AndroidDriver driver, StfDevicesFields fields, double x, double y, String text) {
         int resultX = new Double(x).intValue();
         int resultY = new Double(y).intValue();
 
-        logger.info("-----------------X坐标为：" + resultX + ", Y坐标为：" + resultY + "-----------------");
-        logger.info("-----------------模拟点击元素【" + text + "】按钮-----------------");
+        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】X坐标为：" + resultX + ", Y坐标为：" + resultY);
+        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】模拟点击元素【" + text + "】按钮");
 
         TouchAction t = new TouchAction(driver);//模拟触摸点击
         t.tap(PointOption.point(resultX, resultY)).perform().release();

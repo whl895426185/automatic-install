@@ -21,9 +21,9 @@ public class AppiumServer {
 
 
     public AppiumDriverLocalService start(int port) {
-//        logger.info("-----------------传参端口【" + port + "】-----------------");
+//        logger.info(":::::::::::::::::传参端口【" + port + "】");
         if(checkIfServerIsRunnning(port)) {
-//            logger.info("-----------------Appium Server服务端口【" + port + "】已启动，无需再重启-----------------");
+//            logger.info(:::::::::::::::::Appium Server服务端口【" + port + "】已启动，无需再重启");
         } else {
             startAppiumServer(port);
 //            stopAppiumServer(port);
@@ -34,7 +34,7 @@ public class AppiumServer {
      * 启动Appium Server服务
      */
     public void startAppiumServer(int port) {
-//        logger.info("-----------------启动Appium Server服务端口【" + port + "】-----------------");
+//        logger.info(":::::::::::::::::启动Appium Server服务端口【" + port + "】");
         DesiredCapabilities cap = new DesiredCapabilities();
         cap.setCapability("noReset", "false");
         cap.setCapability("noSign", "true");
@@ -60,7 +60,7 @@ public class AppiumServer {
         if(checkIfServerIsRunnning(port)) {
             service.stop();
         }
-        logger.info("-----------------停止Appium Server服务端口【" + port + "】-----------------");
+        logger.info(":::::::::::::::::停止Appium Server服务端口【" + port + "】");
 
     }
 

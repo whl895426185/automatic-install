@@ -1,6 +1,7 @@
 package com.wljs.test.handle;
 
 import com.wljs.pojo.Coordinates;
+import com.wljs.pojo.StfDevicesFields;
 import com.wljs.util.constant.LabelConstant;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
@@ -26,7 +27,7 @@ public class WaitElementHandle {
      * @param type
      * @return
      */
-    public boolean isAppear(AndroidDriver driver, String text, int type) {
+    public boolean isAppear(AndroidDriver driver, StfDevicesFields fields, String text, int type) {
         boolean isSuccess = true;
         try {
             WebDriverWait wait = new WebDriverWait(driver, 3);
@@ -48,7 +49,7 @@ public class WaitElementHandle {
             }
             return true;
         } catch (Exception e) {
-            logger.info("---------------没有发现元素【" + text + "】---------------");
+            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】没有发现元素【" + text + "】");
             isSuccess = false;
         } finally {
             return isSuccess;
@@ -62,13 +63,13 @@ public class WaitElementHandle {
      * @param text
      * @param type
      */
-    public void tap(AndroidDriver driver, String text, int type) {
+    public void tap(AndroidDriver driver, StfDevicesFields fields, String text, int type) {
         Coordinates coordinates = getXy(driver, text, 1);
 
         int x = coordinates.getTotalX() / 2;
         int y = coordinates.getTotalY() / 2;
 
-        logger.info("---------------模拟点击【" + text + "】按钮--------------");
+        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】模拟点击【" + text + "】按钮");
 
         TouchAction t = new TouchAction(driver);//模拟触摸点击
         t.tap(PointOption.point(x, y)).perform().release();

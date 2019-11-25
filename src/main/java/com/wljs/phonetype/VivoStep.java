@@ -3,6 +3,7 @@ package com.wljs.phonetype;
 import com.wljs.phonetype.handle.ElementHandle;
 import com.wljs.pojo.Coordinates;
 import com.wljs.pojo.ResponseData;
+import com.wljs.pojo.StfDevicesFields;
 import com.wljs.util.constant.InstallStepConstant;
 import com.wljs.util.constant.PhoneTypeConstant;
 import io.appium.java_client.android.AndroidDriver;
@@ -16,37 +17,37 @@ import org.slf4j.LoggerFactory;
 public class VivoStep extends ElementHandle {
     private Logger logger = LoggerFactory.getLogger(VivoStep.class);
 
-    public ResponseData installStep(AndroidDriver driver, String deviceName) {
+    public ResponseData installStep(AndroidDriver driver, StfDevicesFields fields) {
         ResponseData responseData = new ResponseData();
 
-        logger.info("-----------------执行安装步骤！！！！-----------------");
+        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】执行安装步骤！！！！");
         //步驟一
-        responseData = waitingElement(driver, InstallStepConstant.vivo_step_1);
+        responseData = waitingElement(driver, fields, InstallStepConstant.vivo_step_1);
         if (!responseData.isStatus()) {
             return responseData;
         }
-        responseData = tap(driver, deviceName, InstallStepConstant.vivo_step_1, 1);
+        responseData = tap(driver, fields, InstallStepConstant.vivo_step_1, 1);
         if (!responseData.isStatus()) {
             return responseData;
         }
 
         //步驟二
-        responseData = waitingElement(driver, InstallStepConstant.vivo_step_2);
+        responseData = waitingElement(driver, fields, InstallStepConstant.vivo_step_2);
         if (!responseData.isStatus()) {
             return responseData;
         }
 
-        responseData = tap(driver, deviceName, InstallStepConstant.vivo_step_2, 2);
+        responseData = tap(driver, fields, InstallStepConstant.vivo_step_2, 2);
         if (!responseData.isStatus()) {
             return responseData;
         }
 
         //步驟三
-        responseData = waitingElement(driver, InstallStepConstant.vivo_step_3);
+        responseData = waitingElement(driver, fields, InstallStepConstant.vivo_step_3);
         if (!responseData.isStatus()) {
             return responseData;
         }
-        responseData = tap(driver, deviceName, InstallStepConstant.vivo_step_3, 3);
+        responseData = tap(driver, fields, InstallStepConstant.vivo_step_3, 3);
         if (!responseData.isStatus()) {
             return responseData;
         }
@@ -62,7 +63,7 @@ public class VivoStep extends ElementHandle {
      * @param type   安裝步驟順序
      * @return
      */
-    public ResponseData tap(AndroidDriver driver, String deviceName, String text, int type) {
+    public ResponseData tap(AndroidDriver driver, StfDevicesFields fields, String text, int type) {
         ResponseData responseData = new ResponseData();
         String keyword = null;
         try {
@@ -72,7 +73,7 @@ public class VivoStep extends ElementHandle {
             } else if (2 == type) {
                 keyword = "resource-id=\"com.android.packageinstaller:id/ok_button\"";
             } else if (3 == type) {
-                if (deviceName.contains(PhoneTypeConstant.VIVO_PHONE_MODEL1)) {
+                if (fields.getDeviceName().contains(PhoneTypeConstant.VIVO_PHONE_MODEL1)) {
                     keyword = "resource-id=\"com.android.packageinstaller:id/cancel_button\"";
                 } else {
                     keyword = "resource-id=\"com.android.packageinstaller:id/done_button\"";
@@ -87,10 +88,10 @@ public class VivoStep extends ElementHandle {
             double x = totalX / 2;
             double y = totalY / 2;
 
-            clickCoordinates(driver, x, y, text);
+            clickCoordinates(driver, fields, x, y, text);
 
         } catch (Exception e) {
-            logger.error("无法通过关键字获取坐标信息： " + e);
+            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】无法通过关键字获取坐标信息： " + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("无法通过关键字获取坐标信息： " + keyword);

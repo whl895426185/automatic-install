@@ -41,8 +41,9 @@ public class ConfigConstant {
      * android配置
      */
     public static final String appPackage = "com.sibu.futurebazaar";
-    public static final String appActivity = ".ui.SplashActivityNew";
+//    public static final String appActivity = ".ui.SplashActivityNew";
 //    public static final String appActivity = ".ui.MainActivity";
+    public static final String appActivity = ".ui.SplashActivityNew2";
     public static final String platformName = "Android";
     public static final String autoLaunch = "autoLaunch";
 

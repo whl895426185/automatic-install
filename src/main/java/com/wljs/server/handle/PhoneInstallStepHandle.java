@@ -22,27 +22,27 @@ public class PhoneInstallStepHandle {
         //OPPO R9s Plus
         if (deviceName.contains(PhoneTypeConstant.OPPO_PHONE)) {
             OppoStep oppo = new OppoStep();
-            return oppo.installStep(driver);
+            return oppo.installStep(driver, fields);
 
             //vivo X9
         } else if (deviceName.contains(PhoneTypeConstant.VIVO_PHONE)) {
             VivoStep vivo = new VivoStep();
-            return vivo.installStep(driver, deviceName);
+            return vivo.installStep(driver, fields);
 
             //HUAWEI P30/HUAWEI nova3
         } else if (deviceName.contains(PhoneTypeConstant.HUAWEI_PHONE)) {
             HuaweiStep huawei = new HuaweiStep();
-            return huawei.installStep(driver, deviceName);
+            return huawei.installStep(driver, fields);
 
             //MEIZU
         } else if (deviceName.contains(PhoneTypeConstant.MEIZU_PHONE)) {
             MeizuStep meizu = new MeizuStep();
-            return meizu.installStep(driver);
+            return meizu.installStep(driver, fields);
 
             //Samsung
         } else if (deviceName.contains(PhoneTypeConstant.SAMSUNG_PHONE)) {
             SamsungStep samsung = new SamsungStep();
-            return samsung.installStep(driver);
+            return samsung.installStep(driver, fields);
         }
         return null;
     }

@@ -3,6 +3,7 @@ package com.wljs.phonetype;
 import com.wljs.phonetype.handle.ElementHandle;
 import com.wljs.pojo.Coordinates;
 import com.wljs.pojo.ResponseData;
+import com.wljs.pojo.StfDevicesFields;
 import com.wljs.util.constant.InstallStepConstant;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.nativekey.AndroidKey;
@@ -17,10 +18,10 @@ import org.slf4j.LoggerFactory;
 public class OppoStep extends ElementHandle {
     private Logger logger = LoggerFactory.getLogger(OppoStep.class);
 
-    public ResponseData installStep(AndroidDriver driver) {
+    public ResponseData installStep(AndroidDriver driver, StfDevicesFields fields) {
         ResponseData responseData = new ResponseData();
         //允许安装
-        responseData = waitingElement(driver, InstallStepConstant.oppo_step_1);
+        responseData = waitingElement(driver, fields, InstallStepConstant.oppo_step_1);
         if (!responseData.isStatus()) {
             return responseData;
         }
@@ -35,26 +36,26 @@ public class OppoStep extends ElementHandle {
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_3));
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_8));
 
-        responseData = tap(driver, InstallStepConstant.oppo_step_1, 1);
+        responseData = tap(driver, fields, InstallStepConstant.oppo_step_1, 1);
         if (!responseData.isStatus()) {
             return responseData;
         }
 
-        logger.info("-----------------执行安装步骤！！！！-----------------");
-        responseData = waitingElement(driver, InstallStepConstant.oppo_step_2_txt);
+        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】执行安装步骤！！！！");
+        responseData = waitingElement(driver, fields, InstallStepConstant.oppo_step_2_txt);
         if (!responseData.isStatus()) {
             return responseData;
         }
-        responseData = tap(driver, InstallStepConstant.oppo_step_2, 2);
+        responseData = tap(driver, fields, InstallStepConstant.oppo_step_2, 2);
         if (!responseData.isStatus()) {
             return responseData;
         }
 
-        responseData = waitingElement(driver, InstallStepConstant.oppo_step_3);
+        responseData = waitingElement(driver, fields, InstallStepConstant.oppo_step_3);
         if (!responseData.isStatus()) {
             return responseData;
         }
-        responseData = tap(driver, InstallStepConstant.oppo_step_3, 3);
+        responseData = tap(driver, fields, InstallStepConstant.oppo_step_3, 3);
         if (!responseData.isStatus()) {
             return responseData;
         }
@@ -69,7 +70,7 @@ public class OppoStep extends ElementHandle {
      * @param driver
      * @return
      */
-    public ResponseData tap(AndroidDriver driver, String text, int type) {
+    public ResponseData tap(AndroidDriver driver, StfDevicesFields fields, String text, int type) {
         ResponseData responseData = new ResponseData();
         String keyword = null;
         try {
@@ -102,10 +103,10 @@ public class OppoStep extends ElementHandle {
                 y = totalY * 0.5;
             }
 
-            clickCoordinates(driver, x, y, text);
+            clickCoordinates(driver, fields, x, y, text);
 
         } catch (Exception e) {
-            logger.error("获取坐标信息异常：" + e);
+            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】获取坐标信息异常：" + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("无法通过关键字获取坐标信息： " + keyword);

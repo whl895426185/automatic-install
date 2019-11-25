@@ -57,7 +57,7 @@ public class SeleniumWindowServer {
 
             boolean isSuccess = login(driver);
             if (!isSuccess) {
-                logger.info("------------模拟登录STF平台失败--------------");
+                logger.info(":::::::::::::::::模拟登录STF平台失败");
             }else{
 
                 //刷新
@@ -68,13 +68,13 @@ public class SeleniumWindowServer {
                 for (StfDevicesFields fields : fieldsList) {
 
                     if (isAppear(driver, fields.getSerial())) {
-                        logger.info("------------模拟点击设备：" + fields.getDeviceName() + ", 占用设备资源--------------");
+                        logger.info(":::::::::::::::::模拟点击设备：" + fields.getDeviceName() + ", 占用设备资源");
 
                         driver.navigate().refresh();
 
                         //点击设备会进入control， 需回到devices页面才可以
                         if (isAppear(driver, null)) {
-                            logger.info("------------模拟点击【设备按钮】回到设备列表页面--------------");
+                            logger.info(":::::::::::::::::模拟点击【设备按钮】回到设备列表页面");
                         }
 
                         resultList.add(fields);
@@ -182,14 +182,14 @@ public class SeleniumWindowServer {
 
             boolean isSuccess = login(driver);
             if (!isSuccess) {
-                logger.info("------------模拟登录STF平台失败--------------");
+                logger.info(":::::::::::::::::模拟登录STF平台失败");
             }else{
                 //刷新
                 driver.navigate().refresh();
                 Thread.sleep(20000);
 
                 if (isAppear(driver, fields.getSerial())) {
-                    logger.info("------------模拟点击设备：" + fields.getDeviceName() + ", 释放设备资源--------------");
+                    logger.info(":::::::::::::::::模拟点击设备：" + fields.getDeviceName() + ", 释放设备资源");
                 }
 
                 driver.navigate().refresh();

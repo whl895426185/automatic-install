@@ -52,13 +52,13 @@ public class ThreadWorkServer extends Thread {
                 UIAutomationTest uiTest = new UIAutomationTest();
                 responseData = uiTest.executeTest(responseData.getFields(), apkPath, phoneNum);
 
-                logger.info("-----------------" + Thread.currentThread().getName() + "执行完毕-----------------");
+                logger.info(":::::::::::::::::【" + responseData.getFields().getDeviceName() + "】线程" + Thread.currentThread().getName() + "执行完毕");
 
             }
 
             txtUtil.writeTxtFile(ConfigConstant.uuidPath,"::" + Thread.currentThread().getName(), uuid+".txt");
         } catch (Exception e) {
-            logger.error("自动部署安装失败:" + e);
+            logger.error(":::::::::::::::::【" + responseData.getFields().getDeviceName() + "】自动部署安装失败:" + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("自动部署安装失败:" + e);
@@ -72,7 +72,7 @@ public class ThreadWorkServer extends Thread {
             } catch (Exception e) {
                 responseData.setStatus(false);
                 responseData.setException(e);
-                responseData.setExMsg("释放设备（" + responseData.getFields().getDeviceName() + "）资源失败");
+                responseData.setExMsg(":::::::::::::::::释放设备（" + responseData.getFields().getDeviceName() + "）资源失败");
             }finally {
 
                 if(null == responseDataList || responseDataList.size() < 1){

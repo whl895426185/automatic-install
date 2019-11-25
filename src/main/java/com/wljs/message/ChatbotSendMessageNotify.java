@@ -26,7 +26,6 @@ public class ChatbotSendMessageNotify {
 
     public void sendMessage(List<ResponseData> dataList) {
         try {
-            logger.info("-----------------开始检测是否有异常设备--------------------------");
             //判断是否有异常信息，有则发送钉钉，没有则返回
             if (null == dataList || dataList.size() < 1) {
                 return;
@@ -36,7 +35,7 @@ public class ChatbotSendMessageNotify {
             Map<String, List<ResponseData>> messageMap = new HashMap<String, List<ResponseData>>();
             List<ResponseData> responseDataList = null;
             for (ResponseData responseData : dataList) {
-                logger.info("-----------------deviceName = " + responseData.getFields().getDeviceName() + ", status = " + responseData.isStatus() + ", ExMsg = " + responseData.getExMsg() + "--------------------------");
+                logger.info(":::::::::::::::::【钉钉消息通知】deviceName = " + responseData.getFields().getDeviceName() + ", status = " + responseData.isStatus() + ", ExMsg = " + responseData.getExMsg());
                 //状态是成功的，则抛开掉
                 boolean isStatus = responseData.isStatus();
                 if (!isStatus) {
@@ -50,13 +49,13 @@ public class ChatbotSendMessageNotify {
                 }
             }
 
-            logger.info("-----------------messageMap.size() = " + messageMap.size() + "--------------------------");
+            logger.info(":::::::::::::::::【钉钉消息通知】messageMap.size() = " + messageMap.size());
             //判断是否为空
             if (null == messageMap || messageMap.size() < 1) {
                 return;
             }
 
-            logger.info("-----------------检测到有设备部署安装失败，发送钉钉消息--------------------------");
+            logger.info(":::::::::::::::::【钉钉消息通知】检测到有设备部署安装失败，发送钉钉消息");
             //判断存放异常的文件夹是否存在
             String parentFilePath = ConfigConstant.errorLogPath;
             File parentFile = new File(parentFilePath);
@@ -146,7 +145,7 @@ public class ChatbotSendMessageNotify {
                 //创建实时日志，打开链接展示
                 if (index == 0) {
                     index++;
-                    logger.info("---------------------logName = " + logName + "-----------------------");
+                    logger.info(":::::::::::::::::【钉钉消息通知】logName = " + logName);
                     //创建log文件，用于下载
                     createLog(childFilePath, logName, responseData);
                     //创建txt文件，用于展示
@@ -177,7 +176,7 @@ public class ChatbotSendMessageNotify {
 
     private void createLog(String childFilePath, String logName, ResponseData responseData) throws FileNotFoundException {
         String path = childFilePath + "/" + logName + ".log";
-        logger.info("---------------------创建LOG文件:" + path + "-----------------------");
+        logger.info(":::::::::::::::::【钉钉消息通知】创建LOG文件:" + path);
         File file = new File(path);
         //创建文件的输出流
         PrintStream stream = new PrintStream(file);
@@ -214,7 +213,7 @@ public class ChatbotSendMessageNotify {
             htmlContent = htmlContent.replaceAll("logPathValue", path + ".txt");
 
             String saveHtmlFile = childFilePath + "/" + logName + ".html";
-            logger.info("---------------------创建HTML文件:" + saveHtmlFile + "-----------------------");
+            logger.info(":::::::::::::::::【钉钉消息通知】创建HTML文件:" + saveHtmlFile);
 
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(saveHtmlFile), "UTF-8"));
             bufferedWriter.write(htmlContent);
