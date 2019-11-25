@@ -55,8 +55,6 @@ public class SlidePageHandle {
                     .moveTo(PointOption.point(moveWidth, moveHeight)).release().perform();
 
         } else {
-            logger.info("---------------点击登录按钮无法跳转页面，程序问题，默认安装成功--------------");
-
             responseData.setExMsg("没有获取到元素： //*//*[@text='" + LabelConstant.mineBtnName + "']");
         }
 

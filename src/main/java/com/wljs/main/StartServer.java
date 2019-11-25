@@ -130,18 +130,16 @@ public class StartServer {
                     e.printStackTrace();
                     logger.error("更新SVN版本仓库文件： 失败：" + e);
 
-//                    TxtUtil texUtil = new TxtUtil();
-//                    texUtil.deleteTxtFile(ConfigConstant.localApkVersionFilePath);
-
                     responseData.setStatus(false);
                     responseData.setException(e);
                     responseData.setExMsg("更新SVN版本仓库文件： 失败");
 
-                } finally {
-                    ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();
                     List<ResponseData> responseDataList = new ArrayList<ResponseData>();
                     responseDataList.add(responseData);
+
+                    ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();
                     messageNotify.sendMessage(responseDataList);
+
                 }
 
             }

@@ -48,7 +48,7 @@ public class WaitElementHandle {
             }
             return true;
         } catch (Exception e) {
-            logger.error("---------------没有发现元素【" + text + "】---------------");
+            logger.info("---------------没有发现元素【" + text + "】---------------");
             isSuccess = false;
         } finally {
             return isSuccess;

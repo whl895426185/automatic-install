@@ -44,5 +44,6 @@ public class LabelConstant {
     public static final String confirmInviteCodeBtnName = "确认邀请码";
     public static final String confirmAndBindLoginBtnName = "确认绑定并登录";
     public static final String myOrderBtnName = "我的订单";
+    public static final String ignoreBtnName= "忽略";
 
 }

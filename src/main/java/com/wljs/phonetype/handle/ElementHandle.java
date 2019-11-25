@@ -27,7 +27,7 @@ public class ElementHandle {
     public ResponseData waitingElement(AndroidDriver driver, String text) {
         ResponseData responseData = new ResponseData();
         try {
-            WebDriverWait wait = new WebDriverWait(driver, 10);
+            WebDriverWait wait = new WebDriverWait(driver, 120);
             By by = By.xpath("//*//*[@text='" + text + "']");
             wait.until(ExpectedConditions.presenceOfElementLocated(by));
 

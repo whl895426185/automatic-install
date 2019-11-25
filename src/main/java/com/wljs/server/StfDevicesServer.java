@@ -3,7 +3,6 @@ package com.wljs.server;
 import com.rethinkdb.RethinkDB;
 import com.rethinkdb.net.Connection;
 import com.rethinkdb.net.Cursor;
-import com.wljs.message.ChatbotSendMessageNotify;
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
 import com.wljs.util.TxtUtil;
@@ -87,10 +86,10 @@ public class StfDevicesServer {
 
         //初始化栅栏线程，用该线程控制并发
         CyclicBarrier cyclicBarrier = new CyclicBarrier(resultList.size());
-
+        List<ResponseData> responseDataList = new ArrayList<ResponseData>();
         //phoneNum初始化手机号尾号，执行测试用例虚拟手机号用到
         for (int phoneNum = 1; phoneNum <= resultList.size(); phoneNum++) {
-            ThreadWorkServer worker = new ThreadWorkServer(cyclicBarrier, queueList, apkPath, phoneNum, uuid);
+            ThreadWorkServer worker = new ThreadWorkServer(cyclicBarrier, queueList, apkPath, phoneNum, uuid, responseDataList);
             worker.start();
         }
 

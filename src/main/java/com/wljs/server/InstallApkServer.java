@@ -81,11 +81,11 @@ public class InstallApkServer {
 
                 //不同的机型调用不同的安装步骤
                 PhoneInstallStepHandle installStepHandle = new PhoneInstallStepHandle();
-                ResponseData installRes = installStepHandle.installStep(fields, driver);
-                if (!installRes.isStatus()) {
+                responseData = installStepHandle.installStep(fields, driver);
+                if (!responseData.isStatus()) {
                     isSuccess = false;
-                    if (i == 2) {
-                        responseData = installRes;
+                    if (i < 2) {
+                        logger.info("-----------------尝试重新执行命令安装APP-----------------");
                     }
                 }
                 i++;
@@ -137,8 +137,6 @@ public class InstallApkServer {
         capabilities.setCapability(AndroidMobileCapabilityType.AVD_READY_TIMEOUT, 300000);
         capabilities.setCapability(AndroidMobileCapabilityType.UNICODE_KEYBOARD, false);
         capabilities.setCapability(AndroidMobileCapabilityType.RESET_KEYBOARD, false);
-
-        logger.info("启动参数capabilities：%s", capabilities);
 
         //初始化
         URL url = new URL("http://127.0.0.1:" + fields.getAppiumServerPort() + "/wd/hub");

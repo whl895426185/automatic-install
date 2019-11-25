@@ -5,14 +5,13 @@ import com.wljs.pojo.StfDevicesFields;
 import com.wljs.server.AppiumServer;
 import com.wljs.server.InstallApkServer;
 import com.wljs.test.handle.*;
+import com.wljs.util.TxtUtil;
 import com.wljs.util.constant.*;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 /**
  * 执行UI自动化测试
@@ -54,7 +53,7 @@ public class UIAutomationTest extends WaitElementHandle {
                 logger.info("---------------第" + (i + 1) + "次启动未来集市APP---------------");
 
                 if (i == 0) { //第一次启动
-                    responseData = firstStartApp(fields.getDeviceName(), width, height, phoneNum);
+                    responseData = firstStartApp(fields.getDeviceName(), width, height);
 
                     if (!responseData.isStatus()) {
                         break;
@@ -92,7 +91,7 @@ public class UIAutomationTest extends WaitElementHandle {
      * @param height
      * @throws Exception
      */
-    private ResponseData firstStartApp(String deviceName, int width, int height, int phoneTailNumber) {
+    private ResponseData firstStartApp(String deviceName, int width, int height) {
         ResponseData responseData = new ResponseData();
         try {
             //点击弹框允许操作
@@ -109,35 +108,27 @@ public class UIAutomationTest extends WaitElementHandle {
             }
             //检测是否发现新版本
             if (isAppear(driver, LabelConstant.findNewVersionName, 1)) {
-                logger.info("---------------检测到当前安装的不是最新版本，无法继续执行UI自动化测试，默认自动部署成功---------------");
-            } else {
-                //点击【我的】按钮
-                if (isAppear(driver, LabelConstant.mineBtnName, 1)) {
-                    driver.findElement(By.xpath(LabelConstant.mineBtn)).click();
-                }
-
-                //点击其他方式（兼容新版登录）
-                otherFlag = isAppear(driver, LabelConstant.otherLoginBtnName, 1);
-
-                //点击【测试】按钮
-                if (isAppear(driver, LabelConstant.textBtnName, 1)) {
-                    driver.findElement(By.xpath(LabelConstant.testBtn)).click();
-                    logger.info("---------------模拟点击【测试】按钮--------------");
-                }
-                //点击【手机登录】按钮
-                phoneloginFlag = isAppear(driver, LabelConstant.loginModeBtnName, 1);
-                if(phoneloginFlag){
-                    driver.findElement(By.xpath(LabelConstant.phoneLoginBtn)).click();
-                    logger.info("---------------模拟点击【手机登录】按钮--------------");
-                }
-
-                //模拟登录
-                LoginHandle loginHandle = new LoginHandle();
-                loginHandle.login(driver, phoneTailNumber);
-
-                logger.info("---------------停留1分钟后，准备重启APP---------------");
-                Thread.sleep(10000);
+                driver.findElement(By.xpath("//*//*[@text='" + LabelConstant.ignoreBtnName +"']")).click();
             }
+            //点击【我的】按钮
+            if (isAppear(driver, LabelConstant.mineBtnName, 1)) {
+                driver.findElement(By.xpath(LabelConstant.mineBtn)).click();
+            }
+
+            //点击其他方式（兼容新版登录）
+            otherFlag = isAppear(driver, LabelConstant.otherLoginBtnName, 1);
+
+            //点击弹框允许操作
+             frameHandle.elasticFrameHandle(driver, deviceName);
+
+            //点击【测试】按钮
+            if (isAppear(driver, LabelConstant.textBtnName, 1)) {
+                driver.findElement(By.xpath(LabelConstant.testBtn)).click();
+                logger.info("---------------模拟点击【测试】按钮--------------");
+            }
+
+            logger.info("---------------停留1分钟后，准备重启APP---------------");
+            Thread.sleep(10000);
         } catch (Exception e) {
             logger.error("执行UI自动化测试： 失败" + e);
             responseData.setStatus(false);
@@ -184,10 +175,16 @@ public class UIAutomationTest extends WaitElementHandle {
                 isAppear(driver, LabelConstant.otherLoginBtnName, 1);
             }
 
-            if(phoneloginFlag){
+            //点击【测试】按钮
+            if (isAppear(driver, LabelConstant.textBtnName, 1)) {
+                driver.findElement(By.xpath(LabelConstant.testBtn)).click();
+                logger.info("---------------模拟点击【测试】按钮--------------");
+            }
+
+            /*if(isAppear(driver, LabelConstant.loginModeBtnName, 1)){
                 driver.findElement(By.xpath(LabelConstant.phoneLoginBtn)).click();
                 logger.info("---------------模拟点击【手机登录】按钮--------------");
-            }
+            }*/
 
             //模拟登录
             LoginHandle loginHandle = new LoginHandle();
@@ -231,7 +228,7 @@ public class UIAutomationTest extends WaitElementHandle {
     }
 
     public static void main(String[] arg) throws Exception {
-        StfDevicesFields fields = new StfDevicesFields();
+        /*StfDevicesFields fields = new StfDevicesFields();
         fields.setSerial("8KE5T19711012159");
         fields.setVersion("9.0");
         fields.setModel(" P30");
@@ -244,7 +241,11 @@ public class UIAutomationTest extends WaitElementHandle {
 
         UIAutomationTest uiTest = new UIAutomationTest();
         String apkPath = "D:\\apkPackage\\wljs01\\apk\\vc-56-vn-1.7.0-11-07-15-56.apk";
-        uiTest.executeTest(fields, apkPath, 1);
+        uiTest.executeTest(fields, apkPath, 1);*/
+        TxtUtil txtUtil = new TxtUtil();
+        String txt = txtUtil.readTxtFile("D:\\apkPackage","15bc4db9b0484fc088c37d0dcaaa557b.txt");
+        System.out.println(txt.split("::")[1]);
+        System.out.println(txt.split("::").length - 2);
 
     }
 }

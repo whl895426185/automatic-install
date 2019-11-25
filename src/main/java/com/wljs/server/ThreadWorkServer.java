@@ -21,23 +21,25 @@ public class ThreadWorkServer extends Thread {
     private String apkPath;
     private int phoneNum;//始化手机号尾号，执行测试用例虚拟手机号用到
     private String uuid;//用来记录是否是同批执行的设备
+    private List<ResponseData> responseDataList;
 
-    public ThreadWorkServer(CyclicBarrier cyclicBarrier, ArrayBlockingQueue queue, String apkPath, int phoneNum, String uuid) {
+    public ThreadWorkServer(CyclicBarrier cyclicBarrier, ArrayBlockingQueue queue, String apkPath, int phoneNum, String uuid, List<ResponseData> responseDataList) {
         this.cyclicBarrier = cyclicBarrier;
         this.queue = queue;
         this.apkPath = apkPath;
         this.phoneNum = phoneNum;
         this.uuid = uuid;
+        this.responseDataList = responseDataList;
     }
 
     @Override
     public void run() {
         super.run();
         ResponseData responseData = new ResponseData();
-        List<ResponseData> responseDataList = new ArrayList<ResponseData>();
         TxtUtil txtUtil = new TxtUtil();
         try {
             cyclicBarrier.await();
+
 
             InstallApkServer install = new InstallApkServer();
             responseData = install.init(queue, apkPath);
@@ -52,9 +54,9 @@ public class ThreadWorkServer extends Thread {
 
                 logger.info("-----------------" + Thread.currentThread().getName() + "执行完毕-----------------");
 
-                txtUtil.writeTxtFile(ConfigConstant.uuidPath,"::" + Thread.currentThread().getName(), uuid+".txt");
             }
 
+            txtUtil.writeTxtFile(ConfigConstant.uuidPath,"::" + Thread.currentThread().getName(), uuid+".txt");
         } catch (Exception e) {
             logger.error("自动部署安装失败:" + e);
             responseData.setStatus(false);
@@ -73,15 +75,20 @@ public class ThreadWorkServer extends Thread {
                 responseData.setExMsg("释放设备（" + responseData.getFields().getDeviceName() + "）资源失败");
             }finally {
 
+                if(null == responseDataList || responseDataList.size() < 1){
+                    responseDataList = new ArrayList<ResponseData>();
+                }
                 responseDataList.add(responseData);
 
-                ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();
                 String txt = txtUtil.readTxtFile(ConfigConstant.uuidPath, uuid+".txt");
-                if(txt.split("::")[1].equals(txt.split("::").length - 2)){
-                    if (null != responseDataList && responseDataList.size()>0) {
-                        messageNotify.sendMessage(responseDataList);
-                        txtUtil.deleteTxtFile(ConfigConstant.uuidPath, uuid+".txt");
-                    }
+
+                int listSize = Integer.valueOf(txt.split("::")[1]);
+                int length = txt.split("::").length - 2;
+                if(listSize == length){
+
+                    ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();
+                    messageNotify.sendMessage(responseDataList);
+                    txtUtil.deleteTxtFile(ConfigConstant.uuidPath, uuid+".txt");
                 }
             }
         }

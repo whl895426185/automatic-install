@@ -15,20 +15,25 @@ public class ElasticFrameHandle {
             return true;
         }
 
-        boolean flag = waitAllow(driver);
-        if (flag) {
-            int alrerAcceptCount = 2;//弹框次数
+        String pageSource = driver.getPageSource();
+        if(!pageSource.contains("允许")){
+            return true;
+        }
+
+//        boolean flag = waitAllow(driver);
+//        if (flag) {
+            int alterAcceptCount = 2;//弹框次数
 
             //点击【允许】按钮
             if (deviceName.contains(PhoneTypeConstant.OPPO_PHONE)
                     || deviceName.contains(PhoneTypeConstant.MEIZU_PHONE)) {
-                alrerAcceptCount = 1;
+                alterAcceptCount = 1;
             }
 
-            for (int i = 0; i < alrerAcceptCount; i++) {
+            for (int i = 0; i < alterAcceptCount; i++) {
                 driver.switchTo().alert().accept();
             }
-        }
+//        }
 
         return true;
     }

@@ -30,8 +30,6 @@ import java.io.File;
 public class SeleniumLinuxServer {
     private Logger logger = LoggerFactory.getLogger(SeleniumLinuxServer.class);
 
-    private ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();
-
     public Map<String, Object> chromeDriver() {
         Map<String, Object> resultMap = new HashMap<>();
         try {
@@ -102,6 +100,7 @@ public class SeleniumLinuxServer {
                 sendMsg(responseData, driver, service);
                 continue;
             }
+            Thread.sleep(8000);
 
             logger.info("------------模拟点击设备：" + fields.getDeviceName() + ", 占用设备资源--------------");
 
