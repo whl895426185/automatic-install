@@ -26,9 +26,6 @@ public class ChatbotSendMessageNotify {
 
     public void sendMessage(List<ResponseData> dataList) {
         try {
-            if(1 == 1){
-                return;
-            }
             logger.info("-----------------开始检测是否有异常设备--------------------------");
             //判断是否有异常信息，有则发送钉钉，没有则返回
             if (null == dataList || dataList.size() < 1) {
