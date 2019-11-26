@@ -1,13 +1,13 @@
 package com.wljs.test.handle;
 
 import com.wljs.pojo.Coordinates;
+import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
-import com.wljs.util.constant.LabelConstant;
+import com.wljs.util.ScreenshotUtil;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.touch.offset.PointOption;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -27,10 +27,10 @@ public class WaitElementHandle {
      * @param type
      * @return
      */
-    public boolean isAppear(AndroidDriver driver, StfDevicesFields fields, String text, int type) {
-        boolean isSuccess = true;
+    public ResponseData isAppear(AndroidDriver driver, StfDevicesFields fields, String text, int type) {
+        ResponseData responseData = new ResponseData();
         try {
-            WebDriverWait wait = new WebDriverWait(driver, 3);
+            WebDriverWait wait = new WebDriverWait(driver, 2);
             By by = null;
             if (1 == type) {
                 //根据text定位元素
@@ -41,18 +41,21 @@ public class WaitElementHandle {
                 by = By.xpath(text);
             }
 
-            WebElement em = wait.until(ExpectedConditions.presenceOfElementLocated(by));
+            wait.until(ExpectedConditions.presenceOfElementLocated(by));
 
-            //点击其他方式（兼容新版登录）
-            if (text.equals(LabelConstant.otherLoginBtnName)) {
-                em.click();
-            }
-            return true;
         } catch (Exception e) {
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】没有发现元素【" + text + "】");
-            isSuccess = false;
+            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 没有发现元素【" + text + "】");
+            responseData.setStatus(false);
+            responseData.setFields(fields);
+            responseData.setException(e);
+            if (1 == type) {
+                responseData.setExMsg("没有获取到元素： //*//*[@text='"+ text + "']");
+
+            } else if (2 == type) {
+                responseData.setExMsg("没有获取到元素：" + text);
+            }
         } finally {
-            return isSuccess;
+            return responseData;
         }
     }
 
@@ -69,7 +72,7 @@ public class WaitElementHandle {
         int x = coordinates.getTotalX() / 2;
         int y = coordinates.getTotalY() / 2;
 
-        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】模拟点击【" + text + "】按钮");
+        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟点击【" + text + "】按钮");
 
         TouchAction t = new TouchAction(driver);//模拟触摸点击
         t.tap(PointOption.point(x, y)).perform().release();

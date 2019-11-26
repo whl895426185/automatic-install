@@ -4,6 +4,7 @@ import com.wljs.phonetype.handle.ElementHandle;
 import com.wljs.pojo.Coordinates;
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
+import com.wljs.util.ScreenshotUtil;
 import com.wljs.util.constant.InstallStepConstant;
 import com.wljs.util.constant.PhoneTypeConstant;
 import io.appium.java_client.android.AndroidDriver;
@@ -16,11 +17,12 @@ import org.slf4j.LoggerFactory;
  */
 public class VivoStep extends ElementHandle {
     private Logger logger = LoggerFactory.getLogger(VivoStep.class);
+    private ScreenshotUtil screenshotUtil = new ScreenshotUtil();
 
     public ResponseData installStep(AndroidDriver driver, StfDevicesFields fields) {
         ResponseData responseData = new ResponseData();
 
-        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】执行安装步骤！！！！");
+        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 执行安装步骤！！！！");
         //步驟一
         responseData = waitingElement(driver, fields, InstallStepConstant.vivo_step_1);
         if (!responseData.isStatus()) {
@@ -91,10 +93,11 @@ public class VivoStep extends ElementHandle {
             clickCoordinates(driver, fields, x, y, text);
 
         } catch (Exception e) {
-            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】无法通过关键字获取坐标信息： " + e);
+            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 无法通过关键字获取坐标信息： " + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("无法通过关键字获取坐标信息： " + keyword);
+            responseData.setImagePath(screenshotUtil.screenshot(driver, fields.getSerial()));
         } finally {
             return responseData;
         }

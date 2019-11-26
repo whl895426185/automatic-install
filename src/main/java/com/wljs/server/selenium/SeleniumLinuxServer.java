@@ -3,7 +3,7 @@ package com.wljs.server.selenium;
 import com.wljs.message.ChatbotSendMessageNotify;
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
-import com.wljs.util.constant.ConfigConstant;
+import com.wljs.util.config.StfConfig;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -34,7 +34,7 @@ public class SeleniumLinuxServer {
         Map<String, Object> resultMap = new HashMap<>();
         try {
             ChromeDriverService service = null;
-            System.setProperty("webdriver.chrome.driver", ConfigConstant.chromeDriverPath);
+            System.setProperty("webdriver.chrome.driver", StfConfig.chromeDriverPath);
 
             ChromeOptions options = new ChromeOptions();
             options.addArguments("--headless");//无界面参数
@@ -44,12 +44,12 @@ public class SeleniumLinuxServer {
             chromerCap.setCapability(ChromeOptions.CAPABILITY, options);
 
             service = new ChromeDriverService.Builder()
-                    .usingDriverExecutable(new File(ConfigConstant.chromeDriverPath)).usingAnyFreePort().build();
+                    .usingDriverExecutable(new File(StfConfig.chromeDriverPath)).usingAnyFreePort().build();
             service.start();
 
             WebDriver driver = new RemoteWebDriver(service.getUrl(), chromerCap);
 
-            driver.get(ConfigConstant.stfUrl);// 打开指定的网站
+            driver.get(StfConfig.stfUrl);// 打开指定的网站
 
             resultMap.put("WebDriver", driver);
             resultMap.put("ChromeDriverService", service);
@@ -82,7 +82,7 @@ public class SeleniumLinuxServer {
         responseData = login(driver);
         if (!responseData.isStatus()) {
             responseData.setExMsg("模拟登录STF平台失败");
-            logger.info(":::::::::::::::::模拟登录STF平台失败");
+            logger.info(":::::::::::::::::模拟登录STF平台失败::::::::::::::::: ");
 
             sendMsg(responseData, driver, service);
             return resultList;
@@ -102,7 +102,7 @@ public class SeleniumLinuxServer {
             }
             Thread.sleep(8000);
 
-            logger.info(":::::::::::::::::模拟点击设备：" + fields.getDeviceName() + ", 占用设备资源");
+            logger.info(":::::::::::::::::模拟点击设备：" + fields.getDeviceName() + ", 占用设备资源::::::::::::::::: ");
 
             driver.navigate().refresh();
             //点击设备会进入control， 需回到devices页面才可以
@@ -159,14 +159,14 @@ public class SeleniumLinuxServer {
             if (null != nameEm) {
                 nameEm.click();
                 Thread.sleep(2000);
-                nameEm.sendKeys(ConfigConstant.stfName);
+                nameEm.sendKeys(StfConfig.stfName);
 
                 text = "//input[@name='password']";
                 WebElement passwdEm = isLoginAppear(driver, text);
                 if (null != passwdEm) {
                     passwdEm.click();
                     Thread.sleep(2000);
-                    passwdEm.sendKeys(ConfigConstant.stfPasswd);
+                    passwdEm.sendKeys(StfConfig.stfPasswd);
 
                     text = "//input[@type='submit']";
                     WebElement loginEm = isLoginAppear(driver, text);
@@ -245,7 +245,7 @@ public class SeleniumLinuxServer {
         responseData = login(driver);
         if (!responseData.isStatus()) {
             responseData.setExMsg("模拟登录STF平台失败");
-            logger.info(":::::::::::::::::模拟登录STF平台失败");
+            logger.info(":::::::::::::::::模拟登录STF平台失败::::::::::::::::: ");
 
             sendMsg(responseData, driver, service);
             return;
@@ -262,7 +262,7 @@ public class SeleniumLinuxServer {
         }
 
 
-        logger.info(":::::::::::::::::模拟点击设备：" + fields.getDeviceName() + ", 释放设备资源");
+        logger.info(":::::::::::::::::模拟点击设备：" + fields.getDeviceName() + ", 释放设备资源::::::::::::::::: ");
 
         driver.navigate().refresh();
 

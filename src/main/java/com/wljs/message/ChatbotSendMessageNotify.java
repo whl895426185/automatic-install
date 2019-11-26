@@ -3,7 +3,8 @@ package com.wljs.message;
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
 import com.wljs.util.TxtUtil;
-import com.wljs.util.constant.ConfigConstant;
+import com.wljs.util.config.MessageConfig;
+import com.wljs.util.config.SvnConfig;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -26,38 +27,28 @@ public class ChatbotSendMessageNotify {
 
     public void sendMessage(List<ResponseData> dataList) {
         try {
-            //判断是否有异常信息，有则发送钉钉，没有则返回
-            if (null == dataList || dataList.size() < 1) {
-                return;
-            }
-
             //定义存放异常信息，key为异常信息，value为详细的异常信息及设备
             Map<String, List<ResponseData>> messageMap = new HashMap<String, List<ResponseData>>();
             List<ResponseData> responseDataList = null;
             for (ResponseData responseData : dataList) {
-                logger.info(":::::::::::::::::【钉钉消息通知】deviceName = " + responseData.getFields().getDeviceName() + ", status = " + responseData.isStatus() + ", ExMsg = " + responseData.getExMsg());
-                //状态是成功的，则抛开掉
-                boolean isStatus = responseData.isStatus();
-                if (!isStatus) {
-                    //相同的异常，所涉及的设备信息放一块
-                    if (!messageMap.containsKey(responseData.getExMsg())) {
-                        responseDataList = new ArrayList<ResponseData>();
+                //相同的异常，所涉及的设备信息放一块
+                if (!messageMap.containsKey(responseData.getExMsg())) {
+                    responseDataList = new ArrayList<ResponseData>();
 
-                    }
-                    responseDataList.add(responseData);
-                    messageMap.put(responseData.getExMsg(), responseDataList);
                 }
+                responseDataList.add(responseData);
+                messageMap.put(responseData.getExMsg(), responseDataList);
             }
 
-            logger.info(":::::::::::::::::【钉钉消息通知】messageMap.size() = " + messageMap.size());
+            logger.info(":::::::::::::::::【钉钉消息通知】::::::::::::::::: messageMap.size() = " + messageMap.size());
+
             //判断是否为空
             if (null == messageMap || messageMap.size() < 1) {
                 return;
             }
 
-            logger.info(":::::::::::::::::【钉钉消息通知】检测到有设备部署安装失败，发送钉钉消息");
             //判断存放异常的文件夹是否存在
-            String parentFilePath = ConfigConstant.errorLogPath;
+            String parentFilePath = MessageConfig.errorLogPath;
             File parentFile = new File(parentFilePath);
             if (!parentFile.exists() && !parentFile.isDirectory()) {
                 parentFile.mkdir();
@@ -72,7 +63,7 @@ public class ChatbotSendMessageNotify {
 
             //定时发送HTTP实例
             HttpClient httpclient = HttpClients.createDefault();
-            HttpPost httppost = new HttpPost(ConfigConstant.webHookToken);
+            HttpPost httppost = new HttpPost(MessageConfig.webHookToken);
             httppost.addHeader("Content-Type", "application/json; charset=utf-8");
 
             //定义钉钉消息的json
@@ -97,8 +88,8 @@ public class ChatbotSendMessageNotify {
     private String getDingDingMessage(Map<String, List<ResponseData>> messageMap, String childFilePath, String childtime) throws IOException {
         //读取服务器存放当前部署安装的APK包信息
         TxtUtil txtUtil = new TxtUtil();
-        String txtFilePath = ConfigConstant.localApkVersionFilePath;
-        String apkContent = txtUtil.readTxtFile(txtFilePath, ConfigConstant.apkVersionLogFileName);
+        String txtFilePath = SvnConfig.localApkVersionFilePath;
+        String apkContent = txtUtil.readTxtFile(txtFilePath, SvnConfig.apkVersionLogFileName);
 
         SimpleDateFormat dfm = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
 
@@ -118,7 +109,7 @@ public class ChatbotSendMessageNotify {
         buffer.append("            \"btnOrientation\": \"0\",");
         buffer.append("            \"btns\": [");
 
-        File file = new File("/usr/local/node/run/template/ChatbotSendMsgTemplate.html");
+        File file = new File(MessageConfig.htmlTemplatePath);
         InputStream inputStream = new FileInputStream(file);
         InputStreamReader read = new InputStreamReader(inputStream, "utf-8");
         BufferedReader bufferedReader = new BufferedReader(read);
@@ -129,23 +120,18 @@ public class ChatbotSendMessageNotify {
         }
         bufferedReader.close();
 
-
         //把设备作为按钮形式展示，点击可以展示对应的日志
-        SimpleDateFormat fm = new SimpleDateFormat("YYYYMMddHHmmss");
+        String titleMsg = "";
         for (Map.Entry<String, List<ResponseData>> entry : messageMap.entrySet()) {
             List<ResponseData> reDataList = entry.getValue();
 
-            buffer.append("    {");
-            buffer.append("        \"title\": \"");
             int index = 0;
-
-            String logName = fm.format(new Date());
-            String deviceName = "";
+            String logName = UUID.randomUUID().toString().replace("-","");
             for (ResponseData responseData : reDataList) {
                 //创建实时日志，打开链接展示
                 if (index == 0) {
                     index++;
-                    logger.info(":::::::::::::::::【钉钉消息通知】logName = " + logName);
+                    logger.info(":::::::::::::::::【钉钉消息通知】::::::::::::::::: logName = " + logName);
                     //创建log文件，用于下载
                     createLog(childFilePath, logName, responseData);
                     //创建txt文件，用于展示
@@ -156,16 +142,17 @@ public class ChatbotSendMessageNotify {
                 }
 
                 StfDevicesFields fields = responseData.getFields();
-                deviceName += fields.getDeviceName() + "##";
-            }
-            deviceName = deviceName.substring(0, deviceName.length() - 2);
 
-            buffer.append("        ##" + deviceName + "##");
-            buffer.append("        \",");
-            buffer.append("             \"actionURL\": \"http://192.168.88.16/logs/appium/error/" + childtime + "/" + logName + ".html\"");
-            buffer.append("    }");
+                titleMsg += "    {";
+                titleMsg += "        \"title\": \"" + fields.getDeviceName() + "\",";
+                titleMsg += "        \"actionURL\": \"http://192.168.88.16/logs/appium/error/" + childtime + "/" + logName + ".html\"";
+                titleMsg += "    },";
+            }
         }
 
+        titleMsg = titleMsg.substring(0, titleMsg.length()-1);
+
+        buffer.append(titleMsg);
         buffer.append("]");
         buffer.append("},");
         buffer.append("    \"msgtype\": \"actionCard\"");
@@ -176,7 +163,7 @@ public class ChatbotSendMessageNotify {
 
     private void createLog(String childFilePath, String logName, ResponseData responseData) throws FileNotFoundException {
         String path = childFilePath + "/" + logName + ".log";
-        logger.info(":::::::::::::::::【钉钉消息通知】创建LOG文件:" + path);
+        logger.info(":::::::::::::::::【钉钉消息通知】::::::::::::::::: 创建LOG文件:" + path);
         File file = new File(path);
         //创建文件的输出流
         PrintStream stream = new PrintStream(file);
@@ -203,25 +190,28 @@ public class ChatbotSendMessageNotify {
             StackTraceElement elements = e.getStackTrace()[0];
 
             String path = "http://192.168.88.16/logs/appium/error/" + childtime + "/" + logName;
-            htmlContent = htmlContent.replaceAll("logHtmlPathValue", path + ".log");
-            htmlContent = htmlContent.replaceAll("packageNameValue", null == elements ? "" : elements.getClassName());
-            htmlContent = htmlContent.replaceAll("fileNameValue", null == elements ? "" : elements.getFileName());
-            htmlContent = htmlContent.replaceAll("methodNameValue", null == elements ? "" : elements.getMethodName());
-            htmlContent = htmlContent.replaceAll("lineNumValue", null == elements ? "" : String.valueOf(elements.getLineNumber()));
-            htmlContent = htmlContent.replaceAll("operateTime", fm.format(new Date()));
-            htmlContent = htmlContent.replaceAll("exceptionMsg", responseData.getExMsg());
-            htmlContent = htmlContent.replaceAll("logPathValue", path + ".txt");
+            htmlContent = htmlContent.replace("logHtmlPathValue", path + ".log");
+            htmlContent = htmlContent.replace("packageNameValue", null == elements ? "" : elements.getClassName());
+            htmlContent = htmlContent.replace("fileNameValue", null == elements ? "" : elements.getFileName());
+            htmlContent = htmlContent.replace("methodNameValue", null == elements ? "" : elements.getMethodName());
+            htmlContent = htmlContent.replace("lineNumValue", null == elements ? "" : String.valueOf(elements.getLineNumber()));
+            htmlContent = htmlContent.replace("operateTime", fm.format(new Date()));
+            htmlContent = htmlContent.replace("exceptionMsg", responseData.getExMsg());
+            htmlContent = htmlContent.replace("logPathValue", path + ".txt");
+            if(null != responseData.getImagePath()){//显示截图
+                String imgPath = "http://192.168.88.16/logs/appium/error/images/" + responseData.getImagePath();
+                htmlContent = htmlContent.replace("screenImgPath", imgPath);
+                htmlContent = htmlContent.replace("<div id=\"screenImgDiv\" hidden=\"hidden\" style=\"margin-top: 50px;position: relative;margin-left: 30px;\">",
+                        "<div id=\"screenImgDiv\" style=\"margin-top: 50px;position: relative;margin-left: 30px;\">");
+            }
 
             String saveHtmlFile = childFilePath + "/" + logName + ".html";
-            logger.info(":::::::::::::::::【钉钉消息通知】创建HTML文件:" + saveHtmlFile);
+            logger.info(":::::::::::::::::【钉钉消息通知】::::::::::::::::: 创建HTML文件:" + saveHtmlFile);
 
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(saveHtmlFile), "UTF-8"));
             bufferedWriter.write(htmlContent);
             bufferedWriter.newLine();// 换行
-            /*
-             * * 刷新该流的缓冲。 关键的一行代码。如果没有加这行代码。数据只是保存在缓冲区中。没有写进文件。 加了这行才能将数据写入目的地。
-             * *
-             */
+
             bufferedWriter.flush();
             bufferedWriter.close();
         } catch (IOException e) {
@@ -245,7 +235,7 @@ public class ChatbotSendMessageNotify {
             ResponseData responseData = new ResponseData();
 
             StfDevicesFields fields = new StfDevicesFields();
-            fields.setManufacturer("设备A");
+            fields.setManufacturer("设备AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
             fields.setModel(String.valueOf(i));
 
             responseData.setFields(fields);

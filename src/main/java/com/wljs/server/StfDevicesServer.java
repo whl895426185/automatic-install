@@ -3,35 +3,31 @@ package com.wljs.server;
 import com.rethinkdb.RethinkDB;
 import com.rethinkdb.net.Connection;
 import com.rethinkdb.net.Cursor;
+import com.wljs.message.ChatbotSendMessageNotify;
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
-import com.wljs.util.TxtUtil;
-import com.wljs.util.constant.ConfigConstant;
+import com.wljs.util.config.RethinkdbConfig;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.*;
 
 /**
  * 检测是否存在已连接且闲余的设备
  */
 public class StfDevicesServer {
-    private String uuid = UUID.randomUUID().toString().replaceAll("-", "");
     private Logger logger = LoggerFactory.getLogger(StfDevicesServer.class);
 
-    public void getStfDevicesList(String apkPath) throws InterruptedException, IOException {
+    public void getStfDevicesList(String apkPath) throws InterruptedException, ExecutionException {
         RethinkDB r = RethinkDB.r;
         //连接rethinkdb
-        Connection conn = r.connection().hostname(ConfigConstant.rethinkdb_host).port(ConfigConstant.rethinkdb_port).connect();
+        Connection conn = r.connection().hostname(RethinkdbConfig.rethinkdb_host).port(RethinkdbConfig.rethinkdb_port).connect();
 
         //获取已连接且闲余的设备信息（present为true表示已连接，owner为空表示设备闲余）
-        Cursor<StfDevicesFields> stfDevices = r.db(ConfigConstant.rethinkdb_dbName)
-                .table(ConfigConstant.rethinkdb_tableName)
+        Cursor<StfDevicesFields> stfDevices = r.db(RethinkdbConfig.rethinkdb_dbName)
+                .table(RethinkdbConfig.rethinkdb_tableName)
                 .filter(r.hashMap("present", true).with("owner", null))
                 .withFields("manufacturer", "model", "serial", "version")
                 .run(conn, Cursor.class);
@@ -71,26 +67,49 @@ public class StfDevicesServer {
         //把设备信息放入java安全队列中，保证数据的安全性
         ArrayBlockingQueue queueList = new ArrayBlockingQueue(resultList.size());
         for (StfDevicesFields fields : resultList) {
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】开始执行自动部署安装工作！！！！！！");
+            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 开始执行自动部署安装工作！！！！！！");
             queueList.add(fields);
         }
 
-        //创建uuid文件，用来查看是否是同一批设备
-        File localFile = new File(ConfigConstant.uuidPath);
-        if (!localFile.exists() && !localFile.isDirectory()) {
-            localFile.mkdir();
-        }
-        TxtUtil txtUtil = new TxtUtil();
-        txtUtil.creatTxtFile(ConfigConstant.uuidPath, uuid + ".txt");
-        txtUtil.writeTxtFile(ConfigConstant.uuidPath, "::" + queueList.size(), uuid + ".txt");
+        //创建一个线程池对象
+        ExecutorService pool = Executors.newFixedThreadPool(queueList.size());
+        List<Future<ResponseData>> futureList = new ArrayList<Future<ResponseData>>();
 
-        //初始化栅栏线程，用该线程控制并发
-        CyclicBarrier cyclicBarrier = new CyclicBarrier(resultList.size());
-        List<ResponseData> responseDataList = new ArrayList<ResponseData>();
         //phoneNum初始化手机号尾号，执行测试用例虚拟手机号用到
-        for (int phoneNum = 1; phoneNum <= resultList.size(); phoneNum++) {
-            ThreadWorkServer worker = new ThreadWorkServer(cyclicBarrier, queueList, apkPath, phoneNum, uuid, responseDataList);
-            worker.start();
+        for (int phoneNum = 1; phoneNum <= queueList.size(); phoneNum++) {
+            OperateThreadServer worker = new OperateThreadServer(queueList, apkPath, phoneNum);
+            Future<ResponseData> future = pool.submit(worker);
+            futureList.add(future);
+
+        }
+
+        List<ResponseData> resList = new ArrayList<ResponseData>();
+        for (Future<ResponseData> future : futureList) {
+            boolean doneFlag = false;
+            while (!doneFlag){
+                if(future.isDone()){
+                    doneFlag = true;
+                    ResponseData data = future.get();
+                    logger.info(":::::::::::::::::【部署安装结果】::::::::::::::::: deviceName = " + (data.getFields() == null ? "无" : data.getFields().getDeviceName()) + ", status = " + data.isStatus() + ", ExMsg = " + data.getExMsg());
+
+                    if (data.getFields() == null) {
+                        continue;
+                    }
+                    if (data.isStatus()) {
+                        continue;
+                    }
+                    resList.add(data);
+                }
+            }
+        }
+
+        // 关闭线程池
+        pool.shutdown();
+
+        if (null != resList && resList.size() > 0) {
+            logger.info(":::::::::::::::::检测到有部署安装失败的设备！！:::::::::::::::::");
+            ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();
+            messageNotify.sendMessage(resList);
         }
 
         return;
@@ -141,16 +160,28 @@ public class StfDevicesServer {
         return fieldsList;
     }
 
-    public static void main(String[] arg) {
-        StfDevicesFields fields = new StfDevicesFields();
-        fields.setManufacturer("VIVO");
-        fields.setModel(" X20A");
-        fields.setSerial("cf83c8d0");
-        fields.setVersion("8.1.0");
-        fields.setAppiumServerPort(4723);
-        fields.setSystemPort(8200);
+   /* public static void main(String[] arg) throws ExecutionException, InterruptedException {
+        CyclicBarrier cyclicBarrier = new CyclicBarrier(5);
 
-        String deviceName = fields.getDeviceName();
-        System.out.println(deviceName);
-    }
+        List<FutureTask<ResponseData>> taskList = new ArrayList<FutureTask<ResponseData>>();
+        for (int phoneNum = 1; phoneNum <= 5; phoneNum++) {
+            OperateThreadServer worker = new OperateThreadServer(cyclicBarrier, null, "", phoneNum);
+            FutureTask<ResponseData> futureTask = new FutureTask<ResponseData>((Callable<ResponseData>) worker);
+            new Thread(futureTask).start();
+
+            taskList.add(futureTask);
+        }
+
+        List<ResponseData> resultResList = new ArrayList<ResponseData>();
+        for(FutureTask<ResponseData> task : taskList){
+            resultResList.add(task.get());
+        }
+
+        if(null != resultResList && resultResList.size() > 0){
+            ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();
+            messageNotify.sendMessage(resultResList);
+        }
+
+    }*/
+
 }

@@ -20,16 +20,19 @@ public class SlidePageHandle {
 
     //向左滑动引导页
     public void slideGuidePage(AndroidDriver driver, StfDevicesFields fields, int width, int height) {
+        ResponseData responseData = new ResponseData();
         int orginWith = (new Double(width * 0.9)).intValue();
         int orginHeight = height / 2;
         int moveWidth = (new Double(width * 0.15)).intValue();
         int moveHeight = height / 2;
 
-        if (isAppear(driver, fields, LabelConstant.slidePageOne, 2)) {
+        responseData = isAppear(driver, fields, LabelConstant.slidePageOne, 2);
+        if (responseData.isStatus()) {
             new TouchAction(driver).press(PointOption.point(orginWith, orginHeight)).waitAction(WaitOptions.waitOptions(Duration.ofSeconds(3)))
                     .moveTo(PointOption.point(moveWidth, moveHeight)).release().perform();
         }
-        if (isAppear(driver, fields, LabelConstant.slidePageTwo, 2)) {
+        responseData = isAppear(driver, fields, LabelConstant.slidePageTwo, 2);
+        if (responseData.isStatus()) {
             new TouchAction(driver).press(PointOption.point(orginWith, orginHeight)).waitAction(WaitOptions.waitOptions(Duration.ofSeconds(3)))
                     .moveTo(PointOption.point(moveWidth, moveHeight)).release().perform();
         }
@@ -39,8 +42,9 @@ public class SlidePageHandle {
     public ResponseData slidePageUp(AndroidDriver driver, StfDevicesFields fields, int width, int height) {
         ResponseData responseData = new ResponseData();
         //向上滑动
-        if (isAppear(driver, fields, LabelConstant.mineBtnName, 1)) {
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】模拟向上滑动页面，查看商品信息");
+        responseData = isAppear(driver, fields, LabelConstant.myOrderBtnName, 1);
+        if (responseData.isStatus()) {
+            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟向上滑动页面，查看商品信息");
 
             int orginWith = width / 2;
             int orginHeight = (new Double(height * 0.9)).intValue();
@@ -50,14 +54,12 @@ public class SlidePageHandle {
             new TouchAction(driver).press(PointOption.point(orginWith, orginHeight)).waitAction(WaitOptions.waitOptions(Duration.ofSeconds(3)))
                     .moveTo(PointOption.point(moveWidth, moveHeight)).release().perform();
 
-        } else {
-            responseData.setExMsg(":::::::::::::::::【" + fields.getDeviceName() + "】没有获取到元素： //*//*[@text='" + LabelConstant.mineBtnName + "']");
         }
 
         return responseData;
     }
 
-    private boolean isAppear(AndroidDriver driver, StfDevicesFields fields, String text, int type) {
+    private ResponseData isAppear(AndroidDriver driver, StfDevicesFields fields, String text, int type) {
         WaitElementHandle elementHandle = new WaitElementHandle();
         return elementHandle.isAppear(driver, fields, text, type);
     }

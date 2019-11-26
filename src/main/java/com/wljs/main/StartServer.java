@@ -4,7 +4,7 @@ import com.wljs.message.ChatbotSendMessageNotify;
 import com.wljs.pojo.ResponseData;
 import com.wljs.server.StfDevicesServer;
 import com.wljs.util.TxtUtil;
-import com.wljs.util.constant.ConfigConstant;
+import com.wljs.util.config.SvnConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tmatesoft.svn.core.*;
@@ -36,17 +36,17 @@ public class StartServer {
         SVNRepositoryFactoryImpl.setup();
 
         //初始化SVN登录账号密码
-        String username = ConfigConstant.svnUserName;
-        String password = ConfigConstant.svnPassword;
+        String username = SvnConfig.svnUserName;
+        String password = SvnConfig.svnPassword;
 
         //判断SVN检出文件目录是否存在
-        File localFile = new File(ConfigConstant.localFilePath);
+        File localFile = new File(SvnConfig.localFilePath);
         if (!localFile.exists() && !localFile.isDirectory()) {
             localFile.mkdir();
         }
 
         //判断存放apkVersionLog.txt文件目录是否存在
-        File localApkVersionFile = new File(ConfigConstant.localApkVersionFilePath);
+        File localApkVersionFile = new File(SvnConfig.localApkVersionFilePath);
         if (!localApkVersionFile.exists() && !localApkVersionFile.isDirectory()) {
             localApkVersionFile.mkdir();
         }
@@ -59,7 +59,7 @@ public class StartServer {
         updateClient.setIgnoreExternals(false);
 
         //把版本检出到该文件目录
-        SVNURL repositoryURL = SVNURL.parseURIEncoded(ConfigConstant.svnFileUrl);
+        SVNURL repositoryURL = SVNURL.parseURIEncoded(SvnConfig.svnFileUrl);
 
         //文件解锁
         svnClientManager.getWCClient().doCleanup(localFile);//前提必须有svn仓库目录
@@ -118,7 +118,7 @@ public class StartServer {
                     if (localFile.exists() && localFile.isDirectory()) {
                         SVNDirEntry entry = listEntries(repository/*, dateStr*/);
                         if (null != entry) {
-                            String uploadFilePath = ConfigConstant.localFilePath + "/" + /*dateStr + "/" +*/ entry.getName();
+                            String uploadFilePath = SvnConfig.localFilePath + "/" + /*dateStr + "/" +*/ entry.getName();
                             //logger.info("检测到文件夹【" + uploadFilePath + "】有上传新的Android APK");
 
                             StfDevicesServer stfDevice = new StfDevicesServer();
@@ -155,7 +155,7 @@ public class StartServer {
 
         //本地先创建最新存放apk包的版本信息txt
         TxtUtil texUtil = new TxtUtil();
-        texUtil.creatTxtFile(ConfigConstant.localApkVersionFilePath, ConfigConstant.apkVersionLogFileName);
+        texUtil.creatTxtFile(SvnConfig.localApkVersionFilePath, SvnConfig.apkVersionLogFileName);
 
         String name = "";// 存放最新上传包名
         Long time = 0l;// 存放最新上传包的时间
@@ -184,7 +184,7 @@ public class StartServer {
         //比对获取的最新APK包与本地记录的安装部署过的APK包的信息，是否已经安装部署过了
 
         //读取本地记录的安装部署过的APK包的信息
-        String text = texUtil.readTxtFile(ConfigConstant.localApkVersionFilePath, ConfigConstant.apkVersionLogFileName);
+        String text = texUtil.readTxtFile(SvnConfig.localApkVersionFilePath, SvnConfig.apkVersionLogFileName);
 
         //比较
         entry = (SVNDirEntry) objectMap.get(name);
@@ -205,11 +205,11 @@ public class StartServer {
 
         //先删除txt文档再新增
         if (!("").equals(text)) {
-            texUtil.deleteTxtFile(ConfigConstant.localApkVersionFilePath, ConfigConstant.apkVersionLogFileName);
-            texUtil.creatTxtFile(ConfigConstant.localApkVersionFilePath, ConfigConstant.apkVersionLogFileName);
+            texUtil.deleteTxtFile(SvnConfig.localApkVersionFilePath, SvnConfig.apkVersionLogFileName);
+            texUtil.creatTxtFile(SvnConfig.localApkVersionFilePath, SvnConfig.apkVersionLogFileName);
         }
         //提前录入最新的APK包的信息，避免定時任務一直檢測
-        texUtil.writeTxtFile(ConfigConstant.localApkVersionFilePath, apkText, ConfigConstant.apkVersionLogFileName);
+        texUtil.writeTxtFile(SvnConfig.localApkVersionFilePath, apkText, SvnConfig.apkVersionLogFileName);
 
         return entry;
     }

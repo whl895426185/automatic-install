@@ -4,6 +4,7 @@ import com.wljs.phonetype.handle.ElementHandle;
 import com.wljs.pojo.Coordinates;
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
+import com.wljs.util.ScreenshotUtil;
 import com.wljs.util.constant.InstallStepConstant;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.nativekey.AndroidKey;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class OppoStep extends ElementHandle {
     private Logger logger = LoggerFactory.getLogger(OppoStep.class);
+    private ScreenshotUtil screenshotUtil = new ScreenshotUtil();
 
     public ResponseData installStep(AndroidDriver driver, StfDevicesFields fields) {
         ResponseData responseData = new ResponseData();
@@ -41,7 +43,7 @@ public class OppoStep extends ElementHandle {
             return responseData;
         }
 
-        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】执行安装步骤！！！！");
+        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 执行安装步骤！！！！");
         responseData = waitingElement(driver, fields, InstallStepConstant.oppo_step_2_txt);
         if (!responseData.isStatus()) {
             return responseData;
@@ -106,10 +108,11 @@ public class OppoStep extends ElementHandle {
             clickCoordinates(driver, fields, x, y, text);
 
         } catch (Exception e) {
-            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】获取坐标信息异常：" + e);
+            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 获取坐标信息异常：" + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("无法通过关键字获取坐标信息： " + keyword);
+            responseData.setImagePath(screenshotUtil.screenshot(driver, fields.getSerial()));
         } finally {
             return responseData;
         }

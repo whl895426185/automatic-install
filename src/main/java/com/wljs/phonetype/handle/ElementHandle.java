@@ -3,6 +3,7 @@ package com.wljs.phonetype.handle;
 import com.wljs.pojo.Coordinates;
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
+import com.wljs.util.ScreenshotUtil;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.touch.offset.PointOption;
@@ -18,6 +19,8 @@ import java.util.Map;
 public class ElementHandle {
     private Logger logger = LoggerFactory.getLogger(ElementHandle.class);
 
+    private ScreenshotUtil screenshotUtil = new ScreenshotUtil();
+
     /**
      * 显示等待元素出现
      *
@@ -28,16 +31,17 @@ public class ElementHandle {
     public ResponseData waitingElement(AndroidDriver driver, StfDevicesFields fields, String text) {
         ResponseData responseData = new ResponseData();
         try {
-            WebDriverWait wait = new WebDriverWait(driver, 120);
+            WebDriverWait wait = new WebDriverWait(driver, 10);
             By by = By.xpath("//*//*[@text='" + text + "']");
             wait.until(ExpectedConditions.presenceOfElementLocated(by));
 
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】等待元素【" + text + "】已出现，开始执行安装步骤");
+            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 等待元素【" + text + "】已出现，开始执行安装步骤");
         } catch (Exception e) {
-            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】没有发现元素【" + text + "】");
+            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 没有发现元素【" + text + "】");
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("没有定位到元素： //*//*[@text='" + text + "']");
+            responseData.setImagePath(screenshotUtil.screenshot(driver, fields.getSerial()));
         } finally {
             return responseData;
         }
@@ -88,8 +92,8 @@ public class ElementHandle {
         int resultX = new Double(x).intValue();
         int resultY = new Double(y).intValue();
 
-        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】X坐标为：" + resultX + ", Y坐标为：" + resultY);
-        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】模拟点击元素【" + text + "】按钮");
+        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: X坐标为：" + resultX + ", Y坐标为：" + resultY);
+        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟点击元素【" + text + "】按钮");
 
         TouchAction t = new TouchAction(driver);//模拟触摸点击
         t.tap(PointOption.point(resultX, resultY)).perform().release();

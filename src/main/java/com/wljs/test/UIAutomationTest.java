@@ -4,6 +4,7 @@ import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
 import com.wljs.server.InstallApkServer;
 import com.wljs.test.handle.*;
+import com.wljs.util.ScreenshotUtil;
 import com.wljs.util.TxtUtil;
 import com.wljs.util.constant.*;
 import io.appium.java_client.android.AndroidDriver;
@@ -12,6 +13,8 @@ import org.openqa.selenium.Dimension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 /**
  * 执行UI自动化测试
  * （1）查看是否可以正常登陆（初始化安装测试包之后，第一次登陆会提示验证码不正确，需要登陆两次）
@@ -19,11 +22,9 @@ import org.slf4j.LoggerFactory;
  */
 public class UIAutomationTest extends WaitElementHandle {
     private Logger logger = LoggerFactory.getLogger(UIAutomationTest.class);
+    private ScreenshotUtil screenshotUtil = new ScreenshotUtil();
 
     private AndroidDriver driver;
-
-    //其他登录方式（判断是否有该按钮）
-    private boolean otherFlag = false;
 
     /**
      * 執行UI自动化测试
@@ -47,7 +48,7 @@ public class UIAutomationTest extends WaitElementHandle {
                 int width = dimension.width;
                 int height = dimension.height;
 
-                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】第" + (i + 1) + "次启动未来集市APP");
+                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 第" + (i + 1) + "次启动未来集市APP");
 
                 if (i == 0) { //第一次启动
                     responseData = firstStartApp(fields, width, height);
@@ -71,8 +72,9 @@ public class UIAutomationTest extends WaitElementHandle {
             if (null == driver) {
                 responseData.setExMsg("执行UI自动化测试失败: AndroidDriver is null");
             } else {
-                responseData.setExMsg("执行UI自动化测试失败");
+                responseData.setExMsg("执行UI自动化测试失败: " + e.getMessage());
             }
+            responseData.setImagePath(screenshotUtil.screenshot(driver, fields.getSerial()));
 
         } finally {
             responseData.setFields(fields);
@@ -100,53 +102,66 @@ public class UIAutomationTest extends WaitElementHandle {
             pageHandle.slideGuidePage(driver, fields, width, height);
 
             //点击【立即体验】按钮
-            if (isAppear(driver, fields, LabelConstant.experienceBtnName, 1)) {
+            responseData = isAppear(driver, fields, LabelConstant.experienceBtnName, 1);
+            if (responseData.isStatus()) {
                 tap(driver, fields, LabelConstant.experienceBtnName, 1);
             }
             //检测是否发现新版本
-            if (isAppear(driver, fields, LabelConstant.findNewVersionName, 1)) {
+            responseData = isAppear(driver, fields, LabelConstant.findNewVersionName, 1);
+            if (responseData.isStatus()) {
                 driver.findElement(By.xpath("//*//*[@text='" + LabelConstant.ignoreBtnName + "']")).click();
             }
             //点击【我的】按钮
-            if (isAppear(driver, fields, LabelConstant.mineBtnName, 1)) {
+            responseData = isAppear(driver, fields, LabelConstant.mineBtnName, 1);
+            if (responseData.isStatus()) {
                 driver.findElement(By.xpath(LabelConstant.mineBtn)).click();
             }
 
+            //点击弹框允许操作
+            frameHandle.elasticFrameHandle(driver, fields.getDeviceName());
+
             //点击其他方式（兼容新版登录）
-            otherFlag = isAppear(driver, fields, LabelConstant.otherLoginBtnName, 1);
+            responseData = isAppear(driver, fields, LabelConstant.otherLoginBtnName, 1);
+            if (responseData.isStatus()) {
+                driver.findElement(By.xpath("//*//*[@text='" + LabelConstant.otherLoginBtnName + "']")).click();
+            }
 
             //点击弹框允许操作
             frameHandle.elasticFrameHandle(driver, fields.getDeviceName());
 
             //点击【测试】按钮
-            if (isAppear(driver, fields, LabelConstant.textBtnName, 1)) {
+            responseData = isAppear(driver, fields, LabelConstant.textBtnName, 1);
+            if (responseData.isStatus()) {
                 driver.findElement(By.xpath(LabelConstant.testBtn)).click();
-                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】模拟点击【测试】按钮");
+                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟点击【测试】按钮");
             }
 
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】停留1分钟后，准备重启APP");
+            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 停留1分钟后，准备重启APP");
             Thread.sleep(10000);
         } catch (Exception e) {
-            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】执行UI自动化测试失败: " + e);
+            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 执行UI自动化测试失败: " + e);
             responseData.setStatus(false);
             responseData.setException(e);
-            responseData.setExMsg("执行UI自动化测试： 失败");
+            responseData.setExMsg("执行UI自动化测试失败: " + e.getMessage());
         } finally {
-            driver.closeApp();
-
-            InstallApkServer installApkServer = new InstallApkServer();
             try {
+                if (!responseData.isStatus()) {
+                    responseData.setImagePath(screenshotUtil.screenshot(driver, fields.getSerial()));
+                }
+                driver.closeApp();
+
+                InstallApkServer installApkServer = new InstallApkServer();
                 //殺進程
                 installApkServer.readCmd(CommandConstant.killProcessCommand);
             } catch (Exception e) {
-                logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】手动杀掉APP进程失败： " + e);
+                logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 手动杀掉APP进程失败： " + e);
                 responseData.setStatus(false);
                 responseData.setException(e);
                 responseData.setExMsg("手动杀掉APP进程： 失败");
             }
 
             driver.quit();
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】关闭未来集市APP");
+            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 关闭未来集市APP");
             return responseData;
         }
 
@@ -163,25 +178,23 @@ public class UIAutomationTest extends WaitElementHandle {
         ResponseData responseData = new ResponseData();
         try {
             //点击【我的】按钮
-            if (isAppear(driver, fields, LabelConstant.mineBtnName, 1)) {
+            responseData = isAppear(driver, fields, LabelConstant.mineBtnName, 1);
+            if (responseData.isStatus()) {
                 driver.findElement(By.xpath(LabelConstant.mineBtn)).click();
-                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】模拟点击【我的】按钮");
+                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟点击【我的】按钮");
             }
             //点击其他方式（兼容新版登录）
-            if (otherFlag) {
-                isAppear(driver, fields, LabelConstant.otherLoginBtnName, 1);
+            responseData = isAppear(driver, fields, LabelConstant.otherLoginBtnName, 1);
+            if (responseData.isStatus()) {
+                driver.findElement(By.xpath("//*//*[@text='" + LabelConstant.otherLoginBtnName + "']")).click();
             }
 
             //点击【测试】按钮
-            if (isAppear(driver, fields, LabelConstant.textBtnName, 1)) {
+            responseData = isAppear(driver, fields, LabelConstant.textBtnName, 1);
+            if (responseData.isStatus()) {
                 driver.findElement(By.xpath(LabelConstant.testBtn)).click();
-                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】模拟点击【测试】按钮");
+                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟点击【测试】按钮");
             }
-
-            /*if(isAppear(driver, LabelConstant.loginModeBtnName, 1)){
-                driver.findElement(By.xpath(LabelConstant.phoneLoginBtn)).click();
-                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】模拟点击【手机登录】按钮");
-            }*/
 
             //模拟登录
             LoginHandle loginHandle = new LoginHandle();
@@ -204,20 +217,28 @@ public class UIAutomationTest extends WaitElementHandle {
                     //点击图片进入商品详情
                     responseData = productHandle.productDetail(driver, fields);
                     if (!responseData.isStatus()) {
-                        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】执行UI自动化测试失败！！！！！");
+                        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 执行UI自动化测试失败！！！！！");
                     } else {
-                        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】执行UI自动化测试成功！！！！！");
+                        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 执行UI自动化测试成功！！！！！");
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】执行UI自动化测试失败: " + e);
+            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 执行UI自动化测试失败: " + e);
             responseData.setStatus(false);
             responseData.setException(e);
-            responseData.setExMsg("执行UI自动化测试： 失败");
+            responseData.setExMsg("执行UI自动化测试失败: " + e.getMessage());
         } finally {
-            driver.closeApp();
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】测试用例执行完毕，关闭未来集市APP");
+            try {
+                if (!responseData.isStatus()) {
+                    responseData.setImagePath(screenshotUtil.screenshot(driver, fields.getSerial()));
+                }
+                driver.closeApp();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 测试用例执行完毕，关闭未来集市APP");
             driver.quit();
             return responseData;
         }

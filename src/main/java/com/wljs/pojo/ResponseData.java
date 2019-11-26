@@ -10,12 +10,14 @@ public class ResponseData implements Serializable {
     private Exception exception;
     private StfDevicesFields fields;
     private String exMsg;
+    private String imagePath;
 
     public ResponseData(){
         this.status = true;
         this.exception = null;
         this.fields = null;
         this.exMsg = null;
+        this.imagePath = null;
     }
 
 }

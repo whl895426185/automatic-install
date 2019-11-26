@@ -1,7 +1,7 @@
 package com.wljs.test.handle;
 
 import com.wljs.pojo.StfDevicesFields;
-import com.wljs.util.constant.ConfigConstant;
+import com.wljs.util.config.AndroidConfig;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidElement;
 import io.appium.java_client.remote.AndroidMobileCapabilityType;
@@ -24,10 +24,10 @@ public class StartUpAppHandle {
     public AndroidDriver startUpApp(StfDevicesFields fields, String appPath) throws MalformedURLException {
         DesiredCapabilities cap = new DesiredCapabilities();
         cap.setCapability(MobileCapabilityType.AUTOMATION_NAME, AutomationName.ANDROID_UIAUTOMATOR2);
-        cap.setCapability(MobileCapabilityType.PLATFORM_NAME, ConfigConstant.platformName);
+        cap.setCapability(MobileCapabilityType.PLATFORM_NAME, AndroidConfig.platformName);
         cap.setCapability(MobileCapabilityType.PLATFORM_VERSION, fields.getVersion());
-        cap.setCapability(AndroidMobileCapabilityType.APP_PACKAGE, ConfigConstant.appPackage);
-        cap.setCapability(AndroidMobileCapabilityType.APP_ACTIVITY, ConfigConstant.appActivity);
+        cap.setCapability(AndroidMobileCapabilityType.APP_PACKAGE, AndroidConfig.appPackage);
+        cap.setCapability(AndroidMobileCapabilityType.APP_ACTIVITY, AndroidConfig.appActivity);
         cap.setCapability(MobileCapabilityType.APP, appPath);
         cap.setCapability(MobileCapabilityType.UDID, fields.getSerial());
         cap.setCapability(MobileCapabilityType.DEVICE_NAME, fields.getDeviceName());

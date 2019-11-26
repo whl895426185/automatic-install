@@ -1,6 +1,6 @@
 package com.wljs.server;
 
-import com.wljs.util.constant.ConfigConstant;
+import com.wljs.util.config.AndroidConfig;
 import io.appium.java_client.service.local.AppiumDriverLocalService;
 import io.appium.java_client.service.local.AppiumServiceBuilder;
 import io.appium.java_client.service.local.flags.GeneralServerFlag;
@@ -42,7 +42,7 @@ public class AppiumServer {
         cap.setCapability("resetKeyboard", true);
 
         AppiumServiceBuilder builder = new AppiumServiceBuilder();
-        builder.withIPAddress(ConfigConstant.appiumIp);
+        builder.withIPAddress(AndroidConfig.appiumIp);
         builder.usingPort(port);
         builder.withCapabilities(cap);
         builder.withArgument(GeneralServerFlag.SESSION_OVERRIDE);
@@ -60,7 +60,7 @@ public class AppiumServer {
         if(checkIfServerIsRunnning(port)) {
             service.stop();
         }
-        logger.info(":::::::::::::::::停止Appium Server服务端口【" + port + "】");
+        logger.info(":::::::::::::::::停止Appium Server服务端口【" + port + "】::::::::::::::::: ");
 
     }
 
