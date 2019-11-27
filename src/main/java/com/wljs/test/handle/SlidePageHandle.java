@@ -44,7 +44,7 @@ public class SlidePageHandle {
         //向上滑动
         responseData = isAppear(driver, fields, LabelConstant.myOrderBtnName, 1);
         if (responseData.isStatus()) {
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟向上滑动页面，查看商品信息");
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 模拟向上滑动页面，查看商品信息");
 
             int orginWith = width / 2;
             int orginHeight = (new Double(height * 0.9)).intValue();

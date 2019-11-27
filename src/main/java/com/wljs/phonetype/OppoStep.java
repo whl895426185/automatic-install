@@ -43,7 +43,7 @@ public class OppoStep extends ElementHandle {
             return responseData;
         }
 
-        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 执行安装步骤！！！！");
+        logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行安装步骤！！！！");
         responseData = waitingElement(driver, fields, InstallStepConstant.oppo_step_2_txt);
         if (!responseData.isStatus()) {
             return responseData;
@@ -108,7 +108,7 @@ public class OppoStep extends ElementHandle {
             clickCoordinates(driver, fields, x, y, text);
 
         } catch (Exception e) {
-            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 获取坐标信息异常：" + e);
+            logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 获取坐标信息异常：" + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("无法通过关键字获取坐标信息： " + keyword);

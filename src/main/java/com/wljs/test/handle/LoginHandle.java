@@ -43,7 +43,7 @@ public class LoginHandle {
                     responseData = isAppear(driver, fields, LabelConstant.loginBtnName);
                     if (responseData.isStatus()) {
                         driver.findElement(By.xpath(LabelConstant.loginBtn)).click();
-                        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟点击【登录】按钮");
+                        logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 模拟点击【登录】按钮");
                     }
                 }
             }
@@ -88,7 +88,7 @@ public class LoginHandle {
             driver.pressKey(new KeyEvent(getKey(str)));
             result += str;
         }
-        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟输入手机号 = " + result);
+        logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 模拟输入手机号 = " + result);
     }
 
     private AndroidKey getKey(String numStr) {
@@ -130,7 +130,7 @@ public class LoginHandle {
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_8));
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_8));
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_8));
-        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟输入验证码 = 888888");
+        logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 模拟输入验证码 = 888888");
     }
 
     //新账号需要填写邀请码
@@ -143,7 +143,7 @@ public class LoginHandle {
 
             //点击【确定邀请码】按钮
             driver.findElement(By.xpath(LabelConstant.loginBtn)).click();
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟点击【确定邀请码】按钮");
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 模拟点击【确定邀请码】按钮");
 
             //等待元素出現
             responseData = isAppear(driver, fields, LabelConstant.confirmAndBindLoginBtnName);
@@ -151,7 +151,7 @@ public class LoginHandle {
                 //点击【确认绑定并登录】按钮
                 driver.findElement(By.xpath(LabelConstant.loginBtn)).click();
 
-                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟点击【确认绑定并登录】按钮");
+                logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 模拟点击【确认绑定并登录】按钮");
             }
         }
     }
@@ -168,7 +168,7 @@ public class LoginHandle {
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_0));
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_0));
         driver.pressKey(new KeyEvent(AndroidKey.DIGIT_6));
-        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟输入邀请码 = 600006");
+        logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 模拟输入邀请码 = 600006");
     }
 
 }

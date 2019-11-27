@@ -44,7 +44,7 @@ public class WaitElementHandle {
             wait.until(ExpectedConditions.presenceOfElementLocated(by));
 
         } catch (Exception e) {
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 没有发现元素【" + text + "】");
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 没有发现元素【" + text + "】");
             responseData.setStatus(false);
             responseData.setFields(fields);
             responseData.setException(e);
@@ -72,7 +72,7 @@ public class WaitElementHandle {
         int x = coordinates.getTotalX() / 2;
         int y = coordinates.getTotalY() / 2;
 
-        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟点击【" + text + "】按钮");
+        logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 模拟点击【" + text + "】按钮");
 
         TouchAction t = new TouchAction(driver);//模拟触摸点击
         t.tap(PointOption.point(x, y)).perform().release();

@@ -47,7 +47,7 @@ public class UIAutomationTest extends WaitElementHandle {
                 int width = dimension.width;
                 int height = dimension.height;
 
-                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 第" + (i + 1) + "次启动未来集市APP");
+                logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 第" + (i + 1) + "次启动未来集市APP");
 
                 if (i == 0) { //第一次启动
                     responseData = firstStartApp(fields, width, height);
@@ -132,13 +132,13 @@ public class UIAutomationTest extends WaitElementHandle {
             responseData = isAppear(driver, fields, LabelConstant.textBtnName, 1);
             if (responseData.isStatus()) {
                 driver.findElement(By.xpath(LabelConstant.testBtn)).click();
-                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟点击【测试】按钮");
+                logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 模拟点击【测试】按钮");
             }
 
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 停留1分钟后，准备重启APP");
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 停留1分钟后，准备重启APP");
             Thread.sleep(10000);
         } catch (Exception e) {
-            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 执行UI自动化测试失败: " + e);
+            logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行UI自动化测试失败: " + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("执行UI自动化测试失败: " + e.getMessage());
@@ -152,14 +152,14 @@ public class UIAutomationTest extends WaitElementHandle {
                 //殺進程
                 Runtime.getRuntime().exec(CommandConstant.killProcessCommand);
             } catch (Exception e) {
-                logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 手动杀掉APP进程失败： " + e);
+                logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 手动杀掉APP进程失败： " + e);
                 responseData.setStatus(false);
                 responseData.setException(e);
                 responseData.setExMsg("手动杀掉APP进程： 失败");
             }
 
             driver.quit();
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 关闭未来集市APP");
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 关闭未来集市APP");
             return responseData;
         }
 
@@ -179,7 +179,7 @@ public class UIAutomationTest extends WaitElementHandle {
             responseData = isAppear(driver, fields, LabelConstant.mineBtnName, 1);
             if (responseData.isStatus()) {
                 driver.findElement(By.xpath(LabelConstant.mineBtn)).click();
-                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟点击【我的】按钮");
+                logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 模拟点击【我的】按钮");
             }
             //点击其他方式（兼容新版登录）
             responseData = isAppear(driver, fields, LabelConstant.otherLoginBtnName, 1);
@@ -191,7 +191,7 @@ public class UIAutomationTest extends WaitElementHandle {
             responseData = isAppear(driver, fields, LabelConstant.textBtnName, 1);
             if (responseData.isStatus()) {
                 driver.findElement(By.xpath(LabelConstant.testBtn)).click();
-                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟点击【测试】按钮");
+                logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 模拟点击【测试】按钮");
             }
 
             //模拟登录
@@ -215,14 +215,14 @@ public class UIAutomationTest extends WaitElementHandle {
                     //点击图片进入商品详情
                     responseData = productHandle.productDetail(driver, fields);
                     if (!responseData.isStatus()) {
-                        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 执行UI自动化测试失败！！！！！");
+                        logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行UI自动化测试失败！！！！！");
                     } else {
-                        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 执行UI自动化测试成功！！！！！");
+                        logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行UI自动化测试成功！！！！！");
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 执行UI自动化测试失败: " + e);
+            logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行UI自动化测试失败: " + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("执行UI自动化测试失败: " + e.getMessage());
@@ -236,7 +236,7 @@ public class UIAutomationTest extends WaitElementHandle {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 测试用例执行完毕，关闭未来集市APP");
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 测试用例执行完毕，关闭未来集市APP");
             driver.quit();
             return responseData;
         }

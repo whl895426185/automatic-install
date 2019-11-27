@@ -39,9 +39,9 @@ public class OperateThreadServer implements Callable {
                 responseData = uiTest.executeTest(responseData.getFields(), apkPath, phoneNum);
 
             }
-            logger.info(":::::::::::::::::【" + responseData.getFields().getDeviceName() + "】::::::::::::::::: 线程" + Thread.currentThread().getName() + "执行完毕");
+            logger.info(":::::::::::::::::【" + responseData.getFields().getDeviceName() + ">>>::::::::::::::::: 线程" + Thread.currentThread().getName() + "执行完毕");
         } catch (Exception e) {
-            logger.error(":::::::::::::::::【" + responseData.getFields().getDeviceName() + "】::::::::::::::::: 自动部署安装失败:" + e);
+            logger.error(":::::::::::::::::【" + responseData.getFields().getDeviceName() + ">>>::::::::::::::::: 自动部署安装失败:" + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("自动部署安装失败:" + e);

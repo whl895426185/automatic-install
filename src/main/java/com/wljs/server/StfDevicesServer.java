@@ -67,7 +67,7 @@ public class StfDevicesServer {
         //把设备信息放入java安全队列中，保证数据的安全性
         ArrayBlockingQueue queueList = new ArrayBlockingQueue(resultList.size());
         for (StfDevicesFields fields : resultList) {
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 开始执行自动部署安装工作！！！！！！");
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 开始执行自动部署安装工作！！！！！！");
             queueList.add(fields);
         }
 

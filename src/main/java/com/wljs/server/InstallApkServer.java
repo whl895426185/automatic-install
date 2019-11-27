@@ -66,7 +66,7 @@ public class InstallApkServer {
 
             //检查APP是否安装
             if (driver.isAppInstalled(AndroidConfig.appPackage)) {
-                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 检测到设备之前安装了APP，先执行卸载操作");
+                logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 检测到设备之前安装了APP，先执行卸载操作");
                 //如果安装了，先卸载
                 driver.removeApp(AndroidConfig.appPackage);
             }
@@ -74,7 +74,7 @@ public class InstallApkServer {
             //adb命令执行安装apk（不需要用appium自带的安装函数,它内置方法也是通过adb命令安装的,还得整个安装过程完成，该函数执行才算完成）
             String installCmd = "adb -s " + device + " install " + apkPath;
             Process process = Runtime.getRuntime().exec(installCmd);
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 命令执行安装：" + installCmd);
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 命令执行安装：" + installCmd);
 
             boolean isSuccess = true;
             int i = 0;
@@ -85,7 +85,7 @@ public class InstallApkServer {
                 if (!responseData.isStatus()) {
                     isSuccess = false;
                     if (i < 2) {
-                        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 第" + (i + 1) + "次重新尝试安装");
+                        logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 第" + (i + 1) + "次重新尝试安装");
                     }
                 }
                 i++;
@@ -95,7 +95,7 @@ public class InstallApkServer {
             if (responseData.isStatus()) {
                 processMsg = getProcess(process);
 
-                logger.info(":::::::::::::::::【" + fields.getDeviceName() + "---ADB命令install結果】:::::::::::::::::" + processMsg);
+                logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + "---ADB命令install結果】:::::::::::::::::" + processMsg);
 
                 if (processMsg.contains("Success")) {
                     //检测包是否安装成功
@@ -115,7 +115,7 @@ public class InstallApkServer {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 执行自动部署安装失败：" + e);
+            logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行自动部署安装失败：" + e);
 
             responseData.setStatus(false);
             responseData.setException(e);
@@ -175,7 +175,7 @@ public class InstallApkServer {
         ResponseData responseData = new ResponseData();
         boolean isSuccess = true;
         int i = 0;
-        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 准备检查App是否安装成功");
+        logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 准备检查App是否安装成功");
         do {
             Thread.sleep(20000);
 
@@ -185,7 +185,7 @@ public class InstallApkServer {
                 responseData.setStatus(false);
                 responseData.setExMsg("Appium无法检测到包的安装路径");
             }
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 第" + (i + 1) + "次检查App安装结果：" + (isSuccess ? "成功" : (i == 4 ? "失败" : "安装有点缓慢，请等待！！！！！")) + "");
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 第" + (i + 1) + "次检查App安装结果：" + (isSuccess ? "成功" : (i == 4 ? "失败" : "安装有点缓慢，请等待！！！！！")) + "");
 
             i++;
         } while (!isSuccess && i < 5);

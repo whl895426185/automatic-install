@@ -29,20 +29,20 @@ public class MeizuStep extends ElementHandle {
     public ResponseData installStep(AndroidDriver driver, StfDevicesFields fields) {
         ResponseData responseData = new ResponseData();
 
-        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 准备开始安装步骤");
+        logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 准备开始安装步骤");
 
         try {
             WebDriverWait wait = new WebDriverWait(driver, 120);
             By by = By.xpath("//*//*[@text='" + LabelConstant.allowBtnName + "']");
             wait.until(ExpectedConditions.presenceOfElementLocated(by));
 
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 等待元素【" + LabelConstant.allowBtnName + "】已出现，开始执行安装步骤");
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 等待元素【" + LabelConstant.allowBtnName + "】已出现，开始执行安装步骤");
 
             driver.switchTo().alert().accept();
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟点击【" + LabelConstant.allowBtnName + "】按钮");
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 模拟点击【" + LabelConstant.allowBtnName + "】按钮");
 
         } catch (Exception e) {
-            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 没有发现元素【" + LabelConstant.allowBtnName + "】");
+            logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 没有发现元素【" + LabelConstant.allowBtnName + "】");
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("没有定位到元素： //*//*[@text='" + LabelConstant.allowBtnName + "']");

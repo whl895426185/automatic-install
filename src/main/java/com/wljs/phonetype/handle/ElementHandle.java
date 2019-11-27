@@ -35,9 +35,9 @@ public class ElementHandle {
             By by = By.xpath("//*//*[@text='" + text + "']");
             wait.until(ExpectedConditions.presenceOfElementLocated(by));
 
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 等待元素【" + text + "】已出现，开始执行安装步骤");
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 等待元素【" + text + "】已出现，开始执行安装步骤");
         } catch (Exception e) {
-            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 没有发现元素【" + text + "】");
+            logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 没有发现元素【" + text + "】");
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("没有定位到元素： //*//*[@text='" + text + "']");
@@ -92,8 +92,8 @@ public class ElementHandle {
         int resultX = new Double(x).intValue();
         int resultY = new Double(y).intValue();
 
-        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: X坐标为：" + resultX + ", Y坐标为：" + resultY);
-        logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟点击元素【" + text + "】按钮");
+        logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: X坐标为：" + resultX + ", Y坐标为：" + resultY);
+        logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 模拟点击元素【" + text + "】按钮");
 
         TouchAction t = new TouchAction(driver);//模拟触摸点击
         t.tap(PointOption.point(resultX, resultY)).perform().release();

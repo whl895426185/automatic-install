@@ -26,11 +26,11 @@ public class ProductHandle {
         try {
             text = LabelConstant.productNameForList;
             WebElement namelistEm = driver.findElement(By.xpath(text));
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 商品列表获取第一个商品名称 = " + namelistEm.getText());
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 商品列表获取第一个商品名称 = " + namelistEm.getText());
 
             text = LabelConstant.productPriceForList;
             WebElement pricelistEm = driver.findElement(By.xpath(text));
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 商品列表获取第一个商品价格 = " + pricelistEm.getText());
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 商品列表获取第一个商品价格 = " + pricelistEm.getText());
 
         } catch (Exception e) {
             logger.error("无法定位元素： " + e);
@@ -53,7 +53,7 @@ public class ProductHandle {
         //普通商品详情，暂时屏蔽(樣式有變)
         try {
             driver.findElement(By.xpath(LabelConstant.productBtn)).click();
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 模拟点击第一个商品，进入商品详情");
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 模拟点击第一个商品，进入商品详情");
 
 //        WebElement namedetailEm = driver.findElement(By.xpath(LabelConstant.productNameForDetail));
 //        logger.info(":::::::::::::::::商品详情获取商品名称 = " + namedetailEm.getText());
@@ -69,7 +69,7 @@ public class ProductHandle {
             logger.info(":::::::::::::::::商品详情获取商品价格，内容展示为空！！！！");
         }*/
         } catch (Exception e) {
-            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 执行商品详情UI自动化测试失败: " + e);
+            logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行商品详情UI自动化测试失败: " + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("执行商品详情UI自动化测试失败:" + e.getMessage());

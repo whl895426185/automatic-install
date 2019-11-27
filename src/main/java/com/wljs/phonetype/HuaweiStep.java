@@ -28,7 +28,7 @@ public class HuaweiStep extends ElementHandle {
         if (fields.getDeviceName().contains(PhoneTypeConstant.HUAWEI_PHONE_MODEL1)
                 || fields.getDeviceName().contains(PhoneTypeConstant.HUAWEI_PHONE_MODEL2)) {
 
-            logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 执行安装步骤！！！！");
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行安装步骤！！！！");
             //步驟一
             responseData = waitingElement(driver, fields, InstallStepConstant.huawei_step_1);
             if (!responseData.isStatus()) {
@@ -94,7 +94,7 @@ public class HuaweiStep extends ElementHandle {
 
             clickCoordinates(driver, fields, x, y, text);
         } catch (Exception e) {
-            logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 无法通过关键字获取坐标信息： " + e);
+            logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 无法通过关键字获取坐标信息： " + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("无法通过关键字获取坐标信息： " + keyword);
