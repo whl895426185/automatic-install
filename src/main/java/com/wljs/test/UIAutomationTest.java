@@ -2,7 +2,6 @@ package com.wljs.test;
 
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
-import com.wljs.server.InstallApkServer;
 import com.wljs.test.handle.*;
 import com.wljs.util.ScreenshotUtil;
 import com.wljs.util.TxtUtil;
@@ -150,9 +149,8 @@ public class UIAutomationTest extends WaitElementHandle {
                 }
                 driver.closeApp();
 
-                InstallApkServer installApkServer = new InstallApkServer();
                 //殺進程
-                installApkServer.readCmd(CommandConstant.killProcessCommand);
+                Runtime.getRuntime().exec(CommandConstant.killProcessCommand);
             } catch (Exception e) {
                 logger.error(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 手动杀掉APP进程失败： " + e);
                 responseData.setStatus(false);

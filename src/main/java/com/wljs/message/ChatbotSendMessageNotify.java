@@ -126,7 +126,7 @@ public class ChatbotSendMessageNotify {
             List<ResponseData> reDataList = entry.getValue();
 
             int index = 0;
-            String logName = UUID.randomUUID().toString().replace("-","");
+            String logName = UUID.randomUUID().toString().replace("-", "");
             for (ResponseData responseData : reDataList) {
                 //创建实时日志，打开链接展示
                 if (index == 0) {
@@ -150,7 +150,7 @@ public class ChatbotSendMessageNotify {
             }
         }
 
-        titleMsg = titleMsg.substring(0, titleMsg.length()-1);
+        titleMsg = titleMsg.substring(0, titleMsg.length() - 1);
 
         buffer.append(titleMsg);
         buffer.append("]");
@@ -161,25 +161,36 @@ public class ChatbotSendMessageNotify {
         return buffer.toString();
     }
 
-    private void createLog(String childFilePath, String logName, ResponseData responseData) throws FileNotFoundException {
-        String path = childFilePath + "/" + logName + ".log";
-        logger.info(":::::::::::::::::【钉钉消息通知】::::::::::::::::: 创建LOG文件:" + path);
-        File file = new File(path);
-        //创建文件的输出流
-        PrintStream stream = new PrintStream(file);
-        responseData.getException().printStackTrace(stream);
-        stream.flush();
-        stream.close();
+    private void createLog(String childFilePath, String logName, ResponseData responseData) throws IOException {
+        createFile(childFilePath, logName + ".log", responseData);
     }
 
-    private void createTxt(String childFilePath, String logName, ResponseData responseData) throws FileNotFoundException {
-        String path = childFilePath + "/" + logName + ".txt";
-        File file = new File(path);
-        //创建文件的输出流
-        PrintStream stream = new PrintStream(file);
-        responseData.getException().printStackTrace(stream);
-        stream.flush();
-        stream.close();
+    private void createFile(String childFilePath, String logName, ResponseData responseData) throws IOException {
+        String path = childFilePath + "/" + logName;
+        logger.info(":::::::::::::::::【钉钉消息通知】::::::::::::::::: 创建文件:" + path);
+
+        if (null == responseData.getException()) {
+            TxtUtil txtUtil = new TxtUtil();
+            txtUtil.creatTxtFile(childFilePath, logName);
+            if(null != responseData.getAdbExceptionMsg()){
+                txtUtil.writeTxtFile(childFilePath, responseData.getAdbExceptionMsg(), logName);
+            }else{
+                txtUtil.writeTxtFile(childFilePath, responseData.getExMsg(), logName);
+            }
+
+        } else {
+
+            File file = new File(path);
+            //创建文件的输出流
+            PrintStream stream = new PrintStream(file);
+            responseData.getException().printStackTrace(stream);
+            stream.flush();
+            stream.close();
+        }
+    }
+
+    private void createTxt(String childFilePath, String logName, ResponseData responseData) throws IOException {
+        createFile(childFilePath, logName + ".txt", responseData);
     }
 
     private void createHtml(String htmlContent, String childFilePath, String childtime, String logName, ResponseData responseData) {
@@ -187,18 +198,26 @@ public class ChatbotSendMessageNotify {
             SimpleDateFormat fm = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
 
             Exception e = responseData.getException();
-            StackTraceElement elements = e.getStackTrace()[0];
+            StackTraceElement elements = (e == null ? null : e.getStackTrace()[0]);
 
             String path = "http://192.168.88.16/logs/appium/error/" + childtime + "/" + logName;
             htmlContent = htmlContent.replace("logHtmlPathValue", path + ".log");
-            htmlContent = htmlContent.replace("packageNameValue", null == elements ? "" : elements.getClassName());
-            htmlContent = htmlContent.replace("fileNameValue", null == elements ? "" : elements.getFileName());
-            htmlContent = htmlContent.replace("methodNameValue", null == elements ? "" : elements.getMethodName());
-            htmlContent = htmlContent.replace("lineNumValue", null == elements ? "" : String.valueOf(elements.getLineNumber()));
+            if(null == e && null != responseData.getAdbExceptionMsg()){
+                //ADB安裝包失敗，沒有直接抛出異常，所以手動維護異常
+                htmlContent = htmlContent.replace("packageNameValue", "com.wljs.server.InstallApkServer");
+                htmlContent = htmlContent.replace("fileNameValue", "InstallApkServer.java");
+                htmlContent = htmlContent.replace("methodNameValue", "installApp");
+                htmlContent = htmlContent.replace("lineNumValue", "");
+            }else{
+                htmlContent = htmlContent.replace("packageNameValue", null == elements ? "" : elements.getClassName());
+                htmlContent = htmlContent.replace("fileNameValue", null == elements ? "" : elements.getFileName());
+                htmlContent = htmlContent.replace("methodNameValue", null == elements ? "" : elements.getMethodName());
+                htmlContent = htmlContent.replace("lineNumValue", null == elements ? "" : String.valueOf(elements.getLineNumber()));
+            }
             htmlContent = htmlContent.replace("operateTime", fm.format(new Date()));
             htmlContent = htmlContent.replace("exceptionMsg", responseData.getExMsg());
             htmlContent = htmlContent.replace("logPathValue", path + ".txt");
-            if(null != responseData.getImagePath()){//显示截图
+            if (null != responseData.getImagePath()) {//显示截图
                 String imgPath = "http://192.168.88.16/logs/appium/error/images/" + responseData.getImagePath();
                 htmlContent = htmlContent.replace("screenImgPath", imgPath);
                 htmlContent = htmlContent.replace("<div id=\"screenImgDiv\" hidden=\"hidden\" style=\"margin-top: 50px;position: relative;margin-left: 30px;\">",
@@ -206,7 +225,7 @@ public class ChatbotSendMessageNotify {
             }
 
             String saveHtmlFile = childFilePath + "/" + logName + ".html";
-            logger.info(":::::::::::::::::【钉钉消息通知】::::::::::::::::: 创建HTML文件:" + saveHtmlFile);
+            logger.info(":::::::::::::::::【钉钉消息通知】::::::::::::::::: 创建文件:" + saveHtmlFile);
 
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(saveHtmlFile), "UTF-8"));
             bufferedWriter.write(htmlContent);
@@ -235,7 +254,7 @@ public class ChatbotSendMessageNotify {
             ResponseData responseData = new ResponseData();
 
             StfDevicesFields fields = new StfDevicesFields();
-            fields.setManufacturer("设备AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+            fields.setManufacturer("设备A");
             fields.setModel(String.valueOf(i));
 
             responseData.setFields(fields);

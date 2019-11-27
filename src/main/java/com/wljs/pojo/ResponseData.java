@@ -11,6 +11,7 @@ public class ResponseData implements Serializable {
     private StfDevicesFields fields;
     private String exMsg;
     private String imagePath;
+    private String adbExceptionMsg;
 
     public ResponseData(){
         this.status = true;
@@ -18,6 +19,7 @@ public class ResponseData implements Serializable {
         this.fields = null;
         this.exMsg = null;
         this.imagePath = null;
+        this.adbExceptionMsg = null;
     }
 
 }

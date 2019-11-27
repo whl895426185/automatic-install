@@ -31,25 +31,8 @@ public class MeizuStep extends ElementHandle {
 
         logger.info(":::::::::::::::::【" + fields.getDeviceName() + "】::::::::::::::::: 准备开始安装步骤");
 
-        //向左滑動
-//        Dimension dimension = driver.manage().window().getSize();
-//        int width = dimension.width;
-//        int height = dimension.height;
-//
-//        int orginWith = (new Double(width * 0.9)).intValue();
-//        int orginHeight = height / 2;
-//        int moveWidth = (new Double(width * 0.15)).intValue();
-//        int moveHeight = height / 2;
-//
-//        new TouchAction(driver).press(PointOption.point(orginWith, orginHeight)).waitAction(WaitOptions.waitOptions(Duration.ofSeconds(3)))
-//                .moveTo(PointOption.point(moveWidth, moveHeight)).release().perform();
-
-       /* responseData = waitingElement(driver, fields, LabelConstant.allowBtnName);
-        if (!responseData.isStatus()) {
-            return responseData;
-        }*/
         try {
-            WebDriverWait wait = new WebDriverWait(driver, 60);
+            WebDriverWait wait = new WebDriverWait(driver, 120);
             By by = By.xpath("//*//*[@text='" + LabelConstant.allowBtnName + "']");
             wait.until(ExpectedConditions.presenceOfElementLocated(by));
 
