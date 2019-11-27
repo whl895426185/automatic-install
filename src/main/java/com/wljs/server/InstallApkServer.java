@@ -98,8 +98,8 @@ public class InstallApkServer {
                 logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + "---ADB命令install結果】:::::::::::::::::" + processMsg);
 
                 if (processMsg.contains("Success")) {
-                    //检测包是否安装成功
-                    responseData = installOk(driver, fields, AndroidConfig.appPackage);
+                    //禁用检查是否安装成功的方法，执行安装process输出success就证明已经安装成功了，Appium一个应用的session过期时间是60秒，再次检查会导致超时
+                    //responseData = installOk(driver, fields, AndroidConfig.appPackage);
 
                     driver.quit();
                 } else {
