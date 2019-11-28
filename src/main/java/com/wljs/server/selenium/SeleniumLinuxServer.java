@@ -177,6 +177,7 @@ public class SeleniumLinuxServer {
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error(":::::::::::::::::登录STF平台失败，无法定位元素：" + e);
             responseData.setStatus(false);
             responseData.setException(e);
@@ -210,6 +211,7 @@ public class SeleniumLinuxServer {
             element.click();
 
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error(":::::::::::::::::没有等到元素出现，打印异常: " + e);
 
             responseData.setStatus(false);

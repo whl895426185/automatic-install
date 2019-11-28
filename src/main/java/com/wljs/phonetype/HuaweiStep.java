@@ -94,6 +94,7 @@ public class HuaweiStep extends ElementHandle {
 
             clickCoordinates(driver, fields, x, y, text);
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 无法通过关键字获取坐标信息： " + e);
             responseData.setStatus(false);
             responseData.setException(e);

@@ -108,6 +108,7 @@ public class OppoStep extends ElementHandle {
             clickCoordinates(driver, fields, x, y, text);
 
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 获取坐标信息异常：" + e);
             responseData.setStatus(false);
             responseData.setException(e);

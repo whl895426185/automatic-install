@@ -142,6 +142,7 @@ public class SeleniumWindowServer {
             WebDriverWait wait = new WebDriverWait(driver, 50);
             em = wait.until(ExpectedConditions.presenceOfElementLocated(by));
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("没有等到元素出现，打印异常: " + e.getMessage());
         }
         return em;
@@ -161,6 +162,7 @@ public class SeleniumWindowServer {
             element.click();
             return true;
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("没有等到元素出现，打印异常: " + e.getMessage());
             return false;
         }

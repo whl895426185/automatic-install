@@ -3,6 +3,7 @@ package com.wljs.message;
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
 import com.wljs.util.TxtUtil;
+import com.wljs.util.config.AndroidConfig;
 import com.wljs.util.config.MessageConfig;
 import com.wljs.util.config.SvnConfig;
 import org.apache.http.HttpResponse;
@@ -27,26 +28,6 @@ public class ChatbotSendMessageNotify {
 
     public void sendMessage(List<ResponseData> dataList) {
         try {
-            //定义存放异常信息，key为异常信息，value为详细的异常信息及设备
-            Map<String, List<ResponseData>> messageMap = new HashMap<String, List<ResponseData>>();
-            List<ResponseData> responseDataList = null;
-            for (ResponseData responseData : dataList) {
-                //相同的异常，所涉及的设备信息放一块
-                if (!messageMap.containsKey(responseData.getExMsg())) {
-                    responseDataList = new ArrayList<ResponseData>();
-
-                }
-                responseDataList.add(responseData);
-                messageMap.put(responseData.getExMsg(), responseDataList);
-            }
-
-            logger.info(":::::::::::::::::【钉钉消息通知】::::::::::::::::: messageMap.size() = " + messageMap.size());
-
-            //判断是否为空
-            if (null == messageMap || messageMap.size() < 1) {
-                return;
-            }
-
             //判断存放异常的文件夹是否存在
             String parentFilePath = MessageConfig.errorLogPath;
             File parentFile = new File(parentFilePath);
@@ -67,7 +48,7 @@ public class ChatbotSendMessageNotify {
             httppost.addHeader("Content-Type", "application/json; charset=utf-8");
 
             //定义钉钉消息的json
-            String messagae = getDingDingMessage(messageMap, childFilePath, childtime);
+            String messagae = getDingDingMessage(dataList, childFilePath, childtime);
 
             StringEntity se = new StringEntity(messagae, "utf-8");
             httppost.setEntity(se);
@@ -85,7 +66,7 @@ public class ChatbotSendMessageNotify {
     }
 
     //定义钉钉消息的json
-    private String getDingDingMessage(Map<String, List<ResponseData>> messageMap, String childFilePath, String childtime) throws IOException {
+    private String getDingDingMessage(List<ResponseData> dataList, String childFilePath, String childtime) throws IOException {
         //读取服务器存放当前部署安装的APK包信息
         TxtUtil txtUtil = new TxtUtil();
         String txtFilePath = SvnConfig.localApkVersionFilePath;
@@ -122,32 +103,25 @@ public class ChatbotSendMessageNotify {
 
         //把设备作为按钮形式展示，点击可以展示对应的日志
         String titleMsg = "";
-        for (Map.Entry<String, List<ResponseData>> entry : messageMap.entrySet()) {
-            List<ResponseData> reDataList = entry.getValue();
-
-            int index = 0;
+        for (ResponseData responseData : dataList) {
             String logName = UUID.randomUUID().toString().replace("-", "");
-            for (ResponseData responseData : reDataList) {
-                //创建实时日志，打开链接展示
-                if (index == 0) {
-                    index++;
-                    logger.info(":::::::::::::::::【钉钉消息通知】::::::::::::::::: logName = " + logName);
-                    //创建log文件，用于下载
-                    createLog(childFilePath, logName, responseData);
-                    //创建txt文件，用于展示
-                    createTxt(childFilePath, logName, responseData);
 
-                    //创建html，用于展示
-                    createHtml(htmlBuffer.toString(), childFilePath, childtime, logName, responseData);
-                }
+            //创建实时日志，打开链接展示
+            logger.info(":::::::::::::::::【钉钉消息通知】::::::::::::::::: logName = " + logName);
+            //创建log文件，用于下载
+            createLog(childFilePath, logName, responseData);
+            //创建txt文件，用于展示
+            createTxt(childFilePath, logName, responseData);
 
-                StfDevicesFields fields = responseData.getFields();
+            //创建html，用于展示
+            createHtml(htmlBuffer.toString(), childFilePath, childtime, logName, responseData, apkContent.split("::")[0]);
 
-                titleMsg += "    {";
-                titleMsg += "        \"title\": \"" + fields.getDeviceName() + "\",";
-                titleMsg += "        \"actionURL\": \"http://192.168.88.16/logs/appium/error/" + childtime + "/" + logName + ".html\"";
-                titleMsg += "    },";
-            }
+            StfDevicesFields fields = responseData.getFields();
+
+            titleMsg += "    {";
+            titleMsg += "        \"title\": \"" + fields.getDeviceName() + "\",";
+            titleMsg += "        \"actionURL\": \"http://192.168.88.16/logs/appium/error/" + childtime + "/" + logName + ".html\"";
+            titleMsg += "    },";
         }
 
         titleMsg = titleMsg.substring(0, titleMsg.length() - 1);
@@ -161,6 +135,20 @@ public class ChatbotSendMessageNotify {
         return buffer.toString();
     }
 
+    private String getExcMsg(String childFilePath, String logName, String apkName) {
+        TxtUtil txtUtil = new TxtUtil();
+        String message = txtUtil.readTxtFile(childFilePath, logName + ".txt");
+        if (message.contains("Cannot start the '" + AndroidConfig.appPackage + "' application")) {
+            return "请检查appActivity是否已经变动，导致无法启动APP，操作命令：adb -s 设备ID shell dumpsys activity|grep -i run";
+
+        } else if (message.contains("The application at '/home/tools/android-package/wljs01/apk/" + apkName + "' does not exist or is not accessible")) {
+            return "该路径下/home/tools/android-package/wljs01/apk/" + apkName + "的文件不存在或无法访问，请检查";
+        } else {
+            return null;
+        }
+
+    }
+
     private void createLog(String childFilePath, String logName, ResponseData responseData) throws IOException {
         createFile(childFilePath, logName + ".log", responseData);
     }
@@ -169,12 +157,12 @@ public class ChatbotSendMessageNotify {
         String path = childFilePath + "/" + logName;
         logger.info(":::::::::::::::::【钉钉消息通知】::::::::::::::::: 创建文件:" + path);
 
+        TxtUtil txtUtil = new TxtUtil();
         if (null == responseData.getException()) {
-            TxtUtil txtUtil = new TxtUtil();
             txtUtil.creatTxtFile(childFilePath, logName);
-            if(null != responseData.getAdbExceptionMsg()){
+            if (null != responseData.getAdbExceptionMsg()) {
                 txtUtil.writeTxtFile(childFilePath, responseData.getAdbExceptionMsg(), logName);
-            }else{
+            } else {
                 txtUtil.writeTxtFile(childFilePath, responseData.getExMsg(), logName);
             }
 
@@ -193,7 +181,7 @@ public class ChatbotSendMessageNotify {
         createFile(childFilePath, logName + ".txt", responseData);
     }
 
-    private void createHtml(String htmlContent, String childFilePath, String childtime, String logName, ResponseData responseData) {
+    private void createHtml(String htmlContent, String childFilePath, String childtime, String logName, ResponseData responseData, String apkName) {
         try {
             SimpleDateFormat fm = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
 
@@ -202,20 +190,29 @@ public class ChatbotSendMessageNotify {
 
             String path = "http://192.168.88.16/logs/appium/error/" + childtime + "/" + logName;
             htmlContent = htmlContent.replace("logHtmlPathValue", path + ".log");
-            if(null == e && null != responseData.getAdbExceptionMsg()){
+            if (null == e && null != responseData.getAdbExceptionMsg()) {
                 //ADB安裝包失敗，沒有直接抛出異常，所以手動維護異常
                 htmlContent = htmlContent.replace("packageNameValue", "com.wljs.server.InstallApkServer");
                 htmlContent = htmlContent.replace("fileNameValue", "InstallApkServer.java");
                 htmlContent = htmlContent.replace("methodNameValue", "installApp");
                 htmlContent = htmlContent.replace("lineNumValue", "");
-            }else{
+            } else {
                 htmlContent = htmlContent.replace("packageNameValue", null == elements ? "" : elements.getClassName());
                 htmlContent = htmlContent.replace("fileNameValue", null == elements ? "" : elements.getFileName());
                 htmlContent = htmlContent.replace("methodNameValue", null == elements ? "" : elements.getMethodName());
                 htmlContent = htmlContent.replace("lineNumValue", null == elements ? "" : String.valueOf(elements.getLineNumber()));
             }
             htmlContent = htmlContent.replace("operateTime", fm.format(new Date()));
-            htmlContent = htmlContent.replace("exceptionMsg", responseData.getExMsg());
+
+            //读取日志内容检查下具体的日志信息
+            String newExMsg = getExcMsg(childFilePath, logName, apkName);
+            ;
+
+            if (null != newExMsg) {
+                responseData.setExMsg(newExMsg);
+            }
+
+            htmlContent = htmlContent.replace("exceptionMsg", null == responseData.getExMsg() ? "" : responseData.getExMsg());
             htmlContent = htmlContent.replace("logPathValue", path + ".txt");
             if (null != responseData.getImagePath()) {//显示截图
                 String imgPath = "http://192.168.88.16/logs/appium/error/images/" + responseData.getImagePath();

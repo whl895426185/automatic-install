@@ -37,6 +37,7 @@ public class ElementHandle {
 
             logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 等待元素【" + text + "】已出现，开始执行安装步骤");
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 没有发现元素【" + text + "】");
             responseData.setStatus(false);
             responseData.setException(e);

@@ -19,22 +19,29 @@ public class SlidePageHandle {
     private Logger logger = LoggerFactory.getLogger(SlidePageHandle.class);
 
     //向左滑动引导页
-    public void slideGuidePage(AndroidDriver driver, StfDevicesFields fields, int width, int height) {
+    public ResponseData slideGuidePage(AndroidDriver driver, StfDevicesFields fields, int width, int height) {
         ResponseData responseData = new ResponseData();
-        int orginWith = (new Double(width * 0.9)).intValue();
-        int orginHeight = height / 2;
-        int moveWidth = (new Double(width * 0.15)).intValue();
-        int moveHeight = height / 2;
+        try{
+            int orginWith = (new Double(width * 0.9)).intValue();
+            int orginHeight = height / 2;
+            int moveWidth = (new Double(width * 0.15)).intValue();
+            int moveHeight = height / 2;
 
-        responseData = isAppear(driver, fields, LabelConstant.slidePageOne, 2);
-        if (responseData.isStatus()) {
-            new TouchAction(driver).press(PointOption.point(orginWith, orginHeight)).waitAction(WaitOptions.waitOptions(Duration.ofSeconds(3)))
-                    .moveTo(PointOption.point(moveWidth, moveHeight)).release().perform();
-        }
-        responseData = isAppear(driver, fields, LabelConstant.slidePageTwo, 2);
-        if (responseData.isStatus()) {
-            new TouchAction(driver).press(PointOption.point(orginWith, orginHeight)).waitAction(WaitOptions.waitOptions(Duration.ofSeconds(3)))
-                    .moveTo(PointOption.point(moveWidth, moveHeight)).release().perform();
+            Thread.sleep(8000);
+            responseData = isAppear(driver, fields, LabelConstant.slidePageOne, 2);
+            if (responseData.isStatus()) {
+                new TouchAction(driver).press(PointOption.point(orginWith, orginHeight)).waitAction(WaitOptions.waitOptions(Duration.ofSeconds(3)))
+                        .moveTo(PointOption.point(moveWidth, moveHeight)).release().perform();
+            }
+            responseData = isAppear(driver, fields, LabelConstant.slidePageTwo, 2);
+            if (responseData.isStatus()) {
+                new TouchAction(driver).press(PointOption.point(orginWith, orginHeight)).waitAction(WaitOptions.waitOptions(Duration.ofSeconds(3)))
+                        .moveTo(PointOption.point(moveWidth, moveHeight)).release().perform();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            return new ResponseData();
         }
     }
 

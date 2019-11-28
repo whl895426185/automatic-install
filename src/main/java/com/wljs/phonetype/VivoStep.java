@@ -8,6 +8,8 @@ import com.wljs.util.ScreenshotUtil;
 import com.wljs.util.constant.InstallStepConstant;
 import com.wljs.util.constant.PhoneTypeConstant;
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.nativekey.AndroidKey;
+import io.appium.java_client.android.nativekey.KeyEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +25,29 @@ public class VivoStep extends ElementHandle {
         ResponseData responseData = new ResponseData();
 
         logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行安装步骤！！！！");
+        if (driver.getPageSource().contains(InstallStepConstant.vivo_step_0)) {
+            //获取输入框元素，输入密码（Vickyho0123.）
+            driver.pressKey(new KeyEvent(AndroidKey.CAPS_LOCK));
+            driver.pressKey(new KeyEvent(AndroidKey.V));
+            driver.pressKey(new KeyEvent(AndroidKey.CAPS_LOCK));
+            driver.pressKey(new KeyEvent(AndroidKey.I));
+            driver.pressKey(new KeyEvent(AndroidKey.C));
+            driver.pressKey(new KeyEvent(AndroidKey.K));
+            driver.pressKey(new KeyEvent(AndroidKey.Y));
+            driver.pressKey(new KeyEvent(AndroidKey.H));
+            driver.pressKey(new KeyEvent(AndroidKey.O));
+            driver.pressKey(new KeyEvent(AndroidKey.DIGIT_0));
+            driver.pressKey(new KeyEvent(AndroidKey.DIGIT_1));
+            driver.pressKey(new KeyEvent(AndroidKey.DIGIT_2));
+            driver.pressKey(new KeyEvent(AndroidKey.DIGIT_3));
+            driver.pressKey(new KeyEvent(AndroidKey.PERIOD));
+
+            responseData = tap(driver, fields, InstallStepConstant.vivo_step_0_1, 1);
+            if (!responseData.isStatus()) {
+                return responseData;
+            }
+        }
+
         //步驟一
         responseData = waitingElement(driver, fields, InstallStepConstant.vivo_step_1);
         if (!responseData.isStatus()) {
@@ -93,6 +118,7 @@ public class VivoStep extends ElementHandle {
             clickCoordinates(driver, fields, x, y, text);
 
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 无法通过关键字获取坐标信息： " + e);
             responseData.setStatus(false);
             responseData.setException(e);

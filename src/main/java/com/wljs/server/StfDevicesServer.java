@@ -90,7 +90,7 @@ public class StfDevicesServer {
                 if(future.isDone()){
                     doneFlag = true;
                     ResponseData data = future.get();
-                    logger.info(":::::::::::::::::【部署安装结果】::::::::::::::::: deviceName = " + (data.getFields() == null ? "无" : data.getFields().getDeviceName()) + ", status = " + data.isStatus() + ", ExMsg = " + data.getExMsg());
+                    logger.info(":::::::::::::::::【部署安装结果】::::::::::::::::: deviceName = " + (data.getFields() == null ? "无" : data.getFields().getDeviceName()) + ", status = " + data.isStatus());
 
                     if (data.getFields() == null) {
                         continue;

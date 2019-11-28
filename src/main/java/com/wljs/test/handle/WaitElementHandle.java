@@ -44,6 +44,7 @@ public class WaitElementHandle {
             wait.until(ExpectedConditions.presenceOfElementLocated(by));
 
         } catch (Exception e) {
+            e.printStackTrace();
             logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 没有发现元素【" + text + "】");
             responseData.setStatus(false);
             responseData.setFields(fields);

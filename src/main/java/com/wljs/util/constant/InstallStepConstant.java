@@ -26,6 +26,8 @@ public class InstallStepConstant {
     /**
      * vivo手機
      */
+    public static final String vivo_step_0 = "需要您验证身份后安装";
+    public static final String vivo_step_0_1 = "确定";
     public static final String vivo_step_1 = "继续安装";
     public static final String vivo_step_2 = "安装";
     public static final String vivo_step_3 = "完成";

@@ -5,6 +5,7 @@ import com.wljs.pojo.StfDevicesFields;
 import com.wljs.test.handle.*;
 import com.wljs.util.ScreenshotUtil;
 import com.wljs.util.TxtUtil;
+import com.wljs.util.config.AndroidConfig;
 import com.wljs.util.constant.*;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
@@ -66,13 +67,11 @@ public class UIAutomationTest extends WaitElementHandle {
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("执行UI自动化测试失败: " , e);
             responseData.setStatus(false);
             responseData.setException(e);
-            if (null == driver) {
-                responseData.setExMsg("执行UI自动化测试失败: AndroidDriver is null");
-            } else {
-                responseData.setExMsg("执行UI自动化测试失败: " + e.getMessage());
-            }
+            responseData.setExMsg("执行UI自动化测试失败: " + e.getMessage());
             responseData.setImagePath(screenshotUtil.screenshot(driver, fields.getSerial()));
 
         } finally {
@@ -138,6 +137,7 @@ public class UIAutomationTest extends WaitElementHandle {
             logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 停留1分钟后，准备重启APP");
             Thread.sleep(10000);
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行UI自动化测试失败: " + e);
             responseData.setStatus(false);
             responseData.setException(e);
@@ -152,6 +152,7 @@ public class UIAutomationTest extends WaitElementHandle {
                 //殺進程
                 Runtime.getRuntime().exec(CommandConstant.killProcessCommand);
             } catch (Exception e) {
+                e.printStackTrace();
                 logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 手动杀掉APP进程失败： " + e);
                 responseData.setStatus(false);
                 responseData.setException(e);
@@ -222,6 +223,7 @@ public class UIAutomationTest extends WaitElementHandle {
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行UI自动化测试失败: " + e);
             responseData.setStatus(false);
             responseData.setException(e);

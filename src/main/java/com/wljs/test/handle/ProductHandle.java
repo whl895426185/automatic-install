@@ -33,6 +33,7 @@ public class ProductHandle {
             logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 商品列表获取第一个商品价格 = " + pricelistEm.getText());
 
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error("无法定位元素： " + e);
             responseData.setStatus(false);
             responseData.setException(e);
@@ -69,6 +70,7 @@ public class ProductHandle {
             logger.info(":::::::::::::::::商品详情获取商品价格，内容展示为空！！！！");
         }*/
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行商品详情UI自动化测试失败: " + e);
             responseData.setStatus(false);
             responseData.setException(e);

@@ -4,7 +4,6 @@ import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
 import com.wljs.server.expection.AdbException;
 import com.wljs.server.handle.PhoneInstallStepHandle;
-import com.wljs.test.handle.ProductHandle;
 import com.wljs.util.ScreenshotUtil;
 import com.wljs.util.config.AndroidConfig;
 import io.appium.java_client.android.AndroidDriver;
@@ -64,67 +63,68 @@ public class InstallApkServer {
             //初始化参数信息
             driver = initDriver(fields, apkPath);
 
-            //检查APP是否安装
-            if (driver.isAppInstalled(AndroidConfig.appPackage)) {
-                logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 检测到设备之前安装了APP，先执行卸载操作");
-                //如果安装了，先卸载
-                driver.removeApp(AndroidConfig.appPackage);
-            }
-
-            //adb命令执行安装apk（不需要用appium自带的安装函数,它内置方法也是通过adb命令安装的,还得整个安装过程完成，该函数执行才算完成）
-            String installCmd = "adb -s " + device + " install " + apkPath;
-            Process process = Runtime.getRuntime().exec(installCmd);
-            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 命令执行安装：" + installCmd);
-
-            boolean isSuccess = true;
+            Process process = null;
+            boolean isSuccess = false;
             int i = 0;
             do {
+                //检查APP是否安装
+                if (driver.isAppInstalled(AndroidConfig.appPackage)) {
+                    logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 检测到设备之前安装了APP，先执行卸载操作");
+                    //如果安装了，先卸载
+                    driver.removeApp(AndroidConfig.appPackage);
+                }
+
+                //adb命令执行安装apk（不需要用appium自带的安装函数,它内置方法也是通过adb命令安装的,还得整个安装过程完成，该函数执行才算完成）
+                String installCmd = "adb -s " + device + " install " + apkPath;
+                process = Runtime.getRuntime().exec(installCmd);
+                logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 命令执行安装：" + installCmd);
+
                 //不同的机型调用不同的安装步骤
                 PhoneInstallStepHandle installStepHandle = new PhoneInstallStepHandle();
                 responseData = installStepHandle.installStep(fields, driver);
                 if (!responseData.isStatus()) {
-                    isSuccess = false;
                     if (i < 2) {
                         logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 第" + (i + 1) + "次重新尝试安装");
                     }
+                }else{
+                    isSuccess = true;
                 }
+
                 i++;
             } while (!isSuccess && i < 3);
 
-            String processMsg = null;
-            if (responseData.isStatus()) {
-                processMsg = getProcess(process);
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>执行安装步骤，status = " + responseData.isStatus());
+            String processMsg = getProcess(process);
 
-                logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + "---ADB命令install結果】:::::::::::::::::" + processMsg);
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>执行adb install，結果为: " + processMsg);
 
-                if (processMsg.contains("Success")) {
-                    //禁用检查是否安装成功的方法，执行安装process输出success就证明已经安装成功了，Appium一个应用的session过期时间是60秒，再次检查会导致超时
-                    //responseData = installOk(driver, fields, AndroidConfig.appPackage);
+            if (processMsg.contains("Success")) {
+                logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>:::::::::::::::::driver quit:::::::::::::::::");
 
-                    driver.quit();
-                } else {
-                    AdbException adb = new AdbException();
-                    String adbExeMsg = adb.adbException(processMsg);
 
+                //禁用检查是否安装成功的方法，执行安装process输出success就证明已经安装成功了，Appium一个应用的session过期时间是60秒，再次检查会导致超时
+                //responseData = installOk(driver, fields, AndroidConfig.appPackage);
+
+                driver.quit();
+            } else {
+                AdbException adb = new AdbException();
+                String adbExeMsg = adb.adbException(processMsg);
+
+                if (null != adbExeMsg) {
                     //ADB安裝包失敗，沒有直接抛出異常，所以手動維護異常
                     responseData.setExMsg("ADB命令执行安装APK包时,报错：" + adbExeMsg);
                     responseData.setAdbExceptionMsg(processMsg);
                     responseData.setStatus(false);
+                    responseData.setException(null);//设置为空，这样钉钉消息才会读取adbExceptionMsg
                 }
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行自动部署安装失败：" + e);
 
             responseData.setStatus(false);
             responseData.setException(e);
-
-            if (null == driver) {
-                responseData.setExMsg("执行自动部署安装失败： AndroidDriver is null");
-            } else {
-                responseData.setExMsg("执行自动部署安装失败：" + e);
-            }
+            responseData.setExMsg("执行自动部署安装失败：" + e);
             responseData.setImagePath(screenshotUtil.screenshot(driver, fields.getSerial()));
 
         } finally {
@@ -151,10 +151,13 @@ public class InstallApkServer {
         capabilities.setCapability(AndroidMobileCapabilityType.APP_ACTIVITY, AndroidConfig.appActivity);
         capabilities.setCapability(MobileCapabilityType.APP, apkPath);//.ipa or .apk文件所在的本地绝对路径或者远程路径
         capabilities.setCapability(MobileCapabilityType.UDID, fields.getSerial());// 物理机的id
-        capabilities.setCapability(AndroidConfig.autoLaunch, false);// Appium是否需要自动安装和启动应用
         capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT, fields.getSystemPort());
         capabilities.setCapability(AndroidMobileCapabilityType.UNICODE_KEYBOARD, false);
         capabilities.setCapability(AndroidMobileCapabilityType.RESET_KEYBOARD, false);
+        // Appium是否需要自动安装和启动应用
+        capabilities.setCapability(AndroidConfig.autoLaunch, false);
+        //Appium自动确定您的应用需要哪些权限，并在安装时将其授予应用
+        capabilities.setCapability(AndroidMobileCapabilityType.AUTO_GRANT_PERMISSIONS, true);
 
         //初始化
         URL url = new URL("http://127.0.0.1:" + fields.getAppiumServerPort() + "/wd/hub");
@@ -171,7 +174,7 @@ public class InstallApkServer {
      * @param driver
      * @param appPackage
      */
-    private ResponseData installOk(AndroidDriver driver, StfDevicesFields fields, String appPackage) throws InterruptedException {
+/*    private ResponseData installOk(AndroidDriver driver, StfDevicesFields fields, String appPackage) throws InterruptedException {
         ResponseData responseData = new ResponseData();
         boolean isSuccess = true;
         int i = 0;
@@ -191,7 +194,7 @@ public class InstallApkServer {
         } while (!isSuccess && i < 5);
 
         return responseData;
-    }
+    }*/
 
 
     /**

@@ -5,18 +5,13 @@ import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
 import com.wljs.util.ScreenshotUtil;
 import com.wljs.util.constant.LabelConstant;
-import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
-import io.appium.java_client.touch.WaitOptions;
-import io.appium.java_client.touch.offset.PointOption;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
 
 /**
  * 魅族手机,兼容机型：
@@ -32,7 +27,7 @@ public class MeizuStep extends ElementHandle {
         logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 准备开始安装步骤");
 
         try {
-            WebDriverWait wait = new WebDriverWait(driver, 120);
+            WebDriverWait wait = new WebDriverWait(driver, 60);
             By by = By.xpath("//*//*[@text='" + LabelConstant.allowBtnName + "']");
             wait.until(ExpectedConditions.presenceOfElementLocated(by));
 
@@ -42,6 +37,7 @@ public class MeizuStep extends ElementHandle {
             logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 模拟点击【" + LabelConstant.allowBtnName + "】按钮");
 
         } catch (Exception e) {
+            e.printStackTrace();
             logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 没有发现元素【" + LabelConstant.allowBtnName + "】");
             responseData.setStatus(false);
             responseData.setException(e);
