@@ -122,7 +122,7 @@ public class StartServer {
                             logger.info("检测到文件夹【" + uploadFilePath + "】有上传新的Android APK");
 
                             StfDevicesServer stfDevice = new StfDevicesServer();
-                            stfDevice.getStfDevicesList(/*uploadFilePath*/"/home/tools/android-package/wljs01/apk/vc-59-vn-1.8.0-11-29-10-52.apk");
+                            stfDevice.getStfDevicesList(uploadFilePath);
                         }
                     }
 
