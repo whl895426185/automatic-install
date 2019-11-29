@@ -4,6 +4,7 @@ import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
 import com.wljs.server.expection.AdbException;
 import com.wljs.server.handle.PhoneInstallStepHandle;
+import com.wljs.util.AndroidDriverUtil;
 import com.wljs.util.ScreenshotUtil;
 import com.wljs.util.config.AndroidConfig;
 import io.appium.java_client.android.AndroidDriver;
@@ -15,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -61,7 +61,12 @@ public class InstallApkServer {
             String device = fields.getSerial();
 
             //初始化参数信息
-            driver = initDriver(fields, apkPath);
+            AndroidDriverUtil androidDriverUtil = new AndroidDriverUtil();
+            DesiredCapabilities capabilities = androidDriverUtil.setCapabilities(fields,apkPath);
+            // Appium是否需要自动安装和启动应用
+            capabilities.setCapability(AndroidConfig.autoLaunch, false);
+
+            driver = androidDriverUtil.initAndroidDriver(fields, capabilities);
 
             Process process = null;
             boolean isSuccess = false;
@@ -112,7 +117,7 @@ public class InstallApkServer {
 
                 if (null != adbExeMsg) {
                     //ADB安裝包失敗，沒有直接抛出異常，所以手動維護異常
-                    responseData.setExMsg("ADB命令执行安装APK包时,报错：" + adbExeMsg);
+                    responseData.setExMsg("ADB命令执行安装APK包时,报错异常：" + adbExeMsg);
                     responseData.setAdbExceptionMsg(processMsg);
                     responseData.setStatus(false);
                     responseData.setException(null);//设置为空，这样钉钉消息才会读取adbExceptionMsg
@@ -132,40 +137,6 @@ public class InstallApkServer {
             return responseData;
         }
 
-    }
-
-
-    /**
-     * 初始化AndroidDriver
-     *
-     * @param fields
-     * @return
-     */
-    private AndroidDriver<AndroidElement> initDriver(StfDevicesFields fields, String apkPath) throws MalformedURLException {
-
-        DesiredCapabilities capabilities = new DesiredCapabilities();
-        capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, fields.getDeviceName()); // 设备名称
-        capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, AndroidConfig.platformName);// 平台名称
-        capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, fields.getVersion());// 系统版本号
-        capabilities.setCapability(AndroidMobileCapabilityType.APP_PACKAGE, AndroidConfig.appPackage);// 包名
-        capabilities.setCapability(AndroidMobileCapabilityType.APP_ACTIVITY, AndroidConfig.appActivity);
-        capabilities.setCapability(MobileCapabilityType.APP, apkPath);//.ipa or .apk文件所在的本地绝对路径或者远程路径
-        capabilities.setCapability(MobileCapabilityType.UDID, fields.getSerial());// 物理机的id
-        capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT, fields.getSystemPort());
-        capabilities.setCapability(AndroidMobileCapabilityType.UNICODE_KEYBOARD, false);
-        capabilities.setCapability(AndroidMobileCapabilityType.RESET_KEYBOARD, false);
-        // Appium是否需要自动安装和启动应用
-        capabilities.setCapability(AndroidConfig.autoLaunch, false);
-        //Appium自动确定您的应用需要哪些权限，并在安装时将其授予应用
-        capabilities.setCapability(AndroidMobileCapabilityType.AUTO_GRANT_PERMISSIONS, true);
-
-        //初始化
-        URL url = new URL("http://127.0.0.1:" + fields.getAppiumServerPort() + "/wd/hub");
-
-        AndroidDriver<AndroidElement> driver = new AndroidDriver<AndroidElement>(url, capabilities);
-        driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
-
-        return driver;
     }
 
     /**
@@ -221,15 +192,15 @@ public class InstallApkServer {
 
     public static void main(String[] arg) throws Exception {
         StfDevicesFields fields = new StfDevicesFields();
-//        fields.setSerial("8KE5T19711012159");
-//        fields.setVersion("9.0");
-//        fields.setModel(" P30");
-//        fields.setManufacturer("HUAWEI");
-
-        fields.setManufacturer("VIVO");
-        fields.setModel("X9");
-        fields.setSerial("1d4bc416");
-        fields.setVersion("7.1.2");
+        fields.setSerial("8KE5T19711012159");
+        fields.setVersion("9.0");
+        fields.setModel(" P30");
+        fields.setManufacturer("HUAWEI");
+//
+//        fields.setManufacturer("VIVO");
+//        fields.setModel("X9");
+//        fields.setSerial("1d4bc416");
+//        fields.setVersion("7.1.2");
 
 //        fields.setManufacturer("");
 //        fields.setModel(" M5s");
@@ -251,14 +222,14 @@ public class InstallApkServer {
         capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, AndroidConfig.platformName);// 平台名称
         capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, fields.getVersion());// 系统版本号
         capabilities.setCapability(AndroidMobileCapabilityType.APP_PACKAGE, AndroidConfig.appPackage);// 包名
-        capabilities.setCapability(AndroidMobileCapabilityType.APP_ACTIVITY, ".ui.SplashActivityNew");
-        capabilities.setCapability(MobileCapabilityType.APP, "D:\\apkPackage\\wljs01\\apk\\vc-57-vn-1.8.0-11-26-17-54.apk");//.ipa or .apk文件所在的本地绝对路径或者远程路径
+        capabilities.setCapability(AndroidMobileCapabilityType.APP_ACTIVITY, AndroidConfig.appActivity);
+        capabilities.setCapability(MobileCapabilityType.APP, "D:\\apkPackage\\wljs01\\apk\\vc-57-vn-1.8.0-11-28-19-44.apk");//.ipa or .apk文件所在的本地绝对路径或者远程路径
         capabilities.setCapability(MobileCapabilityType.UDID, fields.getSerial());// 物理机的id
-        capabilities.setCapability(AndroidConfig.autoLaunch, false);// Appium是否需要自动安装和启动应用
         capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT, fields.getSystemPort());
-        capabilities.setCapability(AndroidMobileCapabilityType.AVD_READY_TIMEOUT, 300000);
         capabilities.setCapability(AndroidMobileCapabilityType.UNICODE_KEYBOARD, false);
         capabilities.setCapability(AndroidMobileCapabilityType.RESET_KEYBOARD, false);
+        // Appium是否需要自动安装和启动应用
+        capabilities.setCapability(AndroidConfig.autoLaunch, false);
 
         //初始化
         URL url = new URL("http://127.0.0.1:" + fields.getAppiumServerPort() + "/wd/hub");
@@ -266,19 +237,7 @@ public class InstallApkServer {
         driver = new AndroidDriver<AndroidElement>(url, capabilities);
         driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
 
-        if (driver.isAppInstalled(AndroidConfig.appPackage)) {
-            //如果安装了，先卸载
-            driver.removeApp(AndroidConfig.appPackage);
-        }
+        driver.launchApp();
 
-    /*     String installCmd = "adb install -r D:\\apkPackage\\wljs01\\apk\\vc-57-vn-1.8.0-11-26-17-54.apk";
-
-           String e = readCmd(installCmd);
-
-            if(e.contains(AdbException.ERROR12.getCode())){
-                System.out.println("ADB命令执行安装APK包时，报错： " + AdbException.ERROR12.getMsg());
-            }else{
-                System.out.println(e);
-            }*/
     }
 }

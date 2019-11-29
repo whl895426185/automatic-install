@@ -33,7 +33,7 @@ public class OperateThreadServer implements Callable {
             logger.info(":::::::::::::::::<<<" + responseData.getFields().getDeviceName() + ">>>::::::::::::::::: 执行自动部署安装："
                     + (responseData.isStatus() ? "成功" : "失败"));
 
-            if (responseData.isStatus()) {
+           /* if (responseData.isStatus()) {//暂时屏蔽，APP功能在优化调整，还不稳定
 
                 // 工作线程开始处理，这里用Thread.sleep()来模拟业务处理
                 Thread.sleep(1000);
@@ -44,7 +44,7 @@ public class OperateThreadServer implements Callable {
                 logger.info(":::::::::::::::::<<<" + responseData.getFields().getDeviceName() + ">>>::::::::::::::::: 执行UI自动化测试："
                         + (responseData.isStatus() ? "成功" : "失败"));
 
-            }
+            }*/
             logger.info(":::::::::::::::::<<<" + responseData.getFields().getDeviceName() + ">>>::::::::::::::::: 线程" + Thread.currentThread().getName() + "执行完毕");
         } catch (Exception e) {
             e.printStackTrace();

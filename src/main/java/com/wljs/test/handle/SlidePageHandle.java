@@ -7,6 +7,7 @@ import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.touch.WaitOptions;
 import io.appium.java_client.touch.offset.PointOption;
+import org.openqa.selenium.Dimension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +20,12 @@ public class SlidePageHandle {
     private Logger logger = LoggerFactory.getLogger(SlidePageHandle.class);
 
     //向左滑动引导页
-    public ResponseData slideGuidePage(AndroidDriver driver, StfDevicesFields fields, int width, int height) {
+    public ResponseData slideGuidePage(AndroidDriver driver, StfDevicesFields fields) {
         ResponseData responseData = new ResponseData();
+        //获取屏幕的大小
+        Dimension dimension = driver.manage().window().getSize();
+        int width = dimension.width;
+        int height = dimension.height;
         try{
             int orginWith = (new Double(width * 0.9)).intValue();
             int orginHeight = height / 2;
@@ -46,8 +51,13 @@ public class SlidePageHandle {
     }
 
     //向上滑动页面
-    public ResponseData slidePageUp(AndroidDriver driver, StfDevicesFields fields, int width, int height) {
+    public ResponseData slidePageUp(AndroidDriver driver, StfDevicesFields fields) {
         ResponseData responseData = new ResponseData();
+        //获取屏幕的大小
+        Dimension dimension = driver.manage().window().getSize();
+        int width = dimension.width;
+        int height = dimension.height;
+
         //向上滑动
         responseData = isAppear(driver, fields, LabelConstant.myOrderBtnName, 1);
         if (responseData.isStatus()) {

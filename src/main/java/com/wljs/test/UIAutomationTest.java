@@ -2,14 +2,16 @@ package com.wljs.test;
 
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
+import com.wljs.server.InstallApkServer;
 import com.wljs.test.handle.*;
+import com.wljs.util.AndroidDriverUtil;
 import com.wljs.util.ScreenshotUtil;
 import com.wljs.util.TxtUtil;
-import com.wljs.util.config.AndroidConfig;
 import com.wljs.util.constant.*;
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.android.AndroidElement;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Dimension;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +26,7 @@ public class UIAutomationTest extends WaitElementHandle {
     private Logger logger = LoggerFactory.getLogger(UIAutomationTest.class);
     private ScreenshotUtil screenshotUtil = new ScreenshotUtil();
 
-    private AndroidDriver driver;
-
+    private AndroidDriver<AndroidElement> driver;
     /**
      * 執行UI自动化测试
      *
@@ -37,38 +38,30 @@ public class UIAutomationTest extends WaitElementHandle {
     public ResponseData executeTest(StfDevicesFields fields, String appPath, int phoneNum) {
         ResponseData responseData = new ResponseData();
         try {
+            AndroidDriverUtil androidDriverUtil = new AndroidDriverUtil();
+            DesiredCapabilities capabilities = androidDriverUtil.setCapabilities(fields, appPath);
+
+            /**
+             * 第一次启动
+             */
+            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 第1次启动未来集市APP");
             //启动APP
-            for (int i = 0; i < 2; i++) {
+            driver = androidDriverUtil.initAndroidDriver(fields, capabilities);
+            responseData = firstStartApp(fields, phoneNum);
+
+            if (responseData.isStatus()) {
+                /**
+                 * 第二次启动
+                 */
+                logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 第2次启动未来集市APP");
                 //启动APP
-                StartUpAppHandle startUpAppHandle = new StartUpAppHandle();
-                driver = startUpAppHandle.startUpApp(fields, appPath);
+                driver = androidDriverUtil.initAndroidDriver(fields, capabilities);
 
-                //获取屏幕的大小
-                Dimension dimension = driver.manage().window().getSize();
-                int width = dimension.width;
-                int height = dimension.height;
-
-                logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 第" + (i + 1) + "次启动未来集市APP");
-
-                if (i == 0) { //第一次启动
-                    responseData = firstStartApp(fields, width, height);
-
-                    if (!responseData.isStatus()) {
-                        break;
-                    }
-
-                }
-                if (i == 1) {//第二次启动
-                    responseData = secondStartApp(fields, width, height, phoneNum);
-                    if (!responseData.isStatus()) {
-                        break;
-                    }
-                }
+                responseData = secondStartApp(fields, phoneNum);
             }
-
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("执行UI自动化测试失败: " , e);
+            logger.error("执行UI自动化测试失败: ", e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("执行UI自动化测试失败: " + e.getMessage());
@@ -84,11 +77,9 @@ public class UIAutomationTest extends WaitElementHandle {
      * 第一次启动APP
      *
      * @param fields
-     * @param width
-     * @param height
      * @throws Exception
      */
-    private ResponseData firstStartApp(StfDevicesFields fields, int width, int height) {
+    private ResponseData firstStartApp(StfDevicesFields fields, int phoneTailNumber) {
         ResponseData responseData = new ResponseData();
         try {
             //点击弹框允许操作
@@ -97,7 +88,7 @@ public class UIAutomationTest extends WaitElementHandle {
 
             //向左滑动引导页
             SlidePageHandle pageHandle = new SlidePageHandle();
-            pageHandle.slideGuidePage(driver, fields, width, height);
+            pageHandle.slideGuidePage(driver, fields);
 
             //点击【立即体验】按钮
             responseData = isAppear(driver, fields, LabelConstant.experienceBtnName, 1);
@@ -134,7 +125,10 @@ public class UIAutomationTest extends WaitElementHandle {
                 logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 模拟点击【测试】按钮");
             }
 
-            logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 停留1分钟后，准备重启APP");
+            //模拟登录
+//            LoginHandle loginHandle = new LoginHandle();
+//            loginHandle.login(driver, fields, phoneTailNumber);
+
             Thread.sleep(10000);
         } catch (Exception e) {
             e.printStackTrace();
@@ -148,9 +142,12 @@ public class UIAutomationTest extends WaitElementHandle {
                     responseData.setImagePath(screenshotUtil.screenshot(driver, fields.getSerial()));
                 }
                 driver.closeApp();
-
+                driver.quit();
                 //殺進程
-                Runtime.getRuntime().exec(CommandConstant.killProcessCommand);
+                InstallApkServer installApkServer = new InstallApkServer();
+                Process process = Runtime.getRuntime().exec(CommandConstant.killProcessCommand);
+                String processMsg = installApkServer.getProcess(process);
+                logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 切换环境，手动杀掉APP进程： " + processMsg);
             } catch (Exception e) {
                 e.printStackTrace();
                 logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 手动杀掉APP进程失败： " + e);
@@ -158,8 +155,6 @@ public class UIAutomationTest extends WaitElementHandle {
                 responseData.setException(e);
                 responseData.setExMsg("手动杀掉APP进程： 失败");
             }
-
-            driver.quit();
             logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 关闭未来集市APP");
             return responseData;
         }
@@ -169,11 +164,8 @@ public class UIAutomationTest extends WaitElementHandle {
 
     /**
      * 第二次启动
-     *
-     * @param width
-     * @param height
      */
-    private ResponseData secondStartApp(StfDevicesFields fields, int width, int height, int phoneTailNumber) {
+    private ResponseData secondStartApp(StfDevicesFields fields, int phoneTailNumber) {
         ResponseData responseData = new ResponseData();
         try {
             //点击【我的】按钮
@@ -204,7 +196,7 @@ public class UIAutomationTest extends WaitElementHandle {
 
             //向上滑动页面
             SlidePageHandle pageHandle = new SlidePageHandle();
-            responseData = pageHandle.slidePageUp(driver, fields, width, height);
+            responseData = pageHandle.slidePageUp(driver, fields);
 
             if (responseData.isStatus() && null == responseData.getExMsg()) {
 
@@ -215,16 +207,10 @@ public class UIAutomationTest extends WaitElementHandle {
                 if (responseData.isStatus()) {
                     //点击图片进入商品详情
                     responseData = productHandle.productDetail(driver, fields);
-                    if (!responseData.isStatus()) {
-                        logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行UI自动化测试失败！！！！！");
-                    } else {
-                        logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行UI自动化测试成功！！！！！");
-                    }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行UI自动化测试失败: " + e);
             responseData.setStatus(false);
             responseData.setException(e);
             responseData.setExMsg("执行UI自动化测试失败: " + e.getMessage());

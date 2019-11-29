@@ -121,10 +121,8 @@ public class StartServer {
                             String uploadFilePath = SvnConfig.localFilePath + "/" + /*dateStr + "/" +*/ entry.getName();
                             logger.info("检测到文件夹【" + uploadFilePath + "】有上传新的Android APK");
 
-                            logger.info("5分钟后开始执行安装");
-                            Thread.sleep(50000);
                             StfDevicesServer stfDevice = new StfDevicesServer();
-                            stfDevice.getStfDevicesList(uploadFilePath);
+                            stfDevice.getStfDevicesList(/*uploadFilePath*/"/home/tools/android-package/wljs01/apk/vc-59-vn-1.8.0-11-29-10-52.apk");
                         }
                     }
 

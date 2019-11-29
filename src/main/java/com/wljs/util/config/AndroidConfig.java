@@ -13,8 +13,9 @@ public class AndroidConfig {
     //appActivity名
 //    public static final String appActivity = ".ui.SplashActivityNew";
 //    public static final String appActivity = ".ui.MainActivity";
-    public static final String appActivity = ".ui.SplashActivityNew2";
-//    public static final String appActivity = ".ui.SplashAnimActivity";
+//    public static final String appActivity = ".ui.SplashActivityNew2";
+    public static final String appActivity = ".ui.SplashAnimActivity";
+
     public static final String platformName = "Android";
     public static final String autoLaunch = "autoLaunch";
 
