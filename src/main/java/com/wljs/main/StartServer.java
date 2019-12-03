@@ -121,8 +121,12 @@ public class StartServer {
                             String uploadFilePath = SvnConfig.localFilePath + "/" + /*dateStr + "/" +*/ entry.getName();
                             logger.info("检测到文件夹【" + uploadFilePath + "】有上传新的Android APK");
 
-                            StfDevicesServer stfDevice = new StfDevicesServer();
-                            stfDevice.getStfDevicesList(uploadFilePath);
+                            //检测检测是否检出成功
+                            File uploadFilePathFile = new File(uploadFilePath);
+                            if (!uploadFilePathFile.exists()) {
+                                StfDevicesServer stfDevice = new StfDevicesServer();
+                                stfDevice.getStfDevicesList(uploadFilePath);
+                            }
                         }
                     }
 
