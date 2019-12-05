@@ -1,7 +1,7 @@
 package com.wljs.util;
 
 import com.wljs.pojo.StfDevicesFields;
-import com.wljs.util.config.AndroidConfig;
+import com.wljs.util.config.AppConfig;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidElement;
 import io.appium.java_client.remote.AndroidMobileCapabilityType;
@@ -17,10 +17,10 @@ public class AndroidDriverUtil {
     public DesiredCapabilities setCapabilities(StfDevicesFields fields, String apkPath){
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, fields.getDeviceName()); // 设备名称
-        capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, AndroidConfig.platformName);// 平台名称
+        capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, AppConfig.platformName);// 平台名称
         capabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, fields.getVersion());// 系统版本号
-        capabilities.setCapability(AndroidMobileCapabilityType.APP_PACKAGE, AndroidConfig.appPackage);// 包名
-        capabilities.setCapability(AndroidMobileCapabilityType.APP_ACTIVITY, AndroidConfig.appActivity);
+        capabilities.setCapability(AndroidMobileCapabilityType.APP_PACKAGE, AppConfig.appPackage);// 包名
+        capabilities.setCapability(AndroidMobileCapabilityType.APP_ACTIVITY, AppConfig.appActivity);
         capabilities.setCapability(MobileCapabilityType.APP, apkPath);//.ipa or .apk文件所在的本地绝对路径或者远程路径
         capabilities.setCapability(MobileCapabilityType.UDID, fields.getSerial());// 物理机的id
         capabilities.setCapability(AndroidMobileCapabilityType.SYSTEM_PORT, fields.getSystemPort());
@@ -30,7 +30,7 @@ public class AndroidDriverUtil {
     }
 
 
-    public AndroidDriver initAndroidDriver(StfDevicesFields fields, DesiredCapabilities capabilities) throws MalformedURLException {
+    public AndroidDriver initDriver(StfDevicesFields fields, DesiredCapabilities capabilities) throws MalformedURLException {
         String path = "http://127.0.0.1:" + fields.getAppiumServerPort() + "/wd/hub";
         URL url = new URL(path);
 

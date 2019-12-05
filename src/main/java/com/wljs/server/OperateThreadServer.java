@@ -12,12 +12,15 @@ public class OperateThreadServer implements Callable {
     private Logger logger = LoggerFactory.getLogger(OperateThreadServer.class);
 
     private ArrayBlockingQueue queue;
-    private String apkPath;
+    private String androidFile;//apk包绝对路径
+    private String iosFile;//ipa包绝对路径
+
     private int phoneNum;//始化手机号尾号，执行测试用例虚拟手机号用到
 
-    public OperateThreadServer(ArrayBlockingQueue queue, String apkPath, int phoneNum) {
+    public OperateThreadServer(ArrayBlockingQueue queue, String androidFile, String iosFile, int phoneNum) {
         this.queue = queue;
-        this.apkPath = apkPath;
+        this.androidFile = androidFile;
+        this.iosFile = iosFile;
         this.phoneNum = phoneNum;
     }
 
@@ -27,24 +30,25 @@ public class OperateThreadServer implements Callable {
         try {
 
             logger.info("::::::::::::::::: 线程" + Thread.currentThread().getName() + "开始执行");
-            InstallApkServer install = new InstallApkServer();
-            responseData = install.init(queue, apkPath);
+
+            InstallServer install = new InstallServer();
+            responseData = install.init(queue, androidFile, iosFile);
 
             logger.info(":::::::::::::::::<<<" + responseData.getFields().getDeviceName() + ">>>::::::::::::::::: 执行自动部署安装："
                     + (responseData.isStatus() ? "成功" : "失败"));
 
-           /* if (responseData.isStatus()) {//暂时屏蔽，APP功能在优化调整，还不稳定
+            if (responseData.isStatus()) {//暂时屏蔽，APP功能在优化调整，还不稳定
 
                 // 工作线程开始处理，这里用Thread.sleep()来模拟业务处理
                 Thread.sleep(1000);
 
                 UIAutomationTest uiTest = new UIAutomationTest();
-                responseData = uiTest.executeTest(responseData.getFields(), apkPath, phoneNum);
+                responseData = uiTest.executeTest(responseData.getFields(), androidFile, iosFile, phoneNum);
 
                 logger.info(":::::::::::::::::<<<" + responseData.getFields().getDeviceName() + ">>>::::::::::::::::: 执行UI自动化测试："
                         + (responseData.isStatus() ? "成功" : "失败"));
 
-            }*/
+            }
             logger.info(":::::::::::::::::<<<" + responseData.getFields().getDeviceName() + ">>>::::::::::::::::: 线程" + Thread.currentThread().getName() + "执行完毕");
         } catch (Exception e) {
             e.printStackTrace();

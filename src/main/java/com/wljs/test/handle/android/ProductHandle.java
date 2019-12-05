@@ -1,4 +1,4 @@
-package com.wljs.test.handle;
+package com.wljs.test.handle.android;
 
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;

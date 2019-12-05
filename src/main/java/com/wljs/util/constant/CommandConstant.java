@@ -1,7 +1,5 @@
 package com.wljs.util.constant;
 
-import com.wljs.util.config.AndroidConfig;
-
 /**
  * 命令常量
  */

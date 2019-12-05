@@ -1,7 +1,8 @@
 package com.wljs.util;
 
-import com.wljs.util.config.AndroidConfig;
+import com.wljs.util.config.AppConfig;
 import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.ios.IOSDriver;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 
@@ -19,12 +20,12 @@ public class ScreenshotUtil {
      * @param uuid   设备ID
      * @throws IOException
      */
-    public String screenshot(AndroidDriver driver, String uuid) throws IOException {
+    public String screenshotForAndroid(AndroidDriver driver, String uuid) throws IOException {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
 
         String dateStr = format.format(new Date());
         //生成图片的目录
-        String dir_name = AndroidConfig.screenshotUrl + dateStr;
+        String dir_name = AppConfig.screenshotUrl + dateStr;
         //由于可能会存在图片的目录被删除的可能,所以我们先判断目录是否存在, 如果不在的话:
         if (!(new File(dir_name).isDirectory())) {
             //不存在的话就进行创建目录.
@@ -40,4 +41,29 @@ public class ScreenshotUtil {
         return dateStr + "/" + uuid + ".jpg";
     }
 
+    /**
+     * @param driver
+     * @param uuid   设备ID
+     * @throws IOException
+     */
+    public String screenshotForIos(IOSDriver driver, String uuid) throws IOException {
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
+
+        String dateStr = format.format(new Date());
+        //生成图片的目录
+        String dir_name = AppConfig.screenshotUrl + dateStr;
+        //由于可能会存在图片的目录被删除的可能,所以我们先判断目录是否存在, 如果不在的话:
+        if (!(new File(dir_name).isDirectory())) {
+            //不存在的话就进行创建目录.
+            new File(dir_name).mkdir();
+        }
+        //调用方法捕捉画面;
+        File screen = driver.getScreenshotAs(OutputType.FILE);
+
+        //复制文件到本地目录, 图片的最后存放地址为::
+        String path = dir_name + "/" + uuid + ".jpg";
+        FileUtils.copyFile(screen, new File(path));
+
+        return dateStr + "/" + uuid + ".jpg";
+    }
 }

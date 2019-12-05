@@ -3,7 +3,7 @@ package com.wljs.util.config;
 /**
  * android配置
  */
-public class AndroidConfig {
+public class AppConfig {
 
     public static final String appiumIp = "127.0.0.1";
 

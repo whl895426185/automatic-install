@@ -20,53 +20,95 @@ import java.util.concurrent.*;
 public class StfDevicesServer {
     private Logger logger = LoggerFactory.getLogger(StfDevicesServer.class);
 
-    public void getStfDevicesList(String apkPath) throws InterruptedException, ExecutionException {
+    public void getStfDevicesList(String androidFile, String iosFile) throws InterruptedException, ExecutionException {
         RethinkDB r = RethinkDB.r;
-        //连接rethinkdb
+
+        //开启rethinkdb连接
         Connection conn = r.connection().hostname(RethinkdbConfig.rethinkdb_host).port(RethinkdbConfig.rethinkdb_port).connect();
 
-        //获取已连接且闲余的设备信息（present为true表示已连接，owner为空表示设备闲余）
-        Cursor<StfDevicesFields> stfDevices = r.db(RethinkdbConfig.rethinkdb_dbName)
-                .table(RethinkdbConfig.rethinkdb_tableName)
-                .filter(r.hashMap("present", true).with("owner", null))
-                .withFields("manufacturer", "model", "serial", "version")
-                .run(conn, Cursor.class);
+        //定义存放android设备集合
+        List<StfDevicesFields> androidDbList = null;
+        if(null != androidFile){
 
-        List<StfDevicesFields> dbList = stfDevices.bufferedItems();
+            //获取已连接且闲余的设备信息（present为true表示已连接，owner为空表示设备闲余）
+            Cursor<StfDevicesFields> androidCursor = r.db(RethinkdbConfig.rethinkdb_dbName)
+                    .table(RethinkdbConfig.rethinkdb_tableName)
+                    .filter(r.hashMap("present", true).with("owner", null).with("platform", "Android"))
+                    .withFields("manufacturer", "model", "serial", "version", "platForm")
+                    .run(conn, Cursor.class);
 
-        if (null == dbList || dbList.size() < 1) {
-            return;
+            androidDbList = androidCursor.bufferedItems();
+
         }
-        List<StfDevicesFields> fieldsList = new ArrayList<StfDevicesFields>();
-        int appiumServerPort = 4723;
-        int systemPort = 8200;
-        for (int i = 0; i < dbList.size(); i++) {
-            JSONObject object = JSONObject.fromObject(dbList.get(i));
-            StfDevicesFields fields = (StfDevicesFields) JSONObject.toBean(object, StfDevicesFields.class);
-            fields.setAppiumServerPort(appiumServerPort + i);
-            fields.setSystemPort(systemPort + i);
-            fieldsList.add(fields);
+
+        //定义存放ios设备集合
+        List<StfDevicesFields> iosDbList = null;
+        if(null != iosDbList){
+
+            //获取已连接且闲余的设备信息（present为true表示已连接，owner为空表示设备闲余）
+            Cursor<StfDevicesFields> iosCursor = r.db(RethinkdbConfig.rethinkdb_dbName)
+                    .table(RethinkdbConfig.rethinkdb_tableName)
+                    .filter(r.hashMap("present", true).with("owner", null).with("platform", "iOS"))
+                    .withFields("manufacturer", "model", "serial", "version", "platForm")
+                    .run(conn, Cursor.class);
+
+            iosDbList = iosCursor.bufferedItems();
+
         }
-        //关闭连接
+
+        //关闭Rethinkdb连接
         conn.close();
 
-        //测试数据
-        //List<StfDevicesFields> fieldsList = getFilesList();
-        if (null == fieldsList || fieldsList.size() < 1) {
+        Boolean androidFlag = true;
+        if (null == androidDbList || androidDbList.size() < 1) {
+            logger.info(":::::::::::::::::没有检测到已连接且闲余到Android设备:::::::::::::::::");
+            androidFlag = false;
+        }
+
+        Boolean iosFlag = true;
+        if (null == iosDbList || iosDbList.size() < 1) {
+            logger.info(":::::::::::::::::没有检测到已连接且闲余到iOS设备:::::::::::::::::");
+            iosFlag = false;
+        }
+
+
+        if(!androidFlag && !iosFlag){
             return;
+        }
+
+        //获取安卓设备具体信息，初始化好端口信息
+        List<StfDevicesFields> androidFieldsList = null;
+        if(androidFlag){
+            int appiumServerPort = 4723;//初始化appium端口
+            int systemPort = 8200;//初始化system端口
+
+            androidFieldsList = getFilesList(appiumServerPort, systemPort, androidDbList);
+
+        }
+
+        //获取iOS设备具体信息，初始化好端口信息
+        List<StfDevicesFields> iosFieldsList = null;
+        if(iosFlag){
+
+            int appiumServerPort = 8723;//初始化appium端口
+            int systemPort = 9200;//初始化system端口
+
+            iosFieldsList = getFilesList(appiumServerPort, systemPort, iosDbList);
+
         }
 
         //利用Selenium调用浏览器，动态模拟浏览器事件，占用已连接且闲余的设备
         SeleniumServer seleniumServer = new SeleniumServer();
-        List<StfDevicesFields> resultList = seleniumServer.occupancyResources(fieldsList);
+        List<StfDevicesFields> fieldsList = seleniumServer.occupancyResources(androidFieldsList, iosFieldsList);
 
-        if (null == resultList || resultList.size() < 1) {
+        //重新检查下设备是否是已连接且闲余到，避免中途设备被占用了
+        if (null == fieldsList || fieldsList.size() < 1) {
             return;
         }
 
         //把设备信息放入java安全队列中，保证数据的安全性
-        ArrayBlockingQueue queueList = new ArrayBlockingQueue(resultList.size());
-        for (StfDevicesFields fields : resultList) {
+        ArrayBlockingQueue queueList = new ArrayBlockingQueue(fieldsList.size());
+        for (StfDevicesFields fields : fieldsList) {
             logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 开始执行自动部署安装工作！！！！！！");
             queueList.add(fields);
         }
@@ -77,7 +119,7 @@ public class StfDevicesServer {
 
         //phoneNum初始化手机号尾号，执行测试用例虚拟手机号用到
         for (int phoneNum = 1; phoneNum <= queueList.size(); phoneNum++) {
-            OperateThreadServer worker = new OperateThreadServer(queueList, apkPath, phoneNum);
+            OperateThreadServer worker = new OperateThreadServer(queueList, androidFile, iosFile, phoneNum);
             Future<ResponseData> future = pool.submit(worker);
             futureList.add(future);
 
@@ -86,8 +128,8 @@ public class StfDevicesServer {
         List<ResponseData> resList = new ArrayList<ResponseData>();
         for (Future<ResponseData> future : futureList) {
             boolean doneFlag = false;
-            while (!doneFlag){
-                if(future.isDone()){
+            while (!doneFlag) {
+                if (future.isDone()) {
                     doneFlag = true;
                     ResponseData data = future.get();
                     logger.info(":::::::::::::::::【部署安装结果】::::::::::::::::: deviceName = " + (data.getFields() == null ? "无" : data.getFields().getDeviceName()) + ", status = " + data.isStatus());
@@ -116,46 +158,24 @@ public class StfDevicesServer {
     }
 
     /**
-     * 自测数据
+     * 获取安卓或iOS设备信息
      *
      * @return
+     * @param appiumServerPort
+     * @param systemPort
+     * @param dbList
      */
-    public List<StfDevicesFields> getFilesList() {
-        int appiumServerPort = 4723;
-        int systemPort = 8200;
-        int index = 0;
-        List<StfDevicesFields> fieldsList = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            StfDevicesFields fields = new StfDevicesFields();
+    public List<StfDevicesFields> getFilesList(int appiumServerPort, int systemPort, List<StfDevicesFields> dbList) {
 
-            if (i == 0) {
-                fields.setManufacturer("");
-                fields.setModel(" M5s");
-                fields.setSerial("612QKBQJ226WJ");
-                fields.setVersion("6.0");
-            }
-            if (i == 1) {
-//                fields.setManufacturer("OPPO");
-//                fields.setModel(" R9s Plus");
-//                fields.setSerial("39aafa2b");
-//                fields.setVersion("6.0.1");
+        List<StfDevicesFields> fieldsList = new ArrayList<StfDevicesFields>();
+        for (int i = 0; i < dbList.size(); i++) {
 
-                fields.setManufacturer("VIVO");
-                fields.setModel(" X20A");
-                fields.setSerial("cf83c8d0");
-                fields.setVersion("8.1.0");
-            }
-            if (i == 2) {
-                fields.setSerial("8KE5T19711012159");
-                fields.setVersion("9.0");
-                fields.setModel(" P30");
-                fields.setManufacturer("HUAWEI");
-            }
+            JSONObject object = JSONObject.fromObject(dbList.get(i));
+            StfDevicesFields fields = (StfDevicesFields) JSONObject.toBean(object, StfDevicesFields.class);
+            fields.setAppiumServerPort(appiumServerPort + i);
+            fields.setSystemPort(systemPort + i);
 
-            fields.setAppiumServerPort(appiumServerPort + index);
-            fields.setSystemPort(systemPort + index);
             fieldsList.add(fields);
-            index++;
         }
         return fieldsList;
     }

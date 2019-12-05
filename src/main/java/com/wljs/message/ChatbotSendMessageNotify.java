@@ -3,7 +3,6 @@ package com.wljs.message;
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
 import com.wljs.util.TxtUtil;
-import com.wljs.util.config.AndroidConfig;
 import com.wljs.util.config.MessageConfig;
 import com.wljs.util.config.SvnConfig;
 import org.apache.http.HttpResponse;

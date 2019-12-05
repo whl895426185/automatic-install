@@ -1,4 +1,4 @@
-package com.wljs.test.handle;
+package com.wljs.test.handle.android;
 
 import com.wljs.util.constant.PhoneTypeConstant;
 import io.appium.java_client.android.AndroidDriver;

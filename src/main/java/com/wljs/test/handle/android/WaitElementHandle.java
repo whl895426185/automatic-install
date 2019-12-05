@@ -1,9 +1,9 @@
-package com.wljs.test.handle;
+package com.wljs.test.handle.android;
 
 import com.wljs.pojo.Coordinates;
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
-import com.wljs.util.ScreenshotUtil;
+import com.wljs.test.handle.CoordinatesHandle;
 import io.appium.java_client.TouchAction;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.touch.offset.PointOption;
@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class WaitElementHandle {
     private Logger logger = LoggerFactory.getLogger(WaitElementHandle.class);
+    private CoordinatesHandle coordinatesHandle = new CoordinatesHandle();
 
     /**
      * 显示等待元素出现
@@ -68,7 +69,7 @@ public class WaitElementHandle {
      * @param type
      */
     public void tap(AndroidDriver driver, StfDevicesFields fields, String text, int type) {
-        Coordinates coordinates = getXy(driver, text, 1);
+        Coordinates coordinates = coordinatesHandle.getXy(driver.getPageSource(), text, 1);
 
         int x = coordinates.getTotalX() / 2;
         int y = coordinates.getTotalY() / 2;
@@ -79,39 +80,6 @@ public class WaitElementHandle {
         t.tap(PointOption.point(x, y)).perform().release();
     }
 
-    /**
-     * 获取元素坐标
-     *
-     * @param driver
-     * @param text
-     * @param type
-     * @return
-     */
-    public Coordinates getXy(AndroidDriver driver, String text, int type) {
-        String xmlStr = driver.getPageSource();
-        String keyword = null;
-        if (0 == type) {
-            keyword = "class=\"android.widget.Button\" text=\"" + text + "\"";
-        } else if (1 == type) {
-            keyword = "class=\"android.widget.TextView\" text=\"" + text + "\"";
-        }
-        xmlStr = xmlStr.split(keyword)[1];
-        xmlStr = xmlStr.split("bounds=\"")[1];
-        xmlStr = xmlStr.substring(0, xmlStr.lastIndexOf("]"));
-        xmlStr = xmlStr.replace("][", ",").replace("[", "");
-
-        String[] bounsArray = xmlStr.split(",");
-
-        Coordinates coordinates = new Coordinates();
-        coordinates.setMinX(Integer.valueOf(bounsArray[0]));
-        coordinates.setMinY(Integer.valueOf(bounsArray[1]));
-        coordinates.setMaxX(Integer.valueOf(bounsArray[2]));
-        coordinates.setMaxY(Integer.valueOf(bounsArray[3]));
-
-        coordinates.setTotalX(coordinates.getMinX() + coordinates.getMaxX());
-        coordinates.setTotalY(coordinates.getMinY() + coordinates.getMaxY());
-        return coordinates;
-    }
 
 
 }

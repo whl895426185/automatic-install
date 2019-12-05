@@ -5,21 +5,40 @@ package com.wljs.util.config;
  */
 public class SvnConfig {
 
-    //定义访问svn仓库目录地址
-    public static final String svnFileUrl = "svn://112.124.227.122:3690/wljs01/apk";
-    public static final String svnUserName = "javaAdmin";
-    public static final String svnPassword = "123456";
+    //定义访问svn仓库
+    public static final String svnUrl = "svn://112.124.227.122:3690/wljs01";
 
-    //定义apk包检出的本地文件目录
-    public static final String localFilePath = "/home/tools/android-package/wljs01/apk";
-    public static final String localApkVersionFilePath = "/home/tools/android-package";
 
-    //本机测试
-//    public static final String localFilePath = "D:\\apkPackage\\wljs01\\apk";
-//    public static  final String localApkVersionFilePath = "D:\\apkPackage";
+    //访问svn登陆账号密码
+    public static final String svnLoginName = "javaAdmin";
+    public static final String svnLoginPwd = "123456";
+
+
+    //定义apk/ipa包检出的本地文件目录
+    public static final String filePath = "/User/panxi/wljs01";
+
+    public static final String versionFilePath = "/User/panxi/wljs_install_txt";
+
+    /**
+     * android
+     */
+    public static final String svnApkVersionTxtPath = versionFilePath + "/android";
 
     //部署安裝包當前的版本
     public static final String apkVersionLogFileName = "apkVersionLog.txt";
+
+    /**
+     * ios
+     */
+    //定义ipa包检出的本地文件目录
+    public static final String svnIpaVersionTxtPath = versionFilePath + "/ios";
+
+    //部署安裝包當前的版本
+    public static final String ipaVersionLogFileName = "ipaVersionLog.txt";
+
+
+
+
 
 
 }
