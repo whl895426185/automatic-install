@@ -1,7 +1,6 @@
 package com.wljs.server;
 
 import com.rethinkdb.RethinkDB;
-import com.rethinkdb.model.MapObject;
 import com.rethinkdb.net.Connection;
 import com.rethinkdb.net.Cursor;
 import com.wljs.message.ChatbotSendMessageNotify;
@@ -35,7 +34,8 @@ public class StfDevicesServer {
         List<StfDevicesFields> dbList = null;
         Cursor<StfDevicesFields> cursor = r.db(RethinkdbConfig.rethinkdb_dbName)
                 .table(RethinkdbConfig.rethinkdb_tableName)
-                .filter(r.hashMap("present", true).with("owner", null).with("platform", "Android")).or(r.hashMap("platform", "iOS"))
+                .filter(r.hashMap("present", true).with("owner", null))
+                .filter(devices->devices.g("platform").eq("Android").or(devices.g("platform").eq("iOS")))
                 .withFields("manufacturer", "model", "serial", "version", "platform")
                 .run(conn, Cursor.class);
 
@@ -54,7 +54,7 @@ public class StfDevicesServer {
 
         //利用Selenium调用浏览器，动态模拟浏览器事件，占用已连接且闲余的设备
         SeleniumServer seleniumServer = new SeleniumServer();
-        List<StfDevicesFields> fieldsList = seleniumServer.occupancyResources(deviceList);
+        List<StfDevicesFields> fieldsList = seleniumServer.occupancyResources(deviceList, androidFile, iosFile);
 
 
         //重新检查下设备是否是已连接且闲余到，避免中途设备被占用了
