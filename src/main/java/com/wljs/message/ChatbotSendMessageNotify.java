@@ -50,7 +50,12 @@ public class ChatbotSendMessageNotify {
             httppost.addHeader("Content-Type", "application/json; charset=utf-8");
 
             //定义钉钉消息的json
-            String messagae = getDingDingMessage(dataList, childFilePath, childtime, androidDeviceFlag, iosDeviceFlag);
+            String messagae = null;
+            if(androidDeviceFlag || iosDeviceFlag){
+                messagae =  getDevicesMessage(dataList, childFilePath, childtime, androidDeviceFlag, iosDeviceFlag);
+            }else{
+                messagae = getCommonMessage(dataList);
+            }
 
             StringEntity se = new StringEntity(messagae, "utf-8");
             httppost.setEntity(se);
@@ -67,8 +72,29 @@ public class ChatbotSendMessageNotify {
 
     }
 
+    private String getCommonMessage(List<ResponseData> dataList) {
+        StringBuffer buffer = new StringBuffer();
+
+        ResponseData responseData = dataList.get(0);
+
+        buffer.append("{");
+        buffer.append("    \"msgtype\": \"text\",");
+        buffer.append("        \"text\": {");
+        buffer.append("   \"content\": \"" + responseData.getExMsg()+ "\"");
+        buffer.append("},");
+        buffer.append("    \"at\": {");
+        buffer.append("    \"atMobiles\": [");
+        buffer.append("    \"13632504995\"");
+        buffer.append("],");
+        buffer.append("    \"isAtAll\": true");
+        buffer.append("}");
+        buffer.append("}");
+        return buffer.toString();
+
+    }
+
     //定义钉钉消息的json
-    private String getDingDingMessage(List<ResponseData> dataList, String childFilePath, String childtime, boolean androidDeviceFlag, boolean iosDeviceFlag) throws IOException {
+    private String getDevicesMessage(List<ResponseData> dataList, String childFilePath, String childtime, boolean androidDeviceFlag, boolean iosDeviceFlag) throws IOException {
         //定义钉钉消息的json
         StringBuffer buffer = new StringBuffer();
         buffer.append("{");
