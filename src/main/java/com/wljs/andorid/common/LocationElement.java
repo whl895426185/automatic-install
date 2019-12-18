@@ -77,7 +77,7 @@ public class LocationElement {
             responseData.setWebElement(element);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 没有发现元素【" + xpath + "】");
 
             responseData = new ResponseData(false, e, "没有获取到元素：" + xpath);
