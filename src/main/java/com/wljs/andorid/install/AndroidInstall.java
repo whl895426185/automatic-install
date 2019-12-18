@@ -61,7 +61,7 @@ public class AndroidInstall {
 
                 if(deleteFlag){
                     process = "Success";
-                    logger.info("::::::::::::::::: <<<" + fields.getSerial() + ">>> 执行命令卸载包结果：成功");
+                    logger.info("::::::::::::::::: <<<" + fields.getDeviceName() + ">>> 执行命令卸载包结果：成功");
                 }
 
             } else {
@@ -90,7 +90,7 @@ public class AndroidInstall {
                         Thread.sleep(20000);
                         if (driver.isAppInstalled(AppConfig.appPackage)) {
                             isSuccess = true;
-                            logger.info("::::::::::::::::: <<<" + fields.getSerial() + ">>> 执行命令安装包结果：成功");
+                            logger.info("::::::::::::::::: <<<" + fields.getDeviceName() + ">>> 执行命令安装包结果：成功");
                         }
                         i++;
 
