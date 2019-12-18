@@ -58,7 +58,7 @@ public class StartServer {
 
         //文件解锁(这一步为了防止锁库)
         File file = getFile();
-        svnClientManager.getWCClient().doCleanup(file);//前提必须有svn仓库目录
+        //svnClientManager.getWCClient().doCleanup(file);//前提必须有svn仓库目录
 
 
         //checkOut apk/ipa包
