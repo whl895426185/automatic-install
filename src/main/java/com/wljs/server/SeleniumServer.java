@@ -113,7 +113,7 @@ public class SeleniumServer {
      * @return
      * @throws InterruptedException
      */
-    public List<StfDevicesFields> occupancyResources(List<StfDevicesFields> fieldsList) {
+    public List<StfDevicesFields> occupancyResources(List<StfDevicesFields> fieldsList,String androidFile, String iosFile) {
         List<StfDevicesFields> resultFieldsList = new ArrayList<StfDevicesFields>();
         try {
             if (null == fieldsList || fieldsList.size() < 1) {
@@ -124,6 +124,12 @@ public class SeleniumServer {
 
             //模拟点击安卓/ios设备
             for (StfDevicesFields fields : fieldsList) {
+                if(null == androidFile && fields.getPlatform().equals("Android")){
+                    continue;
+                }
+                if(null == iosFile && fields.getPlatform().equals("iOS")){
+                    continue;
+                }
                 responseData = isAppear(driver, "//button[@id='" + fields.getSerial() + "']");
 
                 if (!responseData.isStatus()) {
@@ -133,18 +139,8 @@ public class SeleniumServer {
 
                 logger.info(":::::::::::::::::模拟点击设备：" + fields.getDeviceName() + ", 占用设备资源::::::::::::::::: ");
 
-                driver.navigate().refresh();
-
-                //点击设备会进入control， 需回到devices页面才可以
-                responseData = isAppear(driver, "//*//*[@href='/#!/devices']");
-
-                if (!responseData.isStatus()) {
-                    continue;
-                }
-
+                driver.get(StfConfig.stfUrl);
                 resultFieldsList.add(fields);
-
-                driver.navigate().refresh();
             }
 
 
