@@ -43,7 +43,7 @@ public class StartServer {
 
         //登录svn
         DefaultSVNOptions options = SVNWCUtil.createDefaultOptions(true);
-        SVNClientManager svnClientManager = SVNClientManager.newInstance((DefaultSVNOptions) options, username, password);
+        SVNClientManager svnClientManager = SVNClientManager.newInstance(options, username, password);
 
         //获取svn仓库url
         SVNURL repositoryURL = SVNURL.parseURIEncoded(SvnConfig.svnUrl);
@@ -64,7 +64,7 @@ public class StartServer {
         //checkOut apk/ipa包
         SVNUpdateClient updateClient = svnClientManager.getUpdateClient();
         updateClient.setIgnoreExternals(false);
-        updateClient.doCheckout(repositoryURL, file, SVNRevision.HEAD, SVNRevision.HEAD, SVNDepth.INFINITY, false);
+//        updateClient.doCheckout(repositoryURL, file, SVNRevision.HEAD, SVNRevision.HEAD, SVNDepth.INFINITY, false);
 
         //利用Timer的定时循环执行代码的功能
         final Timer timer = new Timer();
@@ -108,7 +108,7 @@ public class StartServer {
 
             }
 
-        }, 2000, 3000);
+        }, 2000, 50000);
     }
 
     /**
