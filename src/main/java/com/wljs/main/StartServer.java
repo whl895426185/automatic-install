@@ -4,7 +4,7 @@ import com.wljs.message.ChatbotSendMessageNotify;
 import com.wljs.pojo.ResponseData;
 import com.wljs.server.StfDevicesServer;
 import com.wljs.util.TxtUtil;
-import com.wljs.util.config.SvnConfig;
+import com.wljs.config.SvnConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tmatesoft.svn.core.*;
@@ -13,7 +13,10 @@ import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 import org.tmatesoft.svn.core.internal.wc.DefaultSVNOptions;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
-import org.tmatesoft.svn.core.wc.*;
+import org.tmatesoft.svn.core.wc.SVNClientManager;
+import org.tmatesoft.svn.core.wc.SVNRevision;
+import org.tmatesoft.svn.core.wc.SVNUpdateClient;
+import org.tmatesoft.svn.core.wc.SVNWCUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,10 +33,7 @@ import java.util.*;
 public class StartServer {
     private static Logger logger = LoggerFactory.getLogger(StartServer.class);
 
-    public static void main(String[] args) throws SVNException {
-        ResponseData responseData = new ResponseData();
-
-
+    public static void main(String[] args) throws SVNException{
         //初始化svn访问方式
         SVNRepositoryFactoryImpl.setup();
 
@@ -60,11 +60,11 @@ public class StartServer {
         File file = getFile();
         svnClientManager.getWCClient().doCleanup(file);//前提必须有svn仓库目录
 
+
         //checkOut apk/ipa包
         SVNUpdateClient updateClient = svnClientManager.getUpdateClient();
         updateClient.setIgnoreExternals(false);
         updateClient.doCheckout(repositoryURL, file, SVNRevision.HEAD, SVNRevision.HEAD, SVNDepth.INFINITY, false);
-
 
         //利用Timer的定时循环执行代码的功能
         final Timer timer = new Timer();
@@ -96,21 +96,19 @@ public class StartServer {
                     e.printStackTrace();
                     logger.error("更新SVN版本仓库文件： 失败：" + e);
 
-                    responseData.setStatus(false);
-                    responseData.setException(e);
-                    responseData.setExMsg("更新SVN版本仓库文件： 失败");
+                    ResponseData responseData = new ResponseData(false, e, "更新SVN版本仓库文件： 失败");
 
                     List<ResponseData> responseDataList = new ArrayList<ResponseData>();
                     responseDataList.add(responseData);
 
                     ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();
-                    messageNotify.sendMessage(responseDataList);
+                    messageNotify.sendMessage(responseDataList, false, false);
 
                 }
 
             }
 
-        }, 2000, 9000);
+        }, 2000, 3000);
     }
 
     /**

@@ -2,8 +2,8 @@ package com.wljs.server;
 
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
-import com.wljs.server.install.AndroidInstall;
-import com.wljs.server.install.IosInstall;
+import com.wljs.andorid.install.AndroidInstall;
+import com.wljs.ios.install.IosInstall;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
@@ -24,8 +24,8 @@ public class InstallServer {
         StfDevicesFields fields = (StfDevicesFields) queue.take();
 
         //启动appium服务
-        AppiumServer appiumServer = new AppiumServer();
-        appiumServer.start(fields.getAppiumServerPort());
+        StartAppiumServer appiumServer = new StartAppiumServer();
+        appiumServer.start(fields);
 
         //执行安装
         if (("Android").equals(fields.getPlatform())) {

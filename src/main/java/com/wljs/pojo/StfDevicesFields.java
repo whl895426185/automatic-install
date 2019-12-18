@@ -66,7 +66,7 @@ public class StfDevicesFields implements Serializable {
 
     public String getDeviceName() {
         if (!("").equals(this.manufacturer) && null != this.manufacturer) {
-            deviceName = this.manufacturer + this.model;
+            deviceName = this.manufacturer + " "+ this.model;
         } else {
             deviceName = this.model;
             deviceName = deviceName.substring(1, deviceName.length());
