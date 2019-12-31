@@ -5,28 +5,29 @@ import java.io.Serializable;
 
 
 public class StfDevicesFields implements Serializable {
-    //厂商
-    private String manufacturer;
-    //设备型号
-    private String model;
-    //设备UUID
-    private String serial;
-    //版本号
-    private String version;
-    //自定义设备名称（厂商 + 型号）
-    private String deviceName;
-    //平台
-    private String platform;
 
-    /**
-     * 自定义扩展字段
-     */
-    //appium端口
-    private int appiumServerPort;
-    //系统端口
-    private int systemPort;
-    //部署异常
-    private Exception expection;
+    private String manufacturer;//厂商
+
+    private String model;//设备型号
+
+    private String serial;//设备UUID
+
+    private String version;//版本号
+
+    private String deviceName;//设备名称（厂商 + 型号）
+
+    private String platform;//平台
+
+    private int appiumServerPort; //自定义appium端口
+
+    private int systemPort;//自定义系统端口
+
+    private int wdaLocalPort;//自定义wda通信端口
+
+    private int index;//设备执行顺序
+
+    private Exception expection;//部署异常
+
 
     public String getManufacturer() {
         return manufacturer;
@@ -66,7 +67,7 @@ public class StfDevicesFields implements Serializable {
 
     public String getDeviceName() {
         if (!("").equals(this.manufacturer) && null != this.manufacturer) {
-            deviceName = this.manufacturer + " "+ this.model;
+            deviceName = this.manufacturer + " " + this.model;
         } else {
             deviceName = this.model;
             deviceName = deviceName.substring(1, deviceName.length());
@@ -98,6 +99,14 @@ public class StfDevicesFields implements Serializable {
         this.systemPort = systemPort;
     }
 
+    public int getWdaLocalPort() {
+        return wdaLocalPort;
+    }
+
+    public void setWdaLocalPort(int wdaLocalPort) {
+        this.wdaLocalPort = wdaLocalPort;
+    }
+
     public Exception getExpection() {
         return expection;
     }
@@ -106,5 +115,11 @@ public class StfDevicesFields implements Serializable {
         this.expection = expection;
     }
 
+    public int getIndex() {
+        return index;
+    }
 
+    public void setIndex(int index) {
+        this.index = index;
+    }
 }

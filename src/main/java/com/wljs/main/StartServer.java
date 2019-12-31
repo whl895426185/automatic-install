@@ -1,10 +1,10 @@
 package com.wljs.main;
 
-import com.wljs.message.ChatbotSendMessageNotify;
+import com.wljs.dingding.DingdingMessage;
+import com.wljs.install.InstallAppPackage;
 import com.wljs.pojo.ResponseData;
-import com.wljs.server.StfDevicesServer;
 import com.wljs.util.TxtUtil;
-import com.wljs.config.SvnConfig;
+import com.wljs.util.config.SvnConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tmatesoft.svn.core.*;
@@ -33,7 +33,7 @@ import java.util.*;
 public class StartServer {
     private static Logger logger = LoggerFactory.getLogger(StartServer.class);
 
-    public static void main(String[] args) throws SVNException{
+    public static void main(String[] args) throws SVNException {
         //初始化svn访问方式
         SVNRepositoryFactoryImpl.setup();
 
@@ -85,9 +85,8 @@ public class StartServer {
 
                         String iosFile = getUploadFile(repository, SvnConfig.svnIpaVersionTxtPath, "ipa", SvnConfig.ipaVersionLogFileName);
 
-
-                        StfDevicesServer stfDevice = new StfDevicesServer();
-                        stfDevice.getStfDevicesList(androidFile, iosFile);
+                        InstallAppPackage install = new InstallAppPackage();
+                        install.executeInstall(androidFile, iosFile);
 
                     }
 
@@ -101,7 +100,7 @@ public class StartServer {
                     List<ResponseData> responseDataList = new ArrayList<ResponseData>();
                     responseDataList.add(responseData);
 
-                    ChatbotSendMessageNotify messageNotify = new ChatbotSendMessageNotify();
+                    DingdingMessage messageNotify = new DingdingMessage();
                     messageNotify.sendMessage(responseDataList, false, false);
 
                 }
