@@ -3,6 +3,7 @@ package com.wljs.main;
 import com.wljs.dingding.DingdingMessage;
 import com.wljs.install.InstallAppPackage;
 import com.wljs.pojo.ResponseData;
+import com.wljs.util.ExceptionUtil;
 import com.wljs.util.TxtUtil;
 import com.wljs.util.config.SvnConfig;
 import org.slf4j.Logger;
@@ -93,9 +94,12 @@ public class StartServer {
 
                 } catch (Exception e) {
                     e.printStackTrace();
+
+                    ExceptionUtil exceptionUtil = new ExceptionUtil();
+                    String exceptionMsg = exceptionUtil.exceptionMsg(e);
                     logger.error("更新SVN版本仓库文件： 失败：" + e);
 
-                    ResponseData responseData = new ResponseData(false, e, "更新SVN版本仓库文件： 失败");
+                    ResponseData responseData = new ResponseData(false, "更新SVN版本仓库文件失败", exceptionMsg, e);
 
                     List<ResponseData> responseDataList = new ArrayList<ResponseData>();
                     responseDataList.add(responseData);

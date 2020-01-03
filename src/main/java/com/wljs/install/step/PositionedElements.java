@@ -2,6 +2,7 @@ package com.wljs.install.step;
 
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
+import com.wljs.util.ExceptionUtil;
 import io.appium.java_client.MobileBy;
 import io.appium.java_client.android.AndroidDriver;
 import org.openqa.selenium.By;
@@ -16,6 +17,8 @@ import org.slf4j.LoggerFactory;
  */
 public class PositionedElements {
     private Logger logger = LoggerFactory.getLogger(PositionedElements.class);
+
+    private ExceptionUtil exceptionUtil = new ExceptionUtil();
 
     //执行安装
     public String getText(String text) {
@@ -39,9 +42,11 @@ public class PositionedElements {
 
         } catch (Exception e) {
             //e.printStackTrace();
+            String exceptionMsg = exceptionUtil.exceptionMsg(e);
+
             logger.info(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 没有发现元素【" + xpath + "】");
 
-            responseData = new ResponseData(false, e, "没有获取到元素：" + xpath);
+            responseData = new ResponseData(false, "获取元素异常", exceptionMsg, e);
 
         } finally {
             responseData.setFields(fields);

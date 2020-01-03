@@ -77,15 +77,16 @@ public class DingdingMessage {
 
     }
 
+    //普通钉钉消息(没有执行安装，针对svn/rethinkdb连接出错的问题)
     private String getCommonMessage(List<ResponseData> dataList) {
-        StringBuffer buffer = new StringBuffer();
 
+        StringBuffer buffer = new StringBuffer();
         ResponseData responseData = dataList.get(0);
 
         buffer.append("{");
         buffer.append("    \"msgtype\": \"text\",");
         buffer.append("        \"text\": {");
-        buffer.append("   \"content\": \"" + responseData.getExMsg() + "\"");
+        buffer.append("   \"content\": \"" + responseData.getExceptionMsg() + "\"");
         buffer.append("},");
         buffer.append("    \"at\": {");
         buffer.append("    \"atMobiles\": [");
@@ -151,8 +152,6 @@ public class DingdingMessage {
             logger.info(":::::::::::::::::【钉钉消息通知】::::::::::::::::: logName = " + logName);
             //创建log文件，用于下载
             createLog(childFilePath, logName, responseData);
-            //创建txt文件，用于展示
-            createTxt(childFilePath, logName, responseData);
 
             //创建html，用于展示
             createHtml(htmlBuffer.toString(), childFilePath, childtime, logName, responseData, apkName, ipaName);
@@ -233,50 +232,13 @@ public class DingdingMessage {
 
     }
 
-    private String getExcMsg(String childFilePath, String logName, String apkName, String ipaName) {
-        TxtUtil txtUtil = new TxtUtil();
-        String message = txtUtil.readTxtFile(childFilePath, logName + ".txt");
-        if (message.contains("Cannot start the com.sibu.futurebazaar application")) {
-            return "请检查appActivity是否已经变动，导致无法启动APP，操作命令：adb -s 设备ID shell dumpsys activity|grep -i run";
-
-        } else if (message.contains("The application at '/usr/local/package/wljs01/apk/" + apkName + "' does not exist or is not accessible")) {
-            return "该路径下/usr/local/package/wljs01/apk/" + apkName + "的文件不存在或无法访问，请检查";
-        } else {
-            return null;
-        }
-
-    }
 
     private void createLog(String childFilePath, String logName, ResponseData responseData) throws IOException {
-        createFile(childFilePath, logName + ".log", responseData);
-    }
-
-    private void createFile(String childFilePath, String logName, ResponseData responseData) throws IOException {
         String path = childFilePath + "/" + logName;
         logger.info(":::::::::::::::::【钉钉消息通知】::::::::::::::::: 创建文件:" + path);
 
         TxtUtil txtUtil = new TxtUtil();
-        if (null == responseData.getException()) {
-            txtUtil.creatTxtFile(childFilePath, logName);
-            if (null != responseData.getAdbExceptionMsg()) {
-                txtUtil.writeTxtFile(childFilePath, responseData.getAdbExceptionMsg(), logName);
-            } else {
-                txtUtil.writeTxtFile(childFilePath, responseData.getExMsg(), logName);
-            }
-
-        } else {
-
-            File file = new File(path);
-            //创建文件的输出流
-            PrintStream stream = new PrintStream(file);
-            responseData.getException().printStackTrace(stream);
-            stream.flush();
-            stream.close();
-        }
-    }
-
-    private void createTxt(String childFilePath, String logName, ResponseData responseData) throws IOException {
-        createFile(childFilePath, logName + ".txt", responseData);
+        txtUtil.writeTxtFile(childFilePath, responseData.getExceptionMsg(), logName);
     }
 
     private void createHtml(String htmlContent, String childFilePath, String childtime, String logName, ResponseData responseData, String apkName, String ipaName) {
@@ -296,16 +258,9 @@ public class DingdingMessage {
 
             htmlContent = htmlContent.replace("operateTime", fm.format(new Date()));
 
-            //读取日志内容检查下具体的日志信息
-            String newExMsg = getExcMsg(childFilePath, logName, apkName, ipaName);
 
-
-            if (null != newExMsg) {
-                responseData.setExMsg(newExMsg);
-            }
-
-            htmlContent = htmlContent.replace("exceptionMsg", null == responseData.getExMsg() ? "" : responseData.getExMsg());
-            htmlContent = htmlContent.replace("logPathValue", path + ".txt");
+            htmlContent = htmlContent.replace("exceptionMsg", null == responseData.getExceptionMsg() ? "" : responseData.getExceptionMsg());
+            htmlContent = htmlContent.replace("logPathValue", path + ".log");
             if (null != responseData.getImagePath()) {//显示截图
                 String imgPath = url + "images/" + responseData.getImagePath();
                 htmlContent = htmlContent.replace("screenImgPath", imgPath);
@@ -327,57 +282,5 @@ public class DingdingMessage {
         }
     }
 
-    public static void main(String args[]) {
-        List<ResponseData> responseDataList = new ArrayList<ResponseData>();
 
-        DingdingMessage messageNotify = new DingdingMessage();
-        Exception exception = null;
-        try {
-            String a = null;
-            a.toString();
-        } catch (Exception e) {
-            exception = e;
-
-        }
-        for (int i = 0; i < 3; i++) {
-            ResponseData responseData = new ResponseData();
-
-            StfDevicesFields fields = new StfDevicesFields();
-            fields.setManufacturer("设备A");
-            fields.setModel(String.valueOf(i));
-
-            responseData.setFields(fields);
-            responseData.setException(exception);
-
-            responseData.setStatus(false);
-
-            responseData.setExMsg("测试异常aaaaaa");
-            responseDataList.add(responseData);
-        }
-
-        Exception exception2 = null;
-        try {
-            String[] a = {"1"};
-            a[1].toString();
-        } catch (Exception e) {
-            exception = e;
-
-        }
-
-        ResponseData responseData = new ResponseData();
-
-        StfDevicesFields fields = new StfDevicesFields();
-        fields.setManufacturer("设备B");
-        fields.setModel(String.valueOf(1));
-
-        responseData.setFields(fields);
-        responseData.setException(exception);
-
-        responseData.setStatus(false);
-
-        responseData.setExMsg("测试异常bbbbbbbb");
-        responseDataList.add(responseData);
-
-        messageNotify.sendMessage(responseDataList, false, false);
-    }
 }

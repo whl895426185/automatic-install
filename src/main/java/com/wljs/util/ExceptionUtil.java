@@ -1,8 +1,30 @@
-package com.wljs.install;
+package com.wljs.util;
 
-public class AdbException {
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
-    public String adbException(String process) {
+public class ExceptionUtil {
+
+    /**
+     * 返回完整的异常信息
+     *
+     * @param e
+     * @return
+     */
+    public String exceptionMsg(Exception e) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        e.printStackTrace(new PrintStream(baos));
+        String exception = baos.toString();
+        return exception;
+    }
+
+    /**
+     * 返回adb命令执行的异常信息
+     *
+     * @param process
+     * @return
+     */
+    public String adbExceptionMsg(String process) {
         if (process == null) {
             return null;
         }
@@ -87,5 +109,6 @@ public class AdbException {
             return null;
         }
     }
+
 
 }

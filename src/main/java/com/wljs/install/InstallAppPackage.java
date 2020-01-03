@@ -26,7 +26,7 @@ public class InstallAppPackage {
      *
      * @return
      */
-    private List<StfDevicesFields> getDeviceInformation() {
+    private List<StfDevicesFields> getDeviceInformation(String androidFile, String iosFile) {
         RethinkDB r = RethinkDB.r;
 
         //开启rethinkdb连接
@@ -34,6 +34,7 @@ public class InstallAppPackage {
 
         //获取已连接且闲余的设备信息（present为true表示已连接，owner为空表示设备闲余）
         List<StfDevicesFields> dbList = null;
+
         Cursor<StfDevicesFields> cursor = r.db("stf")
                 .table("devices")
                 .filter(r.hashMap("present", true).with("owner", null).with("supportAutomation", 1))
@@ -52,7 +53,7 @@ public class InstallAppPackage {
         }
 
         //获取安卓/IOS设备具体信息，初始化好端口信息
-        List<StfDevicesFields> deviceList = getFilesList(dbList);
+        List<StfDevicesFields> deviceList = getFilesList(dbList, androidFile, iosFile);
 
         return deviceList;
 
@@ -64,7 +65,7 @@ public class InstallAppPackage {
      * @param dbList
      * @return
      */
-    public List<StfDevicesFields> getFilesList(List<StfDevicesFields> dbList) {
+    public List<StfDevicesFields> getFilesList(List<StfDevicesFields> dbList, String androidFile, String iosFile) {
 
         List<StfDevicesFields> fieldsList = new ArrayList<StfDevicesFields>();
 
@@ -77,6 +78,13 @@ public class InstallAppPackage {
             JSONObject object = JSONObject.fromObject(dbList.get(i));
             StfDevicesFields fields = (StfDevicesFields) JSONObject.toBean(object, StfDevicesFields.class);
             fields.setAppiumServerPort(appiumServerPort);
+
+            if (null == androidFile && fields.getPlatform().equals("Android")) {
+                continue;
+            }
+            if (null == iosFile && fields.getPlatform().equals("iOS")) {
+                continue;
+            }
 
             if (fields.getPlatform().equals("Android")) {
                 fields.setSystemPort(systemPort);
@@ -108,7 +116,7 @@ public class InstallAppPackage {
             return;
         }
         //连接rethinkdb数据库看看是否有连接且闲余的设备
-        List<StfDevicesFields> deviceList = getDeviceInformation();
+        List<StfDevicesFields> deviceList = getDeviceInformation(androidFile, iosFile);
 
         if (null == deviceList || deviceList.size() < 1) {
             return;

@@ -3,6 +3,7 @@ package com.wljs.install.step;
 import com.wljs.pojo.Coordinates;
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
+import com.wljs.util.ExceptionUtil;
 import com.wljs.util.ScreenshotUtil;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidTouchAction;
@@ -14,6 +15,7 @@ public class CoodinatesTap {
     private Logger logger = LoggerFactory.getLogger(CoodinatesTap.class);
 
     private ScreenshotUtil screenshotUtil = new ScreenshotUtil();
+    private ExceptionUtil exceptionUtil = new ExceptionUtil();
 
     /**
      * oppo手机
@@ -106,11 +108,13 @@ public class CoodinatesTap {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 获取坐标信息异常：" + e);
+
+            String exceptionMsg = exceptionUtil.exceptionMsg(e);
+            logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 获取坐标信息异常：" + exceptionMsg);
 
             String screenImg = screenshotUtil.screenshot(driver, null, fields.getSerial());
 
-            responseData = new ResponseData(false, e, "无法通过关键字获取坐标信息： " + keyword, screenImg);
+            responseData = new ResponseData(false, "无法通过关键字获取坐标信息", exceptionMsg, screenImg, e);
 
         } finally {
             return responseData;

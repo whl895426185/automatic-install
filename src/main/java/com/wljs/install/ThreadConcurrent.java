@@ -6,12 +6,14 @@ import com.wljs.install.step.InstallType;
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
 import com.wljs.util.CommandUtil;
+import com.wljs.util.ExceptionUtil;
 import com.wljs.util.ScreenshotUtil;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.android.AndroidElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
 
@@ -23,7 +25,7 @@ public class ThreadConcurrent implements Callable {
 
     private ScreenshotUtil screenshotUtil = new ScreenshotUtil();
     private CommandUtil commandUtil = new CommandUtil();
-    private AdbException adb = new AdbException();
+    private ExceptionUtil exceptionUtil = new ExceptionUtil();
 
     private String appPackage = "com.sibu.futurebazaar";
 
@@ -65,7 +67,8 @@ public class ThreadConcurrent implements Callable {
         } catch (Exception e) {
             e.printStackTrace();
 
-            responseData = new ResponseData(false, e, "打印异常信息:" + e.getMessage());
+            String exceptionMsg = exceptionUtil.exceptionMsg(e);
+            responseData = new ResponseData(false, "执行自动部署安装失败", exceptionMsg, e);
 
         } finally {
 
@@ -88,68 +91,76 @@ public class ThreadConcurrent implements Callable {
             StartAppium server = new StartAppium();
             server.startAppiumServer(fields);
 
-            //初始化参数信息
-            InitAndroidDriver init = new InitAndroidDriver();
-
             //初始化driver
-            AndroidDriver<AndroidElement> driver = init.initDriver(fields, path);
+            InitAndroidDriver init = new InitAndroidDriver();
+            Map<String, Object> resultMap = init.initDriver(fields, path);
 
-            //先执行卸载包
-            if (driver.isAppInstalled(appPackage)) {
-                boolean deleteFlag = driver.removeApp(appPackage);
-                if (deleteFlag) {
-                    process = "Success";
-                    logger.info("::::::::::::::::: <<<" + fields.getDeviceName() + ">>> 执行命令卸载包结果：成功");
-                }
-            } else {
-                process = "Success";
-            }
-            if (process.contains("Success")) {
-                //执行安装包
-                String installCmd = "adb -s " + fields.getSerial() + " install " + path;
-                Process installProcess = Runtime.getRuntime().exec(installCmd);
+            AndroidDriver<AndroidElement> driver = (AndroidDriver<AndroidElement>) resultMap.get("AndroidDriver");
+            responseData = (ResponseData) resultMap.get("responseData");
 
-                Thread.sleep(5000);
 
-                //不同的机型调用不同的安装步骤
-                InstallType installStepHandle = new InstallType();
-                responseData = installStepHandle.installStep(fields, driver);
-
-                if (!responseData.isStatus()) {
-                    responseData.setImagePath(screenshotUtil.screenshot(driver, null, fields.getSerial()));
+            if (null != driver) {
+                //先执行卸载包
+                if (driver.isAppInstalled(appPackage)) {
+                    boolean deleteFlag = driver.removeApp(appPackage);
+                    if (deleteFlag) {
+                        process = "Success";
+                        logger.info("::::::::::::::::: <<<" + fields.getDeviceName() + ">>> 执行命令卸载包结果：成功");
+                    }
                 } else {
-                    //检查是否安装成功
-                    int i = 0;
-                    do {
-                        Thread.sleep(20000);
-                        if (driver.isAppInstalled(appPackage)) {
-                            isSuccess = true;
-                            logger.info("::::::::::::::::: <<<" + fields.getDeviceName() + ">>> 执行命令安装包结果：成功");
-                        }
-                        i++;
-                    } while (!isSuccess && i < 5);
+                    process = "Success";
                 }
-
-                process = commandUtil.getProcessStr(installProcess, fields);
-
                 if (process.contains("Success")) {
-                    isSuccess = true;
+                    //执行安装包
+                    String installCmd = "adb -s " + fields.getSerial() + " install " + path;
+                    Process installProcess = Runtime.getRuntime().exec(installCmd);
+
+                    Thread.sleep(5000);
+
+                    //不同的机型调用不同的安装步骤
+                    InstallType installStepHandle = new InstallType();
+                    responseData = installStepHandle.installStep(fields, driver);
+
+                    if (!responseData.isStatus()) {
+                        responseData.setImagePath(screenshotUtil.screenshot(driver, null, fields.getSerial()));
+                    } else {
+                        //检查是否安装成功
+                        int i = 0;
+                        do {
+                            Thread.sleep(20000);
+                            if (driver.isAppInstalled(appPackage)) {
+                                isSuccess = true;
+                                logger.info("::::::::::::::::: <<<" + fields.getDeviceName() + ">>> 执行命令安装包结果：成功");
+                            }
+                            i++;
+                        } while (!isSuccess && i < 5);
+                    }
+
+                    process = commandUtil.getProcessStr(installProcess, fields);
+
+                    if (process.contains("Success")) {
+                        isSuccess = true;
+                    }
+                    driver.quit();
                 }
-                driver.quit();
             }
+
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行自动部署安装失败：" + e);
 
-            responseData = new ResponseData(false, e, "执行自动部署安装失败：" + e);
+            String exceptionMsg = exceptionUtil.exceptionMsg(e);
+            logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行自动部署安装失败：" + exceptionMsg);
+
+            responseData = new ResponseData(false, "执行自动部署安装失败", exceptionMsg, e);
+
         } finally {
 
             if (!isSuccess) {
-                String adbExeMsg = adb.adbException(process);
+                String adbExeMsg = exceptionUtil.adbExceptionMsg(process);
 
                 if (null != adbExeMsg) {
                     //ADB安裝包失敗，沒有直接抛出異常，所以手動維護異常
-                    responseData = new ResponseData(false, null, "ADB命令执行安装APK包时,报错异常：" + adbExeMsg, null, process);
+                    responseData = new ResponseData(false, "ADB命令执行安装APK包时,报错异常：" + adbExeMsg, process, null);
 
                 }
             }
@@ -200,12 +211,14 @@ public class ThreadConcurrent implements Callable {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行自动部署安装失败：" + e);
 
-            responseData = new ResponseData(false, e, "执行自动部署安装失败：" + e);
+            String exceptionMsg = exceptionUtil.exceptionMsg(e);
+            logger.error(":::::::::::::::::<<<" + fields.getDeviceName() + ">>>::::::::::::::::: 执行自动部署安装失败：" + exceptionMsg);
+
+            responseData = new ResponseData(false, "执行自动部署安装失败", exceptionMsg, e);
         } finally {
             if (!isSuccess) {
-                responseData = new ResponseData(false, null, "执行自动部署安装失败", null, iosProcess);
+                responseData = new ResponseData(false, "执行自动部署安装失败", iosProcess, null);
 
             }
             responseData.setFields(fields);

@@ -2,6 +2,7 @@ package com.wljs.install;
 
 import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
+import com.wljs.util.ExceptionUtil;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -26,6 +27,8 @@ public class LoginStfPlatform {
 
     // 定义 chrome driver驱动路径
     public static final String chromeDriverPath = "/usr/local/bin/chromedriver";
+
+    public ExceptionUtil exceptionUtil = new ExceptionUtil();
 
     private ResponseData responseData = new ResponseData();
 
@@ -64,7 +67,9 @@ public class LoginStfPlatform {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(":::::::::::::::::登录STF平台失败：" + e);
+
+            String exception = exceptionUtil.exceptionMsg(e);
+            logger.error(":::::::::::::::::登录STF平台失败：" + exception);
 
         } finally {
             return driver;
@@ -104,9 +109,11 @@ public class LoginStfPlatform {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(":::::::::::::::::登录STF平台失败，无法定位元素：" + e);
 
-            responseData = new ResponseData(false, e, "登录STF平台失败，无法定位元素：" + xpath);
+            String exceptionMsg = exceptionUtil.exceptionMsg(e);
+            logger.error(":::::::::::::::::登录STF平台失败，无法定位元素：" + exceptionMsg);
+
+            responseData = new ResponseData(false, "登录STF平台失败", exceptionMsg, e);
         } finally {
             return responseData;
         }
@@ -121,7 +128,7 @@ public class LoginStfPlatform {
      * @return
      * @throws InterruptedException
      */
-    public List<StfDevicesFields> occupancyResources(List<StfDevicesFields> fieldsList,String androidFile, String iosFile) {
+    public List<StfDevicesFields> occupancyResources(List<StfDevicesFields> fieldsList, String androidFile, String iosFile) {
         List<StfDevicesFields> resultFieldsList = new ArrayList<StfDevicesFields>();
         try {
             if (null == fieldsList || fieldsList.size() < 1) {
@@ -132,10 +139,10 @@ public class LoginStfPlatform {
 
             //模拟点击安卓/ios设备
             for (StfDevicesFields fields : fieldsList) {
-                if(null == androidFile && fields.getPlatform().equals("Android")){
+                if (null == androidFile && fields.getPlatform().equals("Android")) {
                     continue;
                 }
-                if(null == iosFile && fields.getPlatform().equals("iOS")){
+                if (null == iosFile && fields.getPlatform().equals("iOS")) {
                     continue;
                 }
 
@@ -143,7 +150,7 @@ public class LoginStfPlatform {
 
                 if (!responseData.isStatus()) {
                     continue;
-                }else{
+                } else {
                     responseData.getWebElement().click();
                 }
                 Thread.sleep(2000);
@@ -180,9 +187,11 @@ public class LoginStfPlatform {
 
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(":::::::::::::::::没有等到元素出现，打印异常: " + e);
 
-            responseData = new ResponseData(false, e, xpath);
+            String exceptionMsg = exceptionUtil.exceptionMsg(e);
+            logger.error(":::::::::::::::::没有等到元素出现，打印异常: " + exceptionMsg);
+
+            responseData = new ResponseData(false, "STF平台获取元素异常", exceptionMsg, e);
 
         } finally {
             return responseData;

@@ -1,6 +1,8 @@
 package com.wljs.driver;
 
+import com.wljs.pojo.ResponseData;
 import com.wljs.pojo.StfDevicesFields;
+import com.wljs.util.ExceptionUtil;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.remote.AndroidMobileCapabilityType;
 import io.appium.java_client.remote.MobileCapabilityType;
@@ -8,12 +10,13 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class InitAndroidDriver {
 
-    public AndroidDriver initDriver(StfDevicesFields fields, String apkPath) throws MalformedURLException {
-
+    public Map<String, Object> initDriver(StfDevicesFields fields, String apkPath) throws MalformedURLException {
         DesiredCapabilities capabilities = new DesiredCapabilities();
         capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, fields.getDeviceName()); // 设备名称
         capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "Android");// 平台名称
@@ -32,11 +35,53 @@ public class InitAndroidDriver {
         String path = "http://127.0.0.1:" + fields.getAppiumServerPort() + "/wd/hub";
         URL url = new URL(path);
 
-        AndroidDriver driver = new AndroidDriver(url, capabilities);
+        return init(url, capabilities, apkPath);
+    }
 
-        //等待应用启动OK
-        driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
 
-        return driver;
+    private Map<String, Object> init(URL url, DesiredCapabilities capabilities, String apkPath) {
+        Map<String, Object> resultMap = new HashMap<String, Object>();
+        ResponseData responseData = new ResponseData();
+
+        AndroidDriver driver = null;
+
+        //该应用包是无效或者不存在的, 有可能应用包没有上传完，重新再装一下
+        String caseMsg = "The application at '" + apkPath + "' does not exist or is not accessible";
+
+        String exceptionMsg = null;//异常信息
+
+        int count = 0;
+        boolean retryFlag = true;//是否重装
+        do {
+
+            try {
+                Thread.sleep(10000);
+
+                driver = new AndroidDriver(url, capabilities);
+
+                //等待应用启动OK
+                driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+
+                exceptionMsg = null;
+                responseData = new ResponseData();
+
+            } catch (Exception e) {
+                ExceptionUtil exceptionUtil = new ExceptionUtil();
+                exceptionMsg = exceptionUtil.exceptionMsg(e);
+
+                responseData = new ResponseData(false, "初始化driver失败", exceptionMsg, e);
+            }
+
+            if (null == exceptionMsg || (null != exceptionMsg && !exceptionMsg.contains(caseMsg))) {
+                retryFlag = false;
+            }
+            count++;
+
+        } while (retryFlag && count <= 5);
+
+        resultMap.put("AndroidDriver", driver);
+        resultMap.put("responseData", responseData);
+
+        return resultMap;
     }
 }
