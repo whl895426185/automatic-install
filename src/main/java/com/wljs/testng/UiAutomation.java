@@ -92,11 +92,8 @@ public class UiAutomation {
 
 
                 Element classEm = classes.addElement("class");
-                if (fields.getPlatform().equals("Android")) {//安卓设备
-                    classEm.addAttribute("name", "com.wljs.testcase.RegressionAndroidTesting");
-                } else {
-                    classEm.addAttribute("name", "com.wljs.testcase.RegressionIosTesting");
-                }
+                classEm.addAttribute("name", "com.wljs.testcase.RegressionTesting");
+
 
                 //listeners
                 Element listeners = suite.addElement("listeners");
