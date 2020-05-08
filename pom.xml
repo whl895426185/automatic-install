@@ -31,7 +31,7 @@
         <stomp.websocket.version>2.3.3</stomp.websocket.version>
         <momentjs.version>2.11.1</momentjs.version>
         <rethinkdb.driver.version>2.3.3</rethinkdb.driver.version>
-        <java.WebSocket.version>1.3.0</java.WebSocket.version>
+        <java.WebSocket.version>1.5.0</java.WebSocket.version>
         <json.lib.version>2.4</json.lib.version>
         <svnkit.version>1.8.5</svnkit.version>
         <commons.compress.version>1.18</commons.compress.version>
