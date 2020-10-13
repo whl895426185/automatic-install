@@ -13,7 +13,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- 版本号管理 -->
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <guice.version>4.1.0</guice.version>
         <jcommander.version>1.64</jcommander.version>
         <jxl.version>2.6.10</jxl.version>
